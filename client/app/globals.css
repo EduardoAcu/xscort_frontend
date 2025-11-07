@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/*
+  Tailwind v4 theme tokens
+  - REEMPLAZADOS para coincidir con la identidad de XSCORT.CL
+*/
+@theme {
+  /* Fonts */
+  /* Reemplazamos Geist (default) por Plus Jakarta Sans (tu boceto) */
+  --font-sans: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Base colors (Modo Claro) */
+  --color-background: theme(colors.background-light); /* #f8f6f7 */
+  --color-foreground: hsl(240 10% 3.9%); /* Texto oscuro para fondo claro */
+
+  /* Surface colors (Modo Claro) */
+  --color-card: hsl(0 0% 100%); /* Tarjetas blancas */
+  --color-card-foreground: hsl(240 10% 3.9%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(240 10% 3.9%);
+
+  /* Brand + accents (Modo Claro) */
+  --color-primary: theme(colors.primary); /* #ec1380 */
+  --color-primary-foreground: hsl(0 0% 98%); /* Texto blanco sobre rosa */
+  --color-secondary: hsl(240 4.8% 95.9%);
+  --color-secondary-foreground: hsl(240 5.9% 10%);
+  --color-accent: hsl(240 4.8% 95.9%);
+  --color-accent-foreground: hsl(240 5.9% 10%);
+  --color-destructive: hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-muted: hsl(240 4.8% 95.9%);
+  --color-muted-foreground: hsl(240 3.8% 46.1%);
+  --color-border: hsl(240 5.9% 90%);
+  --color-input: hsl(240 5.9% 90%);
+  --color-ring: theme(colors.primary); /* Anillo de foco rosa */
+
+  /* Colores base personalizados del boceto */
+  --color-primary: #ec1380;
+  --color-background-light: #f8f6f7;
+  --color-background-dark: #221019;
+
+  /* Radius scale (Reemplazado con tu boceto) */
+  --radius-sm: 0.25rem; /* default */
+  --radius-md: 0.5rem;  /* lg en tu boceto */
+  --radius-lg: 0.75rem; /* xl en tu boceto */
+  --radius-xl: 9999px;  /* full en tu boceto */
+
+  /* Breakpoints and container sizes (Mantenemos los defaults de v4) */
+  --breakpoint-sm: 40rem;  /* 640px */
+  --breakpoint-md: 48rem;  /* 768px */
+  --breakpoint-lg: 64rem;  /* 1024px */
+  --breakpoint-xl: 80rem;  /* 1280px */
+  --breakpoint-2xl: 90rem; /* 1440px */
+  --container-2xl: 72rem;  /* 1152px */
+  --container-3xl: 80rem;  /* 1280px */
+}
+
+/* Map legacy CSS custom properties for non-utility usage */
+:root {
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+}
+
+/*
+  MODO OSCURO (Dark Mode)
+  - Reemplazado para coincidir con tu boceto
+*/
+@media (prefers-color-scheme: dark) {
+  @theme {
+    /* Base colors (Modo Oscuro) */
+    --color-background: theme(colors.background-dark); /* #221019 */
+    --color-foreground: hsl(0 0% 98%); /* Texto blanco */
+
+    /* Surface colors (Modo Oscuro) */
+    /* Usamos 'white/5' de tu boceto para las tarjetas */
+    --color-card: hsl(0 0% 100% / 0.05);
+    --color-card-foreground: hsl(0 0% 98%);
+    --color-popover: var(--color-card);
+    --color-popover-foreground: var(--color-card-foreground);
+
+    /* Brand + accents (Modo Oscuro) */
+    --color-primary: theme(colors.primary); /* #ec1380 */
+    --color-primary-foreground: hsl(0 0% 98%); /* Texto blanco sobre rosa */
+    --color-secondary: hsl(240 3.7% 15.9%);
+    --color-secondary-foreground: hsl(0 0% 98%);
+    --color-accent: hsl(240 3.7% 15.9%);
+    --color-accent-foreground: hsl(0 0% 98%);
+    --color-destructive: hsl(0 62.8% 30.6%);
+    --color-destructive-foreground: hsl(0 0% 98%);
+    --color-muted: hsl(240 3.7% 15.9%);
+    --color-muted-foreground: hsl(240 5% 64.9%);
+    
+    /* Usamos 'white/10' de tu boceto para bordes e inputs */
+    --color-border: hsl(0 0% 100% / 0.1);
+    --color-input: hsl(0 0% 100% / 0.05);
+    --color-ring: theme(colors.primary); /* Anillo de foco rosa */
+  }
+}
+
+/* Base elements */
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans); /* Esto usará Plus Jakarta Sans */
+}

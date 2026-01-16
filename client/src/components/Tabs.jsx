@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 export default function Tabs({ perfil, servicios, galeria, resenas }) {
   const [activeTab, setActiveTab] = useState("sobre-mi");
 
@@ -23,7 +25,7 @@ export default function Tabs({ perfil, servicios, galeria, resenas }) {
               className={`pb-3 px-2 font-semibold border-b-2 transition ${
                 activeTab === tab.id
                   ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
+                  : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
               }`}
             >
               {tab.label}
@@ -36,7 +38,7 @@ export default function Tabs({ perfil, servicios, galeria, resenas }) {
       <div>
         {/* Sobre mí */}
         {activeTab === "sobre-mi" && (
-          <div className="rounded-lg border bg-white p-6">
+          <div className="rounded-lg border bg-[var(--color-card)] p-6">
             <h3 className="text-2xl font-bold mb-4">Acerca de mí</h3>
             {perfil?.descripcion ? (
               <p className="text-gray-700 whitespace-pre-wrap">{perfil.descripcion}</p>
@@ -48,7 +50,7 @@ export default function Tabs({ perfil, servicios, galeria, resenas }) {
 
         {/* Servicios */}
         {activeTab === "servicios" && (
-          <div className="rounded-lg border bg-white p-6">
+          <div className="rounded-lg border bg-[var(--color-card)] p-6">
             <h3 className="text-2xl font-bold mb-4">Mis servicios</h3>
             {servicios && servicios.length > 0 ? (
               <div className="grid gap-4 md:grid-cols-2">
@@ -58,7 +60,7 @@ export default function Tabs({ perfil, servicios, galeria, resenas }) {
                     <div key={servicio.id} className="border rounded-lg p-4">
                       <h4 className="font-semibold text-lg">{nombre}</h4>
                       {servicio.descripcion && (
-                        <p className="text-gray-600 text-sm mt-2">{servicio.descripcion}</p>
+                        <p className="text-[color:var(--color-muted-foreground)] text-sm mt-2">{servicio.descripcion}</p>
                       )}
                       {servicio.precio && (
                         <p className="font-bold text-blue-600 mt-2">${servicio.precio}</p>
@@ -75,14 +77,14 @@ export default function Tabs({ perfil, servicios, galeria, resenas }) {
 
         {/* Galería */}
         {activeTab === "galeria" && (
-          <div className="rounded-lg border bg-white p-6">
+          <div className="rounded-lg border bg-[var(--color-card)] p-6">
             <h3 className="text-2xl font-bold mb-4">Galería</h3>
             {galeria && galeria.length > 0 ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {galeria.map((foto) => (
                   <div key={foto.id} className="overflow-hidden rounded-lg">
                     <img
-                      src={foto.imagen}
+                      src={foto.imagen?.startsWith("http") ? foto.imagen : `${API_BASE_URL}${foto.imagen}`}
                       alt={`Foto ${foto.id}`}
                       className="h-64 w-full object-cover hover:scale-110 transition"
                     />
@@ -97,7 +99,7 @@ export default function Tabs({ perfil, servicios, galeria, resenas }) {
 
         {/* Reseñas */}
         {activeTab === "resenas" && (
-          <div className="rounded-lg border bg-white p-6">
+          <div className="rounded-lg border bg-[var(--color-card)] p-6">
             <h3 className="text-2xl font-bold mb-4">Reseñas</h3>
             {resenas && resenas.length > 0 ? (
               <div className="space-y-4">

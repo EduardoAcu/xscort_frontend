@@ -1,14 +1,13 @@
 "use client";
 import { useState } from "react";
-import useAuthStore from "@/store/auth";
-import axios from "@/lib/axiosConfig";
+import api from "@/lib/api";
 
 export default function FormularioSubirFoto({ onSuccess }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const token = useAuthStore((s) => s.token);
+  
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
@@ -36,12 +35,11 @@ export default function FormularioSubirFoto({ onSuccess }) {
       const formData = new FormData();
       formData.append("imagen", file);
 
-      await axios.post(
+      await api.post(
         "/api/profiles/mi-galeria/subir/",
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -64,7 +62,7 @@ export default function FormularioSubirFoto({ onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-white p-6 shadow-sm space-y-4">
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4">
       <h3 className="text-xl font-bold">Subir Foto</h3>
 
       {/* File input */}
@@ -77,7 +75,7 @@ export default function FormularioSubirFoto({ onSuccess }) {
           required
           className="w-full rounded-md border px-4 py-2"
         />
-        <p className="text-xs text-gray-600">Formatos: JPG, PNG, GIF (máx 5MB)</p>
+        <p className="text-xs text-[color:var(--color-muted-foreground)]">Formatos: JPG, PNG, GIF (máx 5MB)</p>
       </div>
 
       {/* Preview */}

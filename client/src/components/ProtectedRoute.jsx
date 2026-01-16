@@ -1,23 +1,16 @@
 "use client";
-import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import useAuthStore from "@/store/auth";
+import React from "react";
+import useAuthGuard from "@/hooks/useAuthGuard";
 
-export default function ProtectedRoute({ children }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const token = useAuthStore((s) => s.token);
-  const hasHydrated = useAuthStore((s) => s.hasHydrated);
+function DefaultLoader() {
+  return <div style={{ padding: 12 }}>Cargando…</div>;
+}
 
-  useEffect(() => {
-    if (!hasHydrated) return;
-    if (!token) {
-      const next = encodeURIComponent(pathname || "/");
-      router.replace(`/login?next=${next}`);
-    }
-  }, [token, hasHydrated, pathname, router]);
+export default function ProtectedRoute({ children, redirectTo = "/login", loader = <DefaultLoader />, requireModel = false, requireClient = false }) {
+  const { isAuthenticated, isReady } = useAuthGuard({ redirectTo, withNext: true, requireModel, requireClient });
 
-  if (!hasHydrated) return null;
-  if (!token) return null;
+  if (!isReady) return loader;
+  if (!isAuthenticated) return null; // redirección en hook
+
   return children;
 }

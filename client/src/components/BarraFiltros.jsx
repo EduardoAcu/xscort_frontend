@@ -26,7 +26,7 @@ export default function BarraFiltros() {
   };
 
   return (
-    <div className="rounded-lg border bg-white p-4 shadow-sm">
+    <div className="rounded-lg border bg-[var(--color-card)] p-4 shadow-sm">
       <form onSubmit={handleFilter} className="space-y-4">
         <h3 className="text-lg font-semibold">Filtros</h3>
         
@@ -62,7 +62,7 @@ export default function BarraFiltros() {
           <button
             type="button"
             onClick={handleClear}
-            className="flex-1 rounded-md border border-gray-300 px-4 py-2 hover:bg-gray-50"
+            className="flex-1 rounded-md border border-[color:var(--color-border)] px-4 py-2 hover:bg-[color:var(--color-card)/0.03]"
           >
             Limpiar
           </button>

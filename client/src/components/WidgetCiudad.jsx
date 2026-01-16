@@ -1,35 +1,47 @@
 "use client";
-import { useState } from "react";
-import useAuthStore from "@/store/auth";
-import axios from "@/lib/axiosConfig";
+import { useState, useEffect } from "react";
+import api from "@/lib/api";
 
 export default function WidgetCiudad({ ciudadActual }) {
   const [showModal, setShowModal] = useState(false);
-  const [nuevaCiudad, setNuevaCiudad] = useState("");
+  const [nuevaCiudadId, setNuevaCiudadId] = useState("");
+  const [ciudades, setCiudades] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const token = useAuthStore((s) => s.token);
+  
+  useEffect(() => {
+    const fetchCiudades = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/profiles/ciudades/`, { next: { revalidate: 300 } });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setCiudades(data);
+      } catch {
+        setCiudades([]);
+      }
+    };
+    fetchCiudades();
+  }, []);
 
   const handleSolicitar = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
-
-    if (!nuevaCiudad.trim()) {
+    if (!nuevaCiudadId) {
+      setError("Selecciona una ciudad");
       setError("Ingresa una nueva ciudad");
       return;
     }
 
     setLoading(true);
     try {
-      await axios.post(
+      await api.post(
         "/api/profiles/solicitar-cambio-ciudad/",
-        { nueva_ciudad: nuevaCiudad },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { ciudad_nueva_id: nuevaCiudadId },
       );
       setSuccess("¡Solicitud enviada! Será revisada por un administrador.");
-      setNuevaCiudad("");
+      setNuevaCiudadId("");
       setTimeout(() => setShowModal(false), 2000);
     } catch (err) {
       const apiError =
@@ -44,12 +56,12 @@ export default function WidgetCiudad({ ciudadActual }) {
 
   return (
     <>
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
+      <div className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm">
         <h3 className="text-xl font-bold mb-4">Ubicación</h3>
         
         <div className="space-y-4">
           <div>
-            <p className="text-sm text-gray-600">Ciudad actual</p>
+            <p className="text-sm text-[color:var(--color-muted-foreground)]">Ciudad actual</p>
             <p className="text-2xl font-bold text-blue-600">{ciudadActual || "No especificada"}</p>
           </div>
 
@@ -65,24 +77,27 @@ export default function WidgetCiudad({ ciudadActual }) {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="rounded-lg bg-white p-6 max-w-md w-full shadow-lg">
+          <div className="rounded-lg bg-[var(--color-card)] p-6 max-w-md w-full shadow-lg">
             <h2 className="text-2xl font-bold mb-4">Solicitar Cambio de Ciudad</h2>
 
             <form onSubmit={handleSolicitar} className="space-y-4">
               <div className="space-y-2">
                 <label className="block text-sm font-medium">Nueva Ciudad *</label>
-                <input
-                  type="text"
-                  value={nuevaCiudad}
-                  onChange={(e) => setNuevaCiudad(e.target.value)}
-                  placeholder="Ej: Santiago, Valparaíso"
+                <select
+                  value={nuevaCiudadId}
+                  onChange={(e) => setNuevaCiudadId(e.target.value)}
                   required
                   className="w-full rounded-md border px-4 py-2"
-                />
+                >
+                  <option value="">Selecciona una ciudad</option>
+                  {ciudades.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
               </div>
 
-              <p className="text-xs text-gray-600 bg-blue-50 p-3 rounded">
-                📌 Tu solicitud será revisada por un administrador. Este proceso puede tomar algunos días.
+              <p className="text-xs text-[color:var(--color-muted-foreground)] bg-[color:var(--color-card)/0.04] p-3 rounded">
+                📌 Tu solicitud será revisada por un administrador. Este proceso puede tomar un tiempo.
               </p>
 
               {error && <p className="text-sm text-red-600">{error}</p>}
@@ -93,7 +108,7 @@ export default function WidgetCiudad({ ciudadActual }) {
                   type="button"
                   onClick={() => setShowModal(false)}
                   disabled={loading}
-                  className="flex-1 rounded-lg border px-4 py-2 hover:bg-gray-50 disabled:opacity-60"
+                  className="flex-1 rounded-lg border px-4 py-2 hover:bg-[color:var(--color-card)/0.03] disabled:opacity-60"
                 >
                   Cancelar
                 </button>

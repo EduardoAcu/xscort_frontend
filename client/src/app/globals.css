@@ -21,7 +21,7 @@
   /* Marca + acentos (oscuro) */
   --color-primary: #ec1380; /* rosa marca */
   --color-primary-foreground: hsl(0 0% 98%);
-  --color-secondary: hsl(240 3.7% 15.9%);
+  --color-secondary:  hsl(240 3.7% 15.9%);
   --color-secondary-foreground: hsl(0 0% 98%);
   --color-accent: hsl(240 3.7% 15.9%);
   --color-accent-foreground: hsl(0 0% 98%);
@@ -76,4 +76,13 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+}
+
+/* Material Symbols (iconos) */
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }

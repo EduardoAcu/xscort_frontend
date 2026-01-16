@@ -1,21 +1,31 @@
 "use client";
-import { useState } from "react";
-import useAuthStore from "@/store/auth";
-import axios from "@/lib/axiosConfig";
+import { useEffect, useState } from "react";
+import api from "@/lib/api";
 
 export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
-  const [nombre, setNombre] = useState(servicio?.nombre || "");
-  const [descripcion, setDescripcion] = useState(servicio?.descripcion || "");
-  const [precio, setPrecio] = useState(servicio?.precio || "");
+  const [catalogoId, setCatalogoId] = useState(servicio?.catalogo?.id || servicio?.catalogo_id || "");
+  const [customText, setCustomText] = useState(servicio?.custom_text || "");
+  const [catalogo, setCatalogo] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const token = useAuthStore((s) => s.token);
+
+  useEffect(() => {
+    const fetchCatalogo = async () => {
+      try {
+        const res = await api.get("/api/profiles/servicios-catalogo/");
+        setCatalogo(res.data || []);
+      } catch (err) {
+        setCatalogo([]);
+      }
+    };
+    fetchCatalogo();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (!nombre.trim()) {
+    if (!catalogoId && !customText.trim()) {
+      setError("Selecciona un servicio del catálogo o escribe uno personalizado");
       setError("El nombre es requerido");
       return;
     }
@@ -23,24 +33,21 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
     setLoading(true);
     try {
       const data = {
-        nombre,
-        descripcion,
-        precio: precio ? parseFloat(precio) : null,
+        catalogo_id: catalogoId || undefined,
+        custom_text: customText || undefined,
       };
 
       if (servicio?.id) {
         // Edit
-        await axios.patch(
+        await api.patch(
           `/api/profiles/mis-servicios/${servicio.id}/actualizar/`,
           data,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
         // Create
-        await axios.post(
+        await api.post(
           "/api/profiles/mis-servicios/crear/",
           data,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
       }
 
@@ -59,46 +66,43 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-white p-6 shadow-sm space-y-4">
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4">
       <h3 className="text-xl font-bold">
         {servicio ? "Editar Servicio" : "Nuevo Servicio"}
       </h3>
+      <p className="text-xs text-[color:var(--color-muted-foreground)]">
+        Selecciona un servicio del catálogo. Si es exclusivo, escribe el detalle en personalizado.
+      </p>
 
       <div className="space-y-2">
-        <label className="block font-semibold">Nombre *</label>
+        <label className="block font-semibold">Catálogo</label>
+        <select
+          value={catalogoId}
+          onChange={(e) => setCatalogoId(e.target.value)}
+          className="w-full rounded-md border px-4 py-2"
+        >
+          <option value="">-- Selecciona --</option>
+          {catalogo.map((c) => (
+            <option key={c.id} value={c.id}>{c.nombre}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="block font-semibold">Texto personalizado (opcional)</label>
         <input
           type="text"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          required
+          value={customText}
+          onChange={(e) => setCustomText(e.target.value)}
           className="w-full rounded-md border px-4 py-2"
-          placeholder="Ej: Cita personal"
+          placeholder="Ej: Solo VIP, incluye ... (máx 120 caracteres)"
+          maxLength={120}
         />
+        <p className="text-xs text-gray-500">Solo si el servicio lo permite; se validará en el backend.</p>
       </div>
 
-      <div className="space-y-2">
-        <label className="block font-semibold">Descripción</label>
-        <textarea
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
-          className="w-full rounded-md border px-4 py-2 resize-none"
-          rows="3"
-          placeholder="Descripción del servicio"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block font-semibold">Precio ($)</label>
-        <input
-          type="number"
-          value={precio}
-          onChange={(e) => setPrecio(e.target.value)}
-          step="0.01"
-          min="0"
-          className="w-full rounded-md border px-4 py-2"
-          placeholder="Ej: 50000"
-        />
-      </div>
+      {/* Descripción y precio fueron eliminados del backend.
+          Si se vuelven a necesitar, deben reintroducirse en la API primero. */}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -108,7 +112,7 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
             type="button"
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 rounded-lg border px-4 py-2 hover:bg-gray-50 disabled:opacity-60"
+            className="flex-1 rounded-lg border px-4 py-2 hover:bg-[color:var(--color-card)/0.03] disabled:opacity-60"
           >
             Cancelar
           </button>

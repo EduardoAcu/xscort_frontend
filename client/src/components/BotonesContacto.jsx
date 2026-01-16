@@ -31,7 +31,7 @@ export default function BotonesContacto({ perfil }) {
           href={telegramUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-3 text-white font-semibold hover:bg-blue-600 transition"
+          className="flex items-center gap-2 rounded-lg bg-[color:var(--color-primary)] px-6 py-3 text-white font-semibold hover:bg-[color:var(--color-primary)/0.9] transition"
         >
           <span>✈️</span> Telegram
         </a>

@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import useAuthStore from "@/store/auth";
-import axios from "@/lib/axiosConfig";
+import api from "@/lib/api";
 
 export default function FormularioVerificacion({ onSuccess }) {
   const [fotoDocumento, setFotoDocumento] = useState(null);
@@ -11,7 +10,8 @@ export default function FormularioVerificacion({ onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const token = useAuthStore((s) => s.token);
+  // El flujo actual asume que el usuario ya solicitó ser modelo
+  // (POST /api/request-model-verification/) antes de subir documentos.
 
   const handleFileChange = (e, type) => {
     const file = e.target.files?.[0];
@@ -30,6 +30,15 @@ export default function FormularioVerificacion({ onSuccess }) {
     }
   };
 
+  const subirDocumentos = async () => {
+    const formData = new FormData();
+    if (fotoDocumento) formData.append("foto_documento", fotoDocumento);
+    if (selfieConDocumento) formData.append("selfie_con_documento", selfieConDocumento);
+    await api.post("/api/verification/upload-documents/", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -42,24 +51,7 @@ export default function FormularioVerificacion({ onSuccess }) {
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      if (fotoDocumento) {
-        formData.append("foto_documento", fotoDocumento);
-      }
-      if (selfieConDocumento) {
-        formData.append("selfie_con_documento", selfieConDocumento);
-      }
-
-      await axios.post(
-        "/api/verification/upload-documents/",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await subirDocumentos();
 
       setSuccess("¡Documentos enviados correctamente! Serán revisados por nuestro equipo.");
       setFotoDocumento(null);
@@ -84,10 +76,10 @@ export default function FormularioVerificacion({ onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-white p-6 shadow-sm space-y-6">
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-6">
       <div>
         <h3 className="text-2xl font-bold mb-2">Documentos de Verificación</h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[color:var(--color-muted-foreground)]">
           Carga tus documentos para verificar tu identidad. Necesitamos al menos uno.
         </p>
       </div>
@@ -95,7 +87,7 @@ export default function FormularioVerificacion({ onSuccess }) {
       {/* Foto del Documento */}
       <div className="space-y-3">
         <label className="block font-semibold">📄 Foto del Documento</label>
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-[color:var(--color-muted-foreground)]">
           Foto clara de tu identificación (ambos lados si es necesario)
         </p>
         <input
@@ -114,7 +106,7 @@ export default function FormularioVerificacion({ onSuccess }) {
       {/* Selfie con Documento */}
       <div className="space-y-3">
         <label className="block font-semibold">🤳 Selfie con Documento</label>
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-[color:var(--color-muted-foreground)]">
           Tu foto sosteniendo el documento (para verificar que eres tú)
         </p>
         <input

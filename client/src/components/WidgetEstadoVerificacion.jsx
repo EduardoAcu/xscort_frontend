@@ -1,24 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
-import useAuthStore from "@/store/auth";
-import axios from "@/lib/axiosConfig";
+import api from "@/lib/api";
 
 export default function WidgetEstadoVerificacion() {
   const [estado, setEstado] = useState(null);
   const [loading, setLoading] = useState(true);
-  const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
-    if (token) {
-      fetchStatus();
-    }
-  }, [token]);
+    fetchStatus();
+  }, []);
 
   const fetchStatus = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/users/verification-status/", {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await api.get("/api/verification/status/", {
       });
       setEstado(res.data);
     } catch (err) {
@@ -30,7 +25,7 @@ export default function WidgetEstadoVerificacion() {
 
   if (loading) {
     return (
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
+      <div className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm">
         <div className="text-center text-gray-500">Cargando estado...</div>
       </div>
     );
@@ -58,7 +53,7 @@ export default function WidgetEstadoVerificacion() {
       case "rechazada":
         return "bg-red-100 border-red-300 text-red-800";
       default:
-        return "bg-gray-100 border-gray-300 text-gray-800";
+        return "bg-[color:var(--color-card)/0.06] border-[color:var(--color-border)] text-[color:var(--color-foreground)]";
     }
   };
 

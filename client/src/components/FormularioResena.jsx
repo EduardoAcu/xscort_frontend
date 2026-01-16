@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
+import api from "@/lib/api";
 import useAuthStore from "@/store/auth";
-import axios from "@/lib/axiosConfig";
 
 export default function FormularioResena({ perfilId, onReviewSubmitted }) {
   const [puntuacion, setPuntuacion] = useState(5);
@@ -9,15 +9,16 @@ export default function FormularioResena({ perfilId, onReviewSubmitted }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const token = useAuthStore((s) => s.token);
+  
   const hasHydrated = useAuthStore((s) => s.hasHydrated);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    if (!token) {
+    if (!isAuthenticated) {
       setError("Debes iniciar sesión para dejar una reseña");
       return;
     }
@@ -29,16 +30,16 @@ export default function FormularioResena({ perfilId, onReviewSubmitted }) {
 
     setLoading(true);
     try {
-      await axios.post(
+      await api.post(
         "/api/reviews/crear/",
         {
-          perfil_id: perfilId,
-          puntuacion,
+          // El backend espera perfil_modelo y rating
+          perfil_modelo: perfilId,
+          rating: puntuacion,
           comentario,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
@@ -64,7 +65,7 @@ export default function FormularioResena({ perfilId, onReviewSubmitted }) {
     return null;
   }
 
-  if (!token) {
+  if (!isAuthenticated) {
     return (
       <div className="rounded-lg border bg-yellow-50 p-6">
         <p className="text-yellow-800">
@@ -78,7 +79,7 @@ export default function FormularioResena({ perfilId, onReviewSubmitted }) {
   }
 
   return (
-    <div className="rounded-lg border bg-white p-6">
+    <div className="rounded-lg border bg-[var(--color-card)] p-6">
       <h3 className="text-2xl font-bold mb-4">Dejar una reseña</h3>
       
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -99,7 +100,7 @@ export default function FormularioResena({ perfilId, onReviewSubmitted }) {
               </button>
             ))}
           </div>
-          <p className="text-sm text-gray-600">{puntuacion} estrella(s)</p>
+          <p className="text-sm text-[color:var(--color-muted-foreground)]">{puntuacion} estrella(s)</p>
         </div>
 
         {/* Comentario */}

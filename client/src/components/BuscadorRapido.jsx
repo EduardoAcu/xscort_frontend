@@ -38,7 +38,7 @@ export default function BuscadorRapido() {
         />
         <button
           type="submit"
-          className="rounded-md bg-white px-6 py-2 font-semibold text-blue-700 hover:bg-gray-100"
+          className="rounded-md bg-[var(--color-card)] px-6 py-2 font-semibold text-[color:var(--color-foreground)] hover:bg-[color:var(--color-card)/0.06]"
         >
           Buscar
         </button>

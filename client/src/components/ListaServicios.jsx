@@ -1,9 +1,8 @@
 "use client";
-import useAuthStore from "@/store/auth";
-import axios from "@/lib/axiosConfig";
+import api from "@/lib/api";
 
 export default function ListaServicios({ servicios, onEdit, onDelete, loading }) {
-  const token = useAuthStore((s) => s.token);
+  
 
   const handleDeleteClick = async (id) => {
     if (!confirm("¿Estás seguro de que deseas eliminar este servicio?")) {
@@ -11,8 +10,7 @@ export default function ListaServicios({ servicios, onEdit, onDelete, loading })
     }
 
     try {
-      await axios.delete(`/api/profiles/mis-servicios/${id}/eliminar/`, {
-        headers: { Authorization: `Bearer ${token}` },
+      await api.delete(`/api/profiles/mis-servicios/${id}/eliminar/`, {
       });
       if (onDelete) {
         onDelete();
@@ -25,46 +23,41 @@ export default function ListaServicios({ servicios, onEdit, onDelete, loading })
 
   if (!servicios || servicios.length === 0) {
     return (
-      <div className="rounded-lg border bg-gray-50 p-6 text-center">
-        <p className="text-gray-600">No hay servicios aún. ¡Crea uno!</p>
+      <div className="rounded-lg border bg-[var(--color-card)] p-6 text-center">
+        <p className="text-[color:var(--color-muted-foreground)]">No hay servicios aún. ¡Crea uno!</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border bg-white overflow-hidden shadow-sm">
+    <div className="rounded-lg border bg-[var(--color-card)] overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-100 border-b">
+          <thead className="bg-[color:var(--color-card)/0.04] border-b">
             <tr>
               <th className="px-6 py-3 text-left font-semibold">Nombre</th>
-              <th className="px-6 py-3 text-left font-semibold">Descripción</th>
-              <th className="px-6 py-3 text-left font-semibold">Precio</th>
               <th className="px-6 py-3 text-center font-semibold">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {servicios.map((servicio) => (
-              <tr key={servicio.id} className="border-b hover:bg-gray-50">
-                <td className="px-6 py-4 font-semibold">{servicio.nombre}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {servicio.descripcion || "-"}
-                </td>
-                <td className="px-6 py-4 font-bold text-blue-600">
-                  ${servicio.precio || "N/A"}
+              <tr key={servicio.id} className="border-b hover:bg-[color:var(--color-card)/0.03]">
+                <td className="px-6 py-4 font-semibold">
+                  {servicio.catalogo?.nombre || "Personalizado"}
+                  {servicio.custom_text ? ` (${servicio.custom_text})` : ""}
                 </td>
                 <td className="px-6 py-4 text-center space-x-2">
                   <button
                     onClick={() => onEdit && onEdit(servicio)}
                     disabled={loading}
-                    className="inline-block rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:opacity-60"
+                    className="inline-block rounded bg-[color:var(--color-primary)] px-3 py-1 text-sm text-white hover:bg-[color:var(--color-primary)/0.9] disabled:opacity-60"
                   >
                     ✏️ Editar
                   </button>
                   <button
                     onClick={() => handleDeleteClick(servicio.id)}
                     disabled={loading}
-                    className="inline-block rounded bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600 disabled:opacity-60"
+                    className="inline-block rounded bg-[color:var(--color-destructive)] px-3 py-1 text-sm text-white hover:bg-[color:var(--color-destructive)/0.9] disabled:opacity-60"
                   >
                     🗑️ Eliminar
                   </button>

@@ -1,9 +1,10 @@
 "use client";
-import useAuthStore from "@/store/auth";
-import axios from "@/lib/axiosConfig";
+import api from "@/lib/api";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function GridFotos({ fotos, onDelete, loading }) {
-  const token = useAuthStore((s) => s.token);
+  
 
   const handleDeleteClick = async (id) => {
     if (!confirm("¿Estás seguro de que deseas eliminar esta foto?")) {
@@ -11,8 +12,7 @@ export default function GridFotos({ fotos, onDelete, loading }) {
     }
 
     try {
-      await axios.delete(`/api/profiles/mi-galeria/${id}/eliminar/`, {
-        headers: { Authorization: `Bearer ${token}` },
+      await api.delete(`/api/profiles/mi-galeria/${id}/eliminar/`, {
       });
       if (onDelete) {
         onDelete();
@@ -25,8 +25,8 @@ export default function GridFotos({ fotos, onDelete, loading }) {
 
   if (!fotos || fotos.length === 0) {
     return (
-      <div className="rounded-lg border bg-gray-50 p-12 text-center">
-        <p className="text-gray-600">No hay fotos aún. ¡Sube tu primera foto!</p>
+      <div className="rounded-lg border bg-[var(--color-card)] p-12 text-center">
+        <p className="text-[color:var(--color-muted-foreground)]">No hay fotos aún. ¡Sube tu primera foto!</p>
       </div>
     );
   }
@@ -39,7 +39,7 @@ export default function GridFotos({ fotos, onDelete, loading }) {
           <div key={foto.id} className="group relative overflow-hidden rounded-lg shadow-md">
             {/* Image */}
             <img
-              src={foto.imagen}
+              src={foto.imagen?.startsWith("http") ? foto.imagen : `${API_BASE_URL}${foto.imagen}`}
               alt={`Foto ${foto.id}`}
               className="h-64 w-full object-cover"
             />
@@ -49,7 +49,7 @@ export default function GridFotos({ fotos, onDelete, loading }) {
               <button
                 onClick={() => handleDeleteClick(foto.id)}
                 disabled={loading}
-                className="rounded bg-red-500 px-4 py-2 text-white font-semibold hover:bg-red-600 disabled:opacity-60"
+                className="rounded bg-[color:var(--color-destructive)] px-4 py-2 text-white font-semibold hover:bg-[color:var(--color-destructive)/0.9] disabled:opacity-60"
               >
                 🗑️ Eliminar
               </button>

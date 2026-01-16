@@ -1,8 +1,18 @@
 "use client";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 export default function CabeceraPerfil({ perfil }) {
   const rating = perfil?.rating || 0;
   const edad = perfil?.edad || "N/A";
+
+  const nombrePublico = perfil?.nombre_artistico || "Modelo";
+  const descripcion = perfil?.biografia;
+  const fotoPerfil = perfil?.foto_perfil
+    ? perfil.foto_perfil.startsWith("http")
+      ? perfil.foto_perfil
+      : `${API_BASE_URL}${perfil.foto_perfil}`
+    : null;
 
   const renderStars = (rating) => {
     return (
@@ -17,20 +27,20 @@ export default function CabeceraPerfil({ perfil }) {
             ★
           </span>
         ))}
-        <span className="ml-2 text-sm text-gray-600">({rating.toFixed(1)})</span>
+        <span className="ml-2 text-sm text-[color:var(--color-muted-foreground)]">({rating.toFixed(1)})</span>
       </div>
     );
   };
 
   return (
-    <div className="rounded-lg border bg-white p-6 shadow-md">
+    <div className="rounded-lg border bg-[var(--color-card)] p-6 shadow-md">
       <div className="grid gap-6 md:grid-cols-3">
         {/* Foto */}
         <div className="md:col-span-1">
-          {perfil?.foto_perfil ? (
+          {fotoPerfil ? (
             <img
-              src={perfil.foto_perfil}
-              alt={perfil.nombre_publico}
+              src={fotoPerfil}
+              alt={nombrePublico}
               className="h-96 w-full rounded-lg object-cover"
             />
           ) : (
@@ -43,8 +53,8 @@ export default function CabeceraPerfil({ perfil }) {
         {/* Información */}
         <div className="md:col-span-2 space-y-4">
           <div>
-            <h1 className="text-4xl font-bold">{perfil?.nombre_publico}</h1>
-            <p className="text-xl text-gray-600">{edad} años</p>
+            <h1 className="text-4xl font-bold">{nombrePublico}</h1>
+            <p className="text-xl text-[color:var(--color-muted-foreground)]">{edad} años</p>
           </div>
 
           <div className="space-y-2 border-b pb-4">
@@ -57,10 +67,10 @@ export default function CabeceraPerfil({ perfil }) {
             {renderStars(rating)}
           </div>
 
-          {perfil?.descripcion && (
+          {descripcion && (
             <div className="space-y-2">
               <p className="font-semibold">Acerca de:</p>
-              <p className="text-gray-700">{perfil.descripcion}</p>
+              <p className="text-gray-700">{descripcion}</p>
             </div>
           )}
 

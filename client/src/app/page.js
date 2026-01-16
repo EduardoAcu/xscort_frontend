@@ -40,15 +40,15 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-6 py-3 sm:px-12 lg:px-24 z-50 border-b border-gray-800">
-        <div className="flex justify-between items-center h-16">
+      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-6 sm:px-12 lg:px-24 z-50 border-b border-gray-800">
+        <div className="flex justify-between items-center h-20">
           <Link href="/" className="flex-shrink-0">
-            <Image src="/logo.svg" alt="xscort.cl" width={120} height={120} />
+            <Image src="/logo.svg" alt="xscort.cl" width={100} height={100} />
           </Link>
           <div className="hidden sm:flex gap-8 text-sm items-center ml-auto">
+            <Link href="/" className="hover:text-pink-500 transition text-gray-300">Inicio</Link>
             <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300">Modelos</Link>
             <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300">Servicios</Link>
-            <Link href="#faq" className="hover:text-pink-500 transition text-gray-300">FAQ</Link>
             <div className="h-6 w-px bg-gray-700"></div>
             <NavAuthCta />
           </div>
@@ -84,7 +84,7 @@ export default async function HomePage() {
         <p className="text-center text-gray-300 mb-10">Selecciona una ciudad para ver modelos disponibles</p>
         <div className="flex flex-wrap justify-center gap-3">
           {ciudades.map((c) => (
-            <Link key={c.value} href={`/busqueda?ciudad=${c.value}`} className="px-4 py-2 rounded-full border border-white/15 text-sm text-pink-100 hover:bg-white/5">
+            <Link key={c.value} href={`/busqueda?ciudad=${c.value}`} className=" bg-pink-500 px-4 py-2 rounded-full border border-white/15 text-sm text-pink-100 hover:bg-pink-600 ">
               {c.label}
             </Link>
           ))}

@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function SearchHeader() {
   return (
     <header className="sticky top-0 z-30 bg-[#0f0812]/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur border-b border-white/5">
       <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 h-14 flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-2 text-white font-semibold">
-          <span className="h-3 w-3 rounded-full bg-pink-500 inline-block" />
-          <span>xscort.cl</span>
-        </Link>
+        <Link href="/" className="flex-shrink-0">
+            <Image src="/logo.svg" alt="xscort.cl" width={120} height={120} />
+          </Link>
         
         <nav className="hidden sm:flex items-center gap-4 text-sm text-pink-100">
           <Link href="/" className="hover:text-white">Inicio</Link>

@@ -56,27 +56,27 @@ export default function WidgetCiudad({ ciudadActual }) {
 
   return (
     <>
-      <div className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm">
+      <div className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm bg-transparent">
         <h3 className="text-xl font-bold mb-4">Ubicación</h3>
         
         <div className="space-y-4">
           <div>
             <p className="text-sm text-[color:var(--color-muted-foreground)]">Ciudad actual</p>
-            <p className="text-2xl font-bold text-blue-600">{ciudadActual || "No especificada"}</p>
+            <p className="text-2xl font-bold text-white-600">{ciudadActual || "No especificada"}</p>
           </div>
 
           <button
             onClick={() => setShowModal(true)}
-            className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700 transition"
+            className="w-full rounded-lg bg-pink-600 px-4 py-2 text-white font-semibold hover:bg-pink-500 transition"
           >
-            📍 Solicitar Cambio de Ciudad
+            Solicitar Cambio de Ciudad
           </button>
         </div>
       </div>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 ">
           <div className="rounded-lg bg-[var(--color-card)] p-6 max-w-md w-full shadow-lg">
             <h2 className="text-2xl font-bold mb-4">Solicitar Cambio de Ciudad</h2>
 
@@ -97,7 +97,7 @@ export default function WidgetCiudad({ ciudadActual }) {
               </div>
 
               <p className="text-xs text-[color:var(--color-muted-foreground)] bg-[color:var(--color-card)/0.04] p-3 rounded">
-                📌 Tu solicitud será revisada por un administrador. Este proceso puede tomar un tiempo.
+                Tu solicitud será revisada por un administrador. Este proceso puede tomar un tiempo.
               </p>
 
               {error && <p className="text-sm text-red-600">{error}</p>}

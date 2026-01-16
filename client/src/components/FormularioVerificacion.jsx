@@ -76,7 +76,7 @@ export default function FormularioVerificacion({ onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-6">
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-transparent p-6 shadow-sm space-y-6">
       <div>
         <h3 className="text-2xl font-bold mb-2">Documentos de Verificación</h3>
         <p className="text-sm text-[color:var(--color-muted-foreground)]">
@@ -86,7 +86,7 @@ export default function FormularioVerificacion({ onSuccess }) {
 
       {/* Foto del Documento */}
       <div className="space-y-3">
-        <label className="block font-semibold">📄 Foto del Documento</label>
+        <label className="block font-semibold">Foto del Documento</label>
         <p className="text-xs text-[color:var(--color-muted-foreground)]">
           Foto clara de tu identificación (ambos lados si es necesario)
         </p>
@@ -105,7 +105,7 @@ export default function FormularioVerificacion({ onSuccess }) {
 
       {/* Selfie con Documento */}
       <div className="space-y-3">
-        <label className="block font-semibold">🤳 Selfie con Documento</label>
+        <label className="block font-semibold">Selfie con Documento</label>
         <p className="text-xs text-[color:var(--color-muted-foreground)]">
           Tu foto sosteniendo el documento (para verificar que eres tú)
         </p>
@@ -123,9 +123,9 @@ export default function FormularioVerificacion({ onSuccess }) {
       </div>
 
       {/* Important info */}
-      <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 space-y-2">
-        <p className="font-semibold text-sm text-blue-900">⚠️ Importante:</p>
-        <ul className="text-xs text-blue-900 space-y-1">
+      <div className="rounded-lg bg-pink-50 border border-blue-200 p-4 space-y-2">
+        <p className="font-semibold text-sm text-blue-900">Importante:</p>
+        <ul className="text-xs text-pink-900 space-y-1">
           <li>• Los documentos deben ser claros y legibles</li>
           <li>• Solo aceptamos identificaciones oficiales</li>
           <li>• La revisión puede tomar 1-3 días hábiles</li>
@@ -139,9 +139,9 @@ export default function FormularioVerificacion({ onSuccess }) {
       <button
         type="submit"
         disabled={loading || (!fotoDocumento && !selfieConDocumento)}
-        className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white font-semibold hover:bg-blue-700 disabled:opacity-60 transition"
+        className="w-full rounded-lg bg-pink-600 px-4 py-3 text-white font-semibold hover:bg-pink-700 disabled:opacity-60 transition"
       >
-        {loading ? "Enviando..." : "📤 Enviar Documentos"}
+        {loading ? "Enviando..." : "Enviar Documentos"}
       </button>
     </form>
   );

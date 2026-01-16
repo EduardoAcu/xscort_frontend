@@ -66,7 +66,7 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4">
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4 bg-transparent">
       <h3 className="text-xl font-bold">
         {servicio ? "Editar Servicio" : "Nuevo Servicio"}
       </h3>
@@ -79,7 +79,7 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
         <select
           value={catalogoId}
           onChange={(e) => setCatalogoId(e.target.value)}
-          className="w-full rounded-md border px-4 py-2"
+          className="w-full rounded-md border px-4 py-2 bg-transparent"
         >
           <option value="">-- Selecciona --</option>
           {catalogo.map((c) => (
@@ -89,12 +89,12 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block font-semibold">Texto personalizado (opcional)</label>
+        <label className="block font-semibold ">Texto personalizado (opcional)</label>
         <input
           type="text"
           value={customText}
           onChange={(e) => setCustomText(e.target.value)}
-          className="w-full rounded-md border px-4 py-2"
+          className="w-full rounded-md border px-4 py-2 bg-transparent"
           placeholder="Ej: Solo VIP, incluye ... (máx 120 caracteres)"
           maxLength={120}
         />

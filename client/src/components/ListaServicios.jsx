@@ -30,7 +30,7 @@ export default function ListaServicios({ servicios, onEdit, onDelete, loading })
   }
 
   return (
-    <div className="rounded-lg border bg-[var(--color-card)] overflow-hidden shadow-sm">
+    <div className="rounded-lg border bg-[var(--color-card)] overflow-hidden shadow-sm bg-transparent">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-[color:var(--color-card)/0.04] border-b">

@@ -2,6 +2,9 @@
 import { Suspense, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/store/auth";
+import Link from "next/link";
+import Image from "next/image";
+import NavAuthCta from "@/components/NavAuthCta";
 
 function LoginForm() {
   const [username, setUsername] = useState("");
@@ -51,20 +54,8 @@ function LoginForm() {
     <div className="w-full flex items-center justify-center p-6 sm:p-8 md:p-12">
       <div className="w-full max-w-md">
           <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">Bienvenida</h1>
-          <p className="text-base text-slate-700 mt-2">Accede a tu cuenta o regístrate para empezar.</p>
-        </div>
-
-        {/* Toggle login/register */}
-        <div className="flex px-4 py-3">
-          <div className="flex h-10 flex-1 items-center justify-center rounded-lg bg-[#482336] p-1">
-            <a href="/register" className="flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-[#c992ad] text-sm font-medium leading-normal hover:text-white">
-              <span className="truncate">Registrarse</span>
-            </a>
-            <span className="flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 bg-[#22111a] shadow-[0_0_4px_rgba(0,0,0,0.1)] text-white text-sm font-medium leading-normal">
-              <span className="truncate">Iniciar Sesión</span>
-            </span>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 text-white">Iniciar Sesión</h1>
+          <p className="text-base text-white text-slate-700 mt-2">Accede a tu cuenta o regístrate para empezar.</p>
         </div>
 
         {/* Selector de tipo de cuenta */}
@@ -75,14 +66,14 @@ function LoginForm() {
               className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-sm font-medium leading-normal ${role === "cliente" ? "bg-[#22111a] text-white" : "text-[#c992ad] hover:text-white"}`}
               onClick={() => setRole("cliente")}
             >
-              <span className="truncate">Cuenta Cliente</span>
+              <span className="truncate">Soy Cliente</span>
             </button>
             <button
               type="button"
               className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-sm font-medium leading-normal ${role === "modelo" ? "bg-[#22111a] text-white" : "text-[#c992ad] hover:text-white"}`}
               onClick={() => setRole("modelo")}
             >
-              <span className="truncate">Cuenta Modelo</span>
+              <span className="truncate">Soy Escort</span>
             </button>
           </div>
         </div>
@@ -90,7 +81,7 @@ function LoginForm() {
         {/* Formulario de login */}
         <form onSubmit={onSubmit} className="space-y-4 px-4">
           <label className="flex flex-col min-w-40 flex-1">
-            <p className="text-slate-800 text-base font-medium leading-normal pb-2">Correo o usuario</p>
+            <p className="text-slate-800 text-white text-base font-medium leading-normal pb-2">Correo o usuario</p>
             <input
               className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal"
               placeholder="usuario o email"
@@ -101,7 +92,7 @@ function LoginForm() {
           </label>
 
           <label className="flex flex-col min-w-40 flex-1">
-            <p className="text-slate-800 text-base font-medium leading-normal pb-2">Contraseña</p>
+            <p className="text-slate-800 text-white text-base font-medium leading-normal pb-2">Contraseña</p>
             <div className="relative">
               <input
                 className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal pr-12"
@@ -149,8 +140,24 @@ const HERO_IMG =
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#120912] text-white flex flex-col lg:flex-row">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-6 sm:px-12 lg:px-24 z-50 border-b border-gray-800">
+        <div className="flex justify-between items-center h-20">
+          <Link href="/" className="flex-shrink-0">
+            <Image src="/logo.svg" alt="xscort.cl" width={100} height={100} />
+          </Link>
+          <div className="hidden sm:flex gap-8 text-sm items-center ml-auto">
+            <Link href="/" className="hover:text-pink-500 transition text-gray-300">Inicio</Link>
+            <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300">Modelos</Link>
+            <Link href="/#servicios" className="hover:text-pink-500 transition text-gray-300">Servicios</Link>
+            <div className="h-6 w-px bg-gray-700"></div>
+            <NavAuthCta />
+          </div>
+        </div>
+      </nav>
+
       {/* Columna izquierda: formulario */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-10 lg:px-16 py-10">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-10 lg:px-16 py-10 pt-32">
         <div className="w-full max-w-md">
           <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Cargando…</div>}>
             <LoginForm />

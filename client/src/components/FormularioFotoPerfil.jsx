@@ -61,7 +61,7 @@ export default function FormularioFotoPerfil({ initialFotoUrl, onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4">
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4 bg-transparent">
       <h3 className="text-lg font-bold">Foto de perfil</h3>
       <p className="text-xs text-gray-600">
         Esta foto se mostrará en tu perfil público y en el panel.
@@ -93,7 +93,7 @@ export default function FormularioFotoPerfil({ initialFotoUrl, onSuccess }) {
       <button
         type="submit"
         disabled={loading || !file}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+        className="w-full rounded-lg bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-500 disabled:opacity-60"
       >
         {loading ? "Guardando..." : "Actualizar foto"}
       </button>

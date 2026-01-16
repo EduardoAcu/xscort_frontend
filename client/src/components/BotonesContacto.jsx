@@ -22,7 +22,7 @@ export default function BotonesContacto({ perfil }) {
           rel="noopener noreferrer"
           className="flex items-center gap-2 rounded-lg bg-green-500 px-6 py-3 text-white font-semibold hover:bg-green-600 transition"
         >
-          <span>💬</span> WhatsApp
+          WhatsApp
         </a>
       )}
       
@@ -33,7 +33,7 @@ export default function BotonesContacto({ perfil }) {
           rel="noopener noreferrer"
           className="flex items-center gap-2 rounded-lg bg-[color:var(--color-primary)] px-6 py-3 text-white font-semibold hover:bg-[color:var(--color-primary)/0.9] transition"
         >
-          <span>✈️</span> Telegram
+          Telegram
         </a>
       )}
     </div>

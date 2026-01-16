@@ -62,7 +62,7 @@ export default function FormularioSubirFoto({ onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4">
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-transparent p-6 shadow-sm space-y-4">
       <h3 className="text-xl font-bold">Subir Foto</h3>
 
       {/* File input */}
@@ -91,9 +91,9 @@ export default function FormularioSubirFoto({ onSuccess }) {
       <button
         type="submit"
         disabled={loading || !file}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700 disabled:opacity-60"
+        className="w-full rounded-lg bg-pink-600 px-4 py-2 text-white font-semibold hover:bg-pink-700 disabled:opacity-60"
       >
-        {loading ? "Subiendo..." : "📤 Subir Foto"}
+        {loading ? "Subiendo..." : "Subir Foto"}
       </button>
     </form>
   );

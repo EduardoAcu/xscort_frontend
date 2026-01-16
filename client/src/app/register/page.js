@@ -4,6 +4,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/store/auth";
 import dynamic from "next/dynamic";
 import { becomeModel } from "@/lib/api-model";
+import Link from "next/link";
+import Image from "next/image";
+import NavAuthCta from "@/components/NavAuthCta";
 const HERO_IMG = "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80";
 // Cargar el formulario de verificación de forma dinámica (client-only)
 const FormularioVerificacion = dynamic(() => import("@/components/FormularioVerificacion"), { ssr: false });
@@ -85,24 +88,28 @@ function RegisterForm() {
 
   return (
     <div className="min-h-screen bg-[#120912] text-white flex flex-col lg:flex-row">
+      
+      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-6 sm:px-12 lg:px-24 z-50 border-b border-gray-800">
+        <div className="flex justify-between items-center h-20">
+          <Link href="/" className="flex-shrink-0">
+            <Image src="/logo.svg" alt="xscort.cl" width={100} height={100} />
+          </Link>
+          <div className="hidden sm:flex gap-8 text-sm items-center ml-auto">
+            <Link href="/" className="hover:text-pink-500 transition text-gray-300">Inicio</Link>
+            <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300">Modelos</Link>
+            <Link href="/#servicios" className="hover:text-pink-500 transition text-gray-300">Servicios</Link>
+            <div className="h-6 w-px bg-gray-700"></div>
+            <NavAuthCta />
+          </div>
+        </div>
+      </nav>
+
       {/* Columna izquierda: formulario / pasos */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 sm:px-10 lg:px-16 py-10">
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 sm:px-10 lg:px-16 py-10 pt-32">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">Bienvenida</h1>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">Registro</h1>
             <p className="text-base text-white mt-2">Crea tu cuenta y completa la verificación.</p>
-          </div>
-
-          {/* Toggle login/register */}
-          <div className="flex px-4 py-3">
-            <div className="flex h-10 flex-1 items-center justify-center rounded-lg bg-[#482336] p-1">
-              <span className="flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 bg-[#22111a] shadow-[0_0_4px_rgba(0,0,0,0.1)] text-white text-sm font-medium leading-normal">
-                <span className="truncate">Registrarse</span>
-              </span>
-              <a href="/login" className="flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-[#c992ad] text-sm font-medium leading-normal hover:text-white">
-                <span className="truncate">Iniciar Sesión</span>
-              </a>
-            </div>
           </div>
 
           {/* Selector de tipo de cuenta */}
@@ -115,7 +122,7 @@ function RegisterForm() {
                 }`}
                 onClick={() => setRole("cliente")}
               >
-                <span className="truncate">Cuenta Cliente</span>
+                <span className="truncate">Soy Cliente</span>
               </button>
               <button
                 type="button"
@@ -124,7 +131,7 @@ function RegisterForm() {
                 }`}
                 onClick={() => setRole("modelo")}
               >
-                <span className="truncate">Cuenta Scort</span>
+                <span className="truncate">Soy Escort </span>
               </button>
             </div>
           </div>

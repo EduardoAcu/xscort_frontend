@@ -176,7 +176,7 @@ export default function EditarPerfilPage() {
                       onChange={handleChange}
                       min="18"
                       max="100"
-                      className="w-full rounded-md border px-4 py-2"
+                      className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
                       placeholder="Ej: 25"
                     />
                   </div>
@@ -188,7 +188,7 @@ export default function EditarPerfilPage() {
                       name="descripcion"
                       value={formData.descripcion}
                       onChange={handleChange}
-                      className="w-full rounded-md border px-4 py-2 resize-none"
+                      className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
                       rows="5"
                       placeholder="Cuéntanos sobre ti..."
                     />

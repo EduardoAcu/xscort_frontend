@@ -95,7 +95,7 @@ export default async function PerfilPage({ params }) {
               </div>
               <LikeButtonCliente perfilId={perfil.id} initialLiked={likedByMe} initialCount={likes} />
               <div className="flex flex-wrap items-center gap-3 text-sm text-pink-100/90">
-                {ciudad && <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10">📍 {ciudad}</span>}
+                {ciudad && <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10">{ciudad}</span>}
                 <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10">❤️ {likes} me gusta</span>
               </div>
 
@@ -109,7 +109,7 @@ export default async function PerfilPage({ params }) {
                           href={`tel:${phone}`}
                           className="inline-flex items-center gap-2 rounded-full bg-pink-600 px-4 py-2 font-semibold text-white hover:bg-pink-700 transition"
                         >
-                          📞 Llamar {phone}
+                          Llamar {phone}
                         </a>
                         <a
                           href={`https://wa.me/${phone.replace(/\\D/g, "")}`}
@@ -117,7 +117,7 @@ export default async function PerfilPage({ params }) {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 rounded-full bg-green-500 px-4 py-2 font-semibold text-white hover:bg-green-600 transition"
                         >
-                          💬 WhatsApp
+                          WhatsApp
                         </a>
                       </>
                     )}
@@ -128,7 +128,7 @@ export default async function PerfilPage({ params }) {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600 transition"
                       >
-                        ✈️ Telegram {telegram}
+                        Telegram {telegram}
                       </a>
                     )}
                   </div>

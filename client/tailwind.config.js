@@ -30,6 +30,8 @@ module.exports = {
       fontFamily: {
         sans: ['var(--font-sans)'],
         mono: ['var(--font-mono)'],
+        fancy: ['Sophie Fancy', 'serif'],
+        montserrat: ['var(--font-montserrat)'],
       },
       borderRadius: {
         sm: 'var(--radius-sm)',

@@ -2,7 +2,6 @@
 import { Suspense } from "react";
 import FilterPanel from "@/components/FilterPanel";
 import GridResultados from "@/components/GridResultados";
-import SearchHeader from "@/components/SearchHeader";
 import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
@@ -16,9 +15,15 @@ export default function BusquedaPage() {
             <Image src="/logo.svg" alt="xscort.cl" width={100} height={100} />
           </Link>
           <div className="hidden sm:flex gap-8 text-sm items-center ml-auto">
-            <Link href="/" className="hover:text-pink-500 transition text-gray-300">Inicio</Link>
-            <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300">Modelos</Link>
-            <Link href="/#servicios" className="hover:text-pink-500 transition text-gray-300">Servicios</Link>
+          <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+            Inicio
+          </Link>
+          <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+            Modelos
+          </Link>
+          <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+            Servicios
+          </Link>
             <div className="h-6 w-px bg-gray-700"></div>
             <NavAuthCta />
           </div>
@@ -37,8 +42,8 @@ export default function BusquedaPage() {
           {/* Main content */}
           <div className="flex-1 space-y-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Modelos Verificadas</h1>
-              <p className="text-pink-100 mt-1 text-sm sm:text-base">
+              <h1 className="text-3xl sm:text-4xl font-black font-fancy tracking-tight">Modelos Verificadas</h1>
+              <p className="text-pink-100 mt-1 text-sm sm:text-base font-montserrat">
                 Descubre perfiles exclusivos y verificados en tu zona.
               </p>
             </div>

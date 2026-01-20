@@ -73,17 +73,16 @@ export default function FilterPanel() {
 
   return (
     <div className="rounded-2xl border border-white/10 bg-[#1b101a] p-4 text-white shadow-lg">
-      <h3 className="text-lg font-bold mb-2">Filtros</h3>
-      <p className="text-xs text-pink-200 mb-4">Refina tu búsqueda</p>
+      <h3 className="text-lg font-bold font-montserrat mb-2">Filtros</h3>
+      <p className="text-xs text-pink-200 font-montserrat mb-4">Refina tu búsqueda</p>
 
-      <div className="space-y-4 text-sm">
+      <div className="space-y-4 text-sm font-montserrat">
         <Select
           label="Ubicación"
           value={ciudad}
           onChange={setCiudad}
           options={ciudades}
         />
-
 
         <div className="space-y-2">
           <p className="font-semibold text-pink-100">Tipo de Servicio</p>

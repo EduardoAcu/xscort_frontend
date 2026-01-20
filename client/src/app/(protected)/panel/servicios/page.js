@@ -45,21 +45,21 @@ export default function ServiciosPage() {
       <div className="min-h-screen bg-[#120912] text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-10">
           <div>
-            <p className="text-sm uppercase text-pink-200 font-semibold">xscort.cl</p>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Mis Servicios</h1>
-            <p className="text-pink-100 mt-1 text-sm sm:text-base">Crea y gestiona tus servicios</p>
+            <p className="text-sm uppercase text-pink-200 font-semibold font-montserrat">xscort.cl</p>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-montserrat">Mis Servicios</h1>
+            <p className="text-pink-100 mt-1 text-sm sm:text-base font-montserrat ">Crea y gestiona tus servicios</p>
           </div>
 
           <div className="mt-8">
             {error && error.includes("No tienes un perfil de modelo asociado") ? (
               <div className="max-w-xl mx-auto mb-8 rounded-2xl bg-[#1b0d18] p-6 shadow-md text-center">
-                <h2 className="text-2xl font-bold mb-2">Aún no tienes un perfil de modelo</h2>
-                <p className="text-pink-100 mb-4">
+                <h2 className="text-2xl font-bold mb-2 font-montserrat">Aún no tienes un perfil de modelo</h2>
+                <p className="text-pink-100 mb-4 font-montserrat">
                   Para gestionar servicios primero necesitas crear tu perfil de modelo.
                 </p>
                 <a
                   href="/panel/editar-perfil"
-                  className="inline-flex items-center justify-center rounded-lg bg-[#ff007f] px-4 py-2 text-white font-semibold hover:bg-pink-500"
+                  className="inline-flex items-center justify-center rounded-lg bg-[#ff007f] px-4 py-2 text-white font-semibold hover:bg-pink-500 font-montserrat"
                 >
                   Ir a crear mi perfil
                 </a>

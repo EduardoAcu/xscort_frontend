@@ -30,7 +30,7 @@ export default function ListaServicios({ servicios, onEdit, onDelete, loading })
   }
 
   return (
-    <div className="rounded-lg border bg-[var(--color-card)] overflow-hidden shadow-sm bg-transparent">
+    <div className="rounded-lg border bg-[var(--color-card)] overflow-hidden shadow-sm bg-transparent font-montserrat">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-[color:var(--color-card)/0.04] border-b">
@@ -50,16 +50,16 @@ export default function ListaServicios({ servicios, onEdit, onDelete, loading })
                   <button
                     onClick={() => onEdit && onEdit(servicio)}
                     disabled={loading}
-                    className="inline-block rounded bg-[color:var(--color-primary)] px-3 py-1 text-sm text-white hover:bg-[color:var(--color-primary)/0.9] disabled:opacity-60"
+                    className="inline-block rounded bg-pink-600 px-3 py-1 text-sm text-white hover:bg-pink-500 disabled:opacity-60"
                   >
-                    ✏️ Editar
+                    Editar
                   </button>
                   <button
                     onClick={() => handleDeleteClick(servicio.id)}
                     disabled={loading}
                     className="inline-block rounded bg-[color:var(--color-destructive)] px-3 py-1 text-sm text-white hover:bg-[color:var(--color-destructive)/0.9] disabled:opacity-60"
                   >
-                    🗑️ Eliminar
+                    Eliminar
                   </button>
                 </td>
               </tr>

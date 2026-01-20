@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fuente personalizada Sophie Fancy */
+@font-face {
+  font-family: 'Sophie Fancy';
+  src: url('/fonts/Sophie-Fancy.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Tokens y variables (DEFAULT: modo oscuro) */
 :root {
   /* Fuentes (inyectadas por next/font via CSS vars) */

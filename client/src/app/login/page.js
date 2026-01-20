@@ -54,8 +54,8 @@ function LoginForm() {
     <div className="w-full flex items-center justify-center p-6 sm:p-8 md:p-12">
       <div className="w-full max-w-md">
           <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 text-white">Iniciar Sesión</h1>
-          <p className="text-base text-white text-slate-700 mt-2">Accede a tu cuenta o regístrate para empezar.</p>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 text-white font-montserrat">Iniciar Sesión</h1>
+          <p className="text-base text-white text-slate-700 mt-2 font-montserrat">Accede a tu cuenta o regístrate para empezar.</p>
         </div>
 
         {/* Selector de tipo de cuenta */}
@@ -66,14 +66,14 @@ function LoginForm() {
               className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-sm font-medium leading-normal ${role === "cliente" ? "bg-[#22111a] text-white" : "text-[#c992ad] hover:text-white"}`}
               onClick={() => setRole("cliente")}
             >
-              <span className="truncate">Soy Cliente</span>
+              <span className="truncate font-montserrat font-bold">Soy Cliente</span>
             </button>
             <button
               type="button"
               className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-sm font-medium leading-normal ${role === "modelo" ? "bg-[#22111a] text-white" : "text-[#c992ad] hover:text-white"}`}
               onClick={() => setRole("modelo")}
             >
-              <span className="truncate">Soy Escort</span>
+              <span className="truncate font-montserrat font-bold">Soy Escort</span>
             </button>
           </div>
         </div>
@@ -81,9 +81,9 @@ function LoginForm() {
         {/* Formulario de login */}
         <form onSubmit={onSubmit} className="space-y-4 px-4">
           <label className="flex flex-col min-w-40 flex-1">
-            <p className="text-slate-800 text-white text-base font-medium leading-normal pb-2">Correo o usuario</p>
+            <p className="text-slate-800 text-white text-base font-medium leading-normal pb-2 font-montserrat">Correo o usuario</p>
             <input
-              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal"
+              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal font-montserrat"
               placeholder="usuario o email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -92,7 +92,7 @@ function LoginForm() {
           </label>
 
           <label className="flex flex-col min-w-40 flex-1">
-            <p className="text-slate-800 text-white text-base font-medium leading-normal pb-2">Contraseña</p>
+            <p className="text-slate-800 text-white text-base font-medium leading-normal pb-2 font-montserrat">Contraseña</p>
             <div className="relative">
               <input
                 className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal pr-12"
@@ -109,7 +109,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={isPending}
-            className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mt-2 disabled:opacity-60"
+            className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mt-2 disabled:opacity-60 font-montserrat"
           >
             {isPending ? "Ingresando..." : "Entrar"}
           </button>
@@ -120,7 +120,7 @@ function LoginForm() {
             </p>
           )}
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 font-montserrat mt-4">
             <p className="px-1 text-sm text-[#c992ad] text-center">
               <a href="/forgot-password" className="font-medium text-primary hover:underline">¿Olvidaste tu contraseña?</a>
             </p>
@@ -147,9 +147,15 @@ export default function LoginPage() {
             <Image src="/logo.svg" alt="xscort.cl" width={100} height={100} />
           </Link>
           <div className="hidden sm:flex gap-8 text-sm items-center ml-auto">
-            <Link href="/" className="hover:text-pink-500 transition text-gray-300">Inicio</Link>
-            <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300">Modelos</Link>
-            <Link href="/#servicios" className="hover:text-pink-500 transition text-gray-300">Servicios</Link>
+            <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+              Inicio
+            </Link>
+            <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+              Modelos
+            </Link>
+            <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+              Servicios
+            </Link>
             <div className="h-6 w-px bg-gray-700"></div>
             <NavAuthCta />
           </div>
@@ -176,16 +182,16 @@ export default function LoginPage() {
       >
         <div className="absolute inset-0 flex items-center justify-center px-10">
           <div className="max-w-lg text-left space-y-5">
-            <p className="text-pink-300 uppercase tracking-wide text-sm font-semibold">
+            <p className="text-pink-300 uppercase tracking-wide text-sm font-semibold font-montserrat">
               xscort.cl
             </p>
-            <h2 className="text-4xl font-extrabold leading-tight">
+            <h2 className="text-4xl font-extrabold leading-tight font-fancy">
               Únete a la comunidad de modelos verificadas más exclusiva de Chile.
             </h2>
-            <p className="text-pink-100 text-sm">
+            <p className="text-pink-100 text-sm font-montserrat">
               Accede a una plataforma segura y profesional para gestionar tu perfil.
             </p>
-            <div className="space-y-3 text-pink-100 text-sm">
+            <div className="space-y-3 text-pink-100 text-sm font-montserrat">
               <Item text="Seguridad y Verificación" />
               <Item text="Control Total de tu Perfil" />
               <Item text="Plataforma Confiable" />

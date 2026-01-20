@@ -8,12 +8,12 @@ export default function NavAuthCta() {
   if (!isAuthenticated) {
     return (
       <>
-        <Link href="/login" className="hover:text-pink-500 transition text-gray-300">
+        <Link href="/login" className="hover:text-pink-500 font-montserrat font-bold transition text-gray-300">
           Acceso
         </Link>
         <Link
           href="/register"
-          className="bg-pink-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-pink-600 transition whitespace-nowrap"
+          className="bg-pink-500 text-white px-5 py-2 rounded-full font-semibold font-montserrat hover:bg-pink-600 transition whitespace-nowrap"
         >
           Regístrate
         </Link>

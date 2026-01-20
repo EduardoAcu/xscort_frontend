@@ -66,15 +66,15 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4 bg-transparent">
+    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4 bg-transparent font-montserrat">
       <h3 className="text-xl font-bold">
         {servicio ? "Editar Servicio" : "Nuevo Servicio"}
       </h3>
-      <p className="text-xs text-[color:var(--color-muted-foreground)]">
+      <p className="text-xs text-[color:var(--color-muted-foreground)] font-montserrat">
         Selecciona un servicio del catálogo. Si es exclusivo, escribe el detalle en personalizado.
       </p>
 
-      <div className="space-y-2">
+      <div className="space-y-2 font-montserrat">
         <label className="block font-semibold">Catálogo</label>
         <select
           value={catalogoId}
@@ -120,7 +120,7 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700 disabled:opacity-60"
+          className="flex-1 rounded-lg bg-pink-600 px-4 py-2 text-white font-semibold hover:bg-pink-500 disabled:opacity-60"
         >
           {loading ? "Guardando..." : servicio ? "Actualizar" : "Crear"}
         </button>

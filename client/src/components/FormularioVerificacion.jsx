@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "@/lib/api";
 
-export default function FormularioVerificacion({ onSuccess }) {
+export default function FormularioVerificacion({ onSuccess, ciudadId }) {
   const [fotoDocumento, setFotoDocumento] = useState(null);
   const [selfieConDocumento, setSelfieConDocumento] = useState(null);
   const [previewFoto, setPreviewFoto] = useState(null);
@@ -10,8 +10,6 @@ export default function FormularioVerificacion({ onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  // El flujo actual asume que el usuario ya solicitó ser modelo
-  // (POST /api/request-model-verification/) antes de subir documentos.
 
   const handleFileChange = (e, type) => {
     const file = e.target.files?.[0];
@@ -34,6 +32,7 @@ export default function FormularioVerificacion({ onSuccess }) {
     const formData = new FormData();
     if (fotoDocumento) formData.append("foto_documento", fotoDocumento);
     if (selfieConDocumento) formData.append("selfie_con_documento", selfieConDocumento);
+    if (ciudadId) formData.append("ciudad_id", ciudadId);
     await api.post("/api/verification/upload-documents/", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });

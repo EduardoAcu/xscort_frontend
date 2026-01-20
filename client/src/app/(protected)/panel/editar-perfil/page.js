@@ -142,14 +142,14 @@ export default function EditarPerfilPage() {
       <div className="min-h-screen bg-[#120912] text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-10">
           <div>
-            <p className="text-sm uppercase text-pink-200 font-semibold">xscort.cl</p>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Editar Mi Perfil</h1>
-            <p className="text-pink-100 mt-1 text-sm sm:text-base">Actualiza tu información personal</p>
+            <p className="text-sm uppercase text-pink-200 font-semibold font-montserrat">xscort.cl</p>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-montserrat">Editar Mi Perfil</h1>
+            <p className="text-pink-100 mt-1 text-sm sm:text-base font-montserrat">Actualiza tu información personal</p>
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
             {/* Form */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 font-montserrat">
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Nombre Público */}

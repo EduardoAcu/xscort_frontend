@@ -16,8 +16,37 @@ const CURRENT_YEAR = new Date().getFullYear();
 // METADATA
 // ============================================================
 export const metadata = {
-  title: "xscort.cl - Plataforma de Modelos Verificadas en Chile",
-  description: "Conecta con modelos de compañía verificadas en Chile. Contacta directamente por WhatsApp o Telegram. Seguro y discreto.",
+  title: "xscort Chile - El Directorio Más Completo",
+  description: "Encuentra los mejores servicios en Chile. Búsqueda rápida, segura y confiable en xscort.",
+  keywords: ['chile', 'servicios', 'directorio', 'anuncios','escort','acompañantes','modelos','contacto directo','seguridad','discreción','xscort.cl'],
+  authors: [{ name: "xscort.cl", url: "https://xscort.cl" }],
+  openGraph: {
+    title: "xscort Chile - El Directorio Más Completo",
+    description: "Encuentra los mejores servicios en Chile. Búsqueda rápida, segura y confiable en xscort.",
+    url: "https://xscort.cl",
+    siteName: "xscort.cl",
+    images: [
+      {
+        url: "https://xscort.cl/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "xscort Chile - El Directorio Más Completo",
+      },
+    ],
+    locale: "es_CL",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 // ============================================================

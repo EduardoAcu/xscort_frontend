@@ -62,9 +62,7 @@ export default function FormularioSubirFoto({ onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-transparent p-6 shadow-sm space-y-4">
-      <h3 className="text-xl font-bold">Subir Foto</h3>
-
+    <form onSubmit={handleSubmit} className="rounded-lg bg-transparent p-6 shadow-sm space-y-4">
       {/* File input */}
       <div className="space-y-2">
         <label className="block font-semibold">Selecciona una foto *</label>

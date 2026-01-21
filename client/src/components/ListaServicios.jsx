@@ -1,7 +1,7 @@
 "use client";
 import api from "@/lib/api";
 
-export default function ListaServicios({ servicios, onEdit, onDelete, loading }) {
+export default function ListaServicios({ servicios, onDelete, loading }) {
   
 
   const handleDeleteClick = async (id) => {
@@ -23,7 +23,7 @@ export default function ListaServicios({ servicios, onEdit, onDelete, loading })
 
   if (!servicios || servicios.length === 0) {
     return (
-      <div className="rounded-lg sm:rounded-xl border bg-[var(--color-card)] p-4 sm:p-5 md:p-6 text-center">
+      <div className="rounded-lg sm:rounded-xl bg-transparent bg-[var(--color-card)] p-4 sm:p-5 md:p-6 text-center">
         <p className="text-xs sm:text-sm md:text-base text-[color:var(--color-muted-foreground)]">No hay servicios aún. ¡Crea uno!</p>
       </div>
     );
@@ -50,13 +50,6 @@ export default function ListaServicios({ servicios, onEdit, onDelete, loading })
                   </td>
                   <td className="px-4 sm:px-6 py-4 text-center space-x-1 sm:space-x-2">
                     <button
-                      onClick={() => onEdit && onEdit(servicio)}
-                      disabled={loading}
-                      className="inline-block rounded bg-pink-600 px-2 sm:px-3 py-1 text-xs sm:text-sm font-semibold text-white hover:bg-pink-500 disabled:opacity-60 transition"
-                    >
-                      Editar
-                    </button>
-                    <button
                       onClick={() => handleDeleteClick(servicio.id)}
                       disabled={loading}
                       className="inline-block rounded bg-[color:var(--color-destructive)] px-2 sm:px-3 py-1 text-xs sm:text-sm font-semibold text-white hover:bg-[color:var(--color-destructive)/0.9] disabled:opacity-60 transition"
@@ -80,13 +73,6 @@ export default function ListaServicios({ servicios, onEdit, onDelete, loading })
               {servicio.custom_text ? ` (${servicio.custom_text})` : ""}
             </p>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <button
-                onClick={() => onEdit && onEdit(servicio)}
-                disabled={loading}
-                className="flex-1 rounded bg-pink-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-pink-500 disabled:opacity-60 transition"
-              >
-                Editar
-              </button>
               <button
                 onClick={() => handleDeleteClick(servicio.id)}
                 disabled={loading}

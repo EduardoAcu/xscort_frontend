@@ -56,7 +56,7 @@ export default function WidgetCiudad({ ciudadActual }) {
 
   return (
     <>
-      <div className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm bg-transparent">
+      <div className="rounded-lg bg-[var(--color-card)] p-6 shadow-sm bg-transparent">
         <h3 className="text-xl font-bold mb-4 font-montserrat">Ubicación</h3>
         
         <div className="space-y-4">

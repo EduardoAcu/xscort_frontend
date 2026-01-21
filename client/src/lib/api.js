@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Axios instance centralizada con soporte para cookies HttpOnly
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://192.168.1.26:8000",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   headers: {
     "Content-Type": "application/json",
   },

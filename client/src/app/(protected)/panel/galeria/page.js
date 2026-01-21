@@ -40,7 +40,7 @@ export default function GaleriaPage() {
             {/* Upload form (tarjeta) */}
             <div className="w-full lg:col-span-1">
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
-                <h2 className="text-lg font-semibold text-white mb-4">Subir Foto</h2>
+                <h1 className="text-3xl font-semibold text-white mb-4">Subir Foto</h1>
                 <FormularioSubirFoto onSuccess={fetchFotos} />
               </div>
             </div>

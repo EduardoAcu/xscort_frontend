@@ -1,5 +1,4 @@
 "use client";
-import FilterPanel from "@/components/FilterPanel";
 import BusquedaContent from "@/components/BusquedaContent";
 import Link from "next/link";
 import Image from "next/image";

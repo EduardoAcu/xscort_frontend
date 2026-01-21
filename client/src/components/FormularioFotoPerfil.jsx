@@ -61,7 +61,7 @@ export default function FormularioFotoPerfil({ initialFotoUrl, onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg sm:rounded-xl border bg-[var(--color-card)] p-4 sm:p-5 md:p-6 shadow-sm space-y-4 sm:space-y-5 bg-transparent">
+    <form onSubmit={handleSubmit} className="rounded-lg sm:rounded-xl bg-[var(--color-card)] p-4 sm:p-5 md:p-6 shadow-sm space-y-4 sm:space-y-5 bg-transparent">
       <h3 className="text-base sm:text-lg md:text-xl font-bold font-montserrat">Foto de perfil</h3>
       <p className="text-xs sm:text-sm text-gray-600 font-montserrat">
         Esta foto se mostrará en tu perfil público y en el panel.

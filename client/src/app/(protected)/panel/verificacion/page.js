@@ -22,20 +22,12 @@ export default function VerificacionPage() {
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            {/* Status Widget */}
-            <div className="lg:col-span-1">
+            {/* Left column: Status Widget + Information */}
+            <div className="lg:col-span-1 space-y-6">
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
                 <WidgetEstadoVerificacion key={refreshTrigger} />
               </div>
-            </div>
 
-            {/* Upload Form */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
-                <FormularioVerificacion onSuccess={handleSuccess} />
-              </div>
-
-              {/* Information */}
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md space-y-4">
                 <h3 className="text-xl font-bold text-white">¿Por qué la verificación?</h3>
                 <p className="text-pink-100">
@@ -56,6 +48,13 @@ export default function VerificacionPage() {
                     verificación. Nunca serán compartidos ni utilizados para otro propósito.
                   </p>
                 </div>
+              </div>
+            </div>
+
+            {/* Right column: Upload Form */}
+            <div className="lg:col-span-2">
+              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
+                <FormularioVerificacion onSuccess={handleSuccess} />
               </div>
             </div>
           </div>

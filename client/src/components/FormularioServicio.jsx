@@ -66,7 +66,7 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg sm:rounded-xl border bg-[var(--color-card)] p-4 sm:p-5 md:p-6 shadow-sm space-y-4 sm:space-y-5 bg-transparent font-montserrat">
+    <form onSubmit={handleSubmit} className="rounded-lg sm:rounded-xl bg-[var(--color-card)] p-4 sm:p-5 md:p-6 shadow-sm space-y-4 sm:space-y-5 bg-transparent font-montserrat">
       <h3 className="text-lg sm:text-xl md:text-2xl font-bold">
         {servicio ? "Editar Servicio" : "Nuevo Servicio"}
       </h3>

@@ -15,7 +15,13 @@ export default function EditarPerfilPage() {
     nombre_publico: "",
     descripcion: "",
     edad: "",
-    // Nota: las etiquetas se gestionan por separado vía IDs en el backend.
+    genero: "",
+    peso: "",
+    altura: "",
+    medidas: "",
+    nacionalidad: "",
+    telefono_contacto: "",
+    telegram_contacto: "",
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -35,10 +41,16 @@ export default function EditarPerfilPage() {
       });
       const data = res.data;
       setFormData({
-        // El backend usa nombre_artistico/biografia; aquí los mapeamos a los campos del formulario
         nombre_publico: data.nombre_artistico || "",
         descripcion: data.biografia || "",
         edad: data.edad || "",
+        genero: data.genero || "",
+        peso: data.peso || "",
+        altura: data.altura || "",
+        medidas: data.medidas || "",
+        nacionalidad: data.nacionalidad || "",
+        telefono_contacto: data.telefono_contacto || "",
+        telegram_contacto: data.telegram_contacto || "",
       });
       setCiudadActual(data.ciudad || "");
       if (data.foto_perfil) {
@@ -77,10 +89,16 @@ export default function EditarPerfilPage() {
       await api.patch(
         "/api/profiles/mi-perfil/actualizar/",
         {
-          // Mapear a los campos que el backend realmente acepta en PerfilModeloUpdateSerializer
           nombre_artistico: formData.nombre_publico,
           biografia: formData.descripcion,
           edad: formData.edad ? parseInt(formData.edad, 10) : null,
+          genero: formData.genero || null,
+          peso: formData.peso ? parseInt(formData.peso, 10) : null,
+          altura: formData.altura ? parseInt(formData.altura, 10) : null,
+          medidas: formData.medidas || null,
+          nacionalidad: formData.nacionalidad || null,
+          telefono_contacto: formData.telefono_contacto || null,
+          telegram_contacto: formData.telegram_contacto || null,
         },
       );
       setSuccess("¡Perfil actualizado correctamente!");
@@ -194,8 +212,122 @@ export default function EditarPerfilPage() {
                     />
                   </div>
 
+                  {/* Características Físicas */}
+                  <div className="border-t border-gray-700 pt-6">
+                    <h3 className="text-lg font-semibold mb-4">Características Físicas</h3>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Género */}
+                      <div className="space-y-2">
+                        <label className="block font-semibold">Género</label>
+                        <select
+                          name="genero"
+                          value={formData.genero}
+                          onChange={handleChange}
+                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                        >
+                          <option value="">Selecciona género</option>
+                          <option value="M">Masculino</option>
+                          <option value="F">Femenino</option>
+                          <option value="T">Transgénero</option>
+                        </select>
+                      </div>
+
+                      {/* Altura */}
+                      <div className="space-y-2">
+                        <label className="block font-semibold">Altura (cm)</label>
+                        <input
+                          type="number"
+                          name="altura"
+                          value={formData.altura}
+                          onChange={handleChange}
+                          min="100"
+                          max="250"
+                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                          placeholder="Ej: 170"
+                        />
+                      </div>
+
+                      {/* Peso */}
+                      <div className="space-y-2">
+                        <label className="block font-semibold">Peso (kg)</label>
+                        <input
+                          type="number"
+                          name="peso"
+                          value={formData.peso}
+                          onChange={handleChange}
+                          min="30"
+                          max="200"
+                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                          placeholder="Ej: 60"
+                        />
+                      </div>
+
+                      {/* Medidas */}
+                      <div className="space-y-2">
+                        <label className="block font-semibold">Medidas (cm)</label>
+                        <input
+                          type="text"
+                          name="medidas"
+                          value={formData.medidas}
+                          onChange={handleChange}
+                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                          placeholder="Ej: 90-60-90"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Nacionalidad */}
+                    <div className="space-y-2 mt-4">
+                      <label className="block font-semibold">Nacionalidad</label>
+                      <input
+                        type="text"
+                        name="nacionalidad"
+                        value={formData.nacionalidad}
+                        onChange={handleChange}
+                        className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                        placeholder="Ej: Chilena"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Información de Contacto */}
+                  <div className="border-t border-gray-700 pt-6">
+                    <h3 className="text-lg font-semibold mb-4">Información de Contacto Público</h3>
+                    
+                    <div className="grid grid-cols-1 gap-4">
+                      {/* Teléfono */}
+                      <div className="space-y-2">
+                        <label className="block font-semibold">Teléfono</label>
+                        <input
+                          type="tel"
+                          name="telefono_contacto"
+                          value={formData.telefono_contacto}
+                          onChange={handleChange}
+                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                          placeholder="+56 9 1234 5678"
+                        />
+                        <p className="text-xs text-gray-400">Este número será visible en tu perfil público</p>
+                      </div>
+
+                      {/* Telegram */}
+                      <div className="space-y-2">
+                        <label className="block font-semibold">Telegram</label>
+                        <input
+                          type="text"
+                          name="telegram_contacto"
+                          value={formData.telegram_contacto}
+                          onChange={handleChange}
+                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                          placeholder="@tu_usuario_telegram"
+                        />
+                        <p className="text-xs text-gray-400">Este usuario será visible en tu perfil público</p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Tags */}
-                  <div className="space-y-2 opacity-60">
+                  <div className="border-t border-gray-700 pt-6 space-y-2 opacity-60">
                     <label className="block font-semibold">Etiquetas</label>
                     <p className="text-sm text-gray-600">
                       La edición de etiquetas se hará en una sección dedicada más adelante.

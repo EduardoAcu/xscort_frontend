@@ -78,9 +78,9 @@ export default async function PerfilPage({ params }) {
     <div className="min-h-screen bg-[#120912] text-white">
       <SearchHeader />
       <div className="relative isolate overflow-hidden bg-gradient-to-br from-[#160d18] via-[#120912] to-[#1a0f1a]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-10 lg:py-14">
-          <div className="grid gap-8 lg:grid-cols-[360px,1fr] items-start">
-            <div className="rounded-full overflow-hidden border border-white/5 shadow-2xl h-56 w-56">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 py-8 sm:py-10 md:py-12 lg:py-14">
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-[280px_1fr] xl:grid-cols-[360px_1fr] items-start">
+            <div className="rounded-full overflow-hidden border border-white/5 shadow-2xl h-40 w-40 sm:h-56 sm:w-56 lg:h-64 lg:w-64">
               {mainImage ? (
                 <img src={mainImage} alt={nombre} className="w-full h-full object-cover block" />
               ) : (
@@ -88,13 +88,13 @@ export default async function PerfilPage({ params }) {
               )}
             </div>
 
-            <div className="space-y-4 lg:space-y-5">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-4xl lg:text-5xl font-black tracking-tight">{nombre}</h1>
-                {edad && <span className="text-lg text-pink-200">{edad} años</span>}
+            <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">{nombre}</h1>
+                {edad && <span className="text-sm sm:text-base md:text-lg text-pink-200">{edad} años</span>}
               </div>
               <LikeButtonCliente perfilId={perfil.id} initialLiked={likedByMe} initialCount={likes} />
-              <div className="flex flex-wrap items-center gap-3 text-sm text-pink-100/90">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base text-pink-100/90">
                 {ciudad && <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10">{ciudad}</span>}
                 <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10">❤️ {likes} me gusta</span>
               </div>

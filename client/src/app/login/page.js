@@ -5,6 +5,7 @@ import useAuthStore from "@/store/auth";
 import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
+import MobileMenu from "@/components/MobileMenu";
 
 function LoginForm() {
   const [username, setUsername] = useState("");
@@ -79,11 +80,11 @@ function LoginForm() {
         </div>
 
         {/* Formulario de login */}
-        <form onSubmit={onSubmit} className="space-y-4 px-4">
+        <form onSubmit={onSubmit} className="space-y-3 sm:space-y-4 px-3 sm:px-4">
           <label className="flex flex-col min-w-40 flex-1">
-            <p className="text-slate-800 text-white text-base font-medium leading-normal pb-2 font-montserrat">Correo o usuario</p>
+            <p className="text-slate-800 text-white text-xs sm:text-sm md:text-base font-medium leading-normal pb-1 sm:pb-2 font-montserrat">Correo o usuario</p>
             <input
-              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal font-montserrat"
+              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-12 sm:h-14 placeholder:text-[#c992ad] px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base font-normal leading-normal font-montserrat"
               placeholder="usuario o email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -92,10 +93,10 @@ function LoginForm() {
           </label>
 
           <label className="flex flex-col min-w-40 flex-1">
-            <p className="text-slate-800 text-white text-base font-medium leading-normal pb-2 font-montserrat">Contraseña</p>
+            <p className="text-slate-800 text-white text-xs sm:text-sm md:text-base font-medium leading-normal pb-1 sm:pb-2 font-montserrat">Contraseña</p>
             <div className="relative">
               <input
-                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal pr-12"
+                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-12 sm:h-14 placeholder:text-[#c992ad] px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base font-normal leading-normal pr-10 sm:pr-12"
                 placeholder="••••••••"
                 type="password"
                 value={password}
@@ -141,12 +142,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#120912] text-white flex flex-col lg:flex-row">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-6 sm:px-12 lg:px-24 z-50 border-b border-gray-800">
-        <div className="flex justify-between items-center h-20">
+      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-gray-800">
+        <div className="flex justify-between items-center h-16 sm:h-20">
           <Link href="/" className="flex-shrink-0">
-            <Image src="/logo.svg" alt="xscort.cl" width={100} height={100} />
+            <Image src="/logo.png" alt="xscort.cl" width={100} height={100} />
           </Link>
-          <div className="hidden sm:flex gap-8 text-sm items-center ml-auto">
+          <div className="hidden sm:flex gap-6 lg:gap-8 text-sm items-center ml-auto">
             <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
               Inicio
             </Link>
@@ -159,11 +160,12 @@ export default function LoginPage() {
             <div className="h-6 w-px bg-gray-700"></div>
             <NavAuthCta />
           </div>
+          <MobileMenu />
         </div>
       </nav>
 
       {/* Columna izquierda: formulario */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-10 lg:px-16 py-10 pt-32">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 md:px-8 lg:px-12 py-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32">
         <div className="w-full max-w-md">
           <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Cargando…</div>}>
             <LoginForm />

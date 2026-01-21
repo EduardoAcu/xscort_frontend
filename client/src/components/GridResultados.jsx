@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import Link from "next/link";
@@ -16,42 +16,85 @@ export default function GridResultados() {
   const pageSize = 12;
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-  useEffect(() => {
-    const fetchPerfiles = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        const ciudad = searchParams.get("ciudad");
-        const tags = searchParams.get("tags");
-        const servicio = searchParams.get("servicio");
+  // Cache para evitar solicitudes repetidas
+  const cacheRef = useRef({});
+  const debounceTimerRef = useRef(null);
 
-        if (ciudad) params.append("ciudad", ciudad);
-        if (tags) params.append("tags", tags);
-        if (servicio) params.append("servicio", servicio);
+  // Construir clave de caché basada en parámetros de búsqueda
+  const getCacheKey = useCallback(() => {
+    const ciudad = searchParams.get("ciudad") || "";
+    const tags = searchParams.get("tags") || "";
+    const servicio = searchParams.get("servicio") || "";
+    return `${ciudad}|${tags}|${servicio}|${currentPage}`;
+  }, [searchParams, currentPage]);
 
-        params.append("page_size", pageSize);
-        params.append("page", currentPage);
+  // Función para obtener perfiles del API
+  const fetchPerfiles = useCallback(async () => {
+    try {
+      setLoading(true);
+      const cacheKey = getCacheKey();
 
-        const response = await api.get(`/api/profiles/?${params.toString()}`);
-        
-        if (response.data.results) {
-          setPerfiles(response.data.results);
-          setTotalCount(response.data.count || 0);
-        } else {
-          setPerfiles(response.data);
-          setTotalCount(response.data.length);
-        }
+      // Verificar si está en caché
+      if (cacheRef.current[cacheKey]) {
+        const cachedData = cacheRef.current[cacheKey];
+        setPerfiles(cachedData.results);
+        setTotalCount(cachedData.count);
         setError(null);
-      } catch (err) {
-        setError("Error al cargar resultados");
-        console.error(err);
-      } finally {
         setLoading(false);
+        return;
+      }
+
+      const params = new URLSearchParams();
+      const ciudad = searchParams.get("ciudad");
+      const tags = searchParams.get("tags");
+      const servicio = searchParams.get("servicio");
+
+      if (ciudad) params.append("ciudad", ciudad);
+      if (tags) params.append("tags", tags);
+      if (servicio) params.append("servicio", servicio);
+
+      params.append("page_size", pageSize);
+      params.append("page", currentPage);
+
+      const response = await api.get(`/api/profiles/?${params.toString()}`);
+      
+      const results = response.data.results || response.data;
+      const count = response.data.count || response.data.length || 0;
+
+      // Guardar en caché
+      cacheRef.current[cacheKey] = { results, count };
+
+      setPerfiles(results);
+      setTotalCount(count);
+      setError(null);
+    } catch (err) {
+      const errorMessage = err.message || "Error al cargar resultados";
+      setError(errorMessage);
+      console.error("Error fetching profiles:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchParams, currentPage, pageSize, getCacheKey]);
+
+  // UseEffect con debouncing para evitar llamadas múltiples
+  useEffect(() => {
+    // Limpiar timer anterior
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Establecer nuevo timer (300ms de debounce)
+    debounceTimerRef.current = setTimeout(() => {
+      fetchPerfiles();
+    }, 300);
+
+    // Cleanup
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
       }
     };
-
-    fetchPerfiles();
-  }, [searchParams, currentPage]);
+  }, [searchParams, currentPage, fetchPerfiles]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -74,7 +117,7 @@ export default function GridResultados() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 md:gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {perfiles.map((perfil) => {
           const img = perfil.foto_perfil
             ? perfil.foto_perfil.startsWith("http")
@@ -86,8 +129,8 @@ export default function GridResultados() {
           const rating = perfil.rating || perfil.puntuacion || 4.8;
           return (
             <Link key={perfil.id} href={`/perfil/${perfil.id}`}>
-              <div className="group overflow-hidden rounded-2xl border border-white/10 bg-[#1a0f1a] shadow-xl hover:-translate-y-1 transition">
-                <div className="relative h-64 w-full overflow-hidden">
+              <div className="group overflow-hidden rounded-lg sm:rounded-xl lg:rounded-2xl border border-white/10 bg-[#1a0f1a] shadow-xl hover:-translate-y-1 transition">
+                <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 w-full overflow-hidden">
                   {img && (
                     <Image
                       src={img}

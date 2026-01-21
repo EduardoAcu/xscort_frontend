@@ -66,20 +66,20 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-[var(--color-card)] p-6 shadow-sm space-y-4 bg-transparent font-montserrat">
-      <h3 className="text-xl font-bold">
+    <form onSubmit={handleSubmit} className="rounded-lg sm:rounded-xl border bg-[var(--color-card)] p-4 sm:p-5 md:p-6 shadow-sm space-y-4 sm:space-y-5 bg-transparent font-montserrat">
+      <h3 className="text-lg sm:text-xl md:text-2xl font-bold">
         {servicio ? "Editar Servicio" : "Nuevo Servicio"}
       </h3>
-      <p className="text-xs text-[color:var(--color-muted-foreground)] font-montserrat">
+      <p className="text-xs sm:text-sm md:text-base text-[color:var(--color-muted-foreground)] font-montserrat">
         Selecciona un servicio del catálogo. Si es exclusivo, escribe el detalle en personalizado.
       </p>
 
       <div className="space-y-2 font-montserrat">
-        <label className="block font-semibold">Catálogo</label>
+        <label className="block text-xs sm:text-sm md:text-base font-semibold">Catálogo</label>
         <select
           value={catalogoId}
           onChange={(e) => setCatalogoId(e.target.value)}
-          className="w-full rounded-md border px-4 py-2 bg-transparent"
+          className="w-full rounded-md border px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-transparent"
         >
           <option value="">-- Selecciona --</option>
           {catalogo.map((c) => (
@@ -89,12 +89,12 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block font-semibold ">Texto personalizado (opcional)</label>
+        <label className="block text-xs sm:text-sm md:text-base font-semibold">Texto personalizado (opcional)</label>
         <input
           type="text"
           value={customText}
           onChange={(e) => setCustomText(e.target.value)}
-          className="w-full rounded-md border px-4 py-2 bg-transparent"
+          className="w-full rounded-md border px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-transparent"
           placeholder="Ej: Solo VIP, incluye ... (máx 120 caracteres)"
           maxLength={120}
         />

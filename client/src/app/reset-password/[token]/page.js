@@ -76,13 +76,13 @@ function ResetPasswordForm() {
       {/* Columna izquierda: formulario */}
       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-8 md:p-12">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Nueva Contraseña</h1>
-            <p className="text-base text-[#c992ad] mt-2">Ingresa tu nueva contraseña para tu cuenta.</p>
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Nueva Contraseña</h1>
+            <p className="text-xs sm:text-sm md:text-base text-[#c992ad] mt-2">Ingresa tu nueva contraseña para tu cuenta.</p>
           </div>
 
           {/* Formulario */}
-          <form onSubmit={onSubmit} className="space-y-4 px-4">
+          <form onSubmit={onSubmit} className="space-y-3 sm:space-y-4 px-3 sm:px-4">
             <label className="flex flex-col min-w-40 flex-1">
               <p className="text-white text-base font-medium leading-normal pb-2">Nueva Contraseña</p>
               <div className="relative">

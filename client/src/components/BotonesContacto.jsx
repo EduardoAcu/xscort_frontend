@@ -14,13 +14,13 @@ export default function BotonesContacto({ perfil }) {
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4">
       {whatsappUrl && (
         <a
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-lg bg-green-500 px-6 py-3 text-white font-semibold hover:bg-green-600 transition"
+          className="flex items-center justify-center gap-2 rounded-lg sm:rounded-xl bg-green-500 px-3 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold text-white hover:bg-green-600 transition w-full sm:w-auto"
         >
           WhatsApp
         </a>
@@ -31,7 +31,7 @@ export default function BotonesContacto({ perfil }) {
           href={telegramUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-lg bg-[color:var(--color-primary)] px-6 py-3 text-white font-semibold hover:bg-[color:var(--color-primary)/0.9] transition"
+          className="flex items-center justify-center gap-2 rounded-lg sm:rounded-xl bg-[color:var(--color-primary)] px-3 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold text-white hover:bg-[color:var(--color-primary)/0.9] transition w-full sm:w-auto"
         >
           Telegram
         </a>

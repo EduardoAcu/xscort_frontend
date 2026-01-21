@@ -7,6 +7,7 @@ import { becomeModel } from "@/lib/api-model";
 import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
+import MobileMenu from "@/components/MobileMenu";
 const HERO_IMG = "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80";
 // Cargar el formulario de verificación de forma dinámica (client-only)
 const FormularioVerificacion = dynamic(() => import("@/components/FormularioVerificacion"), { ssr: false });
@@ -64,6 +65,9 @@ function RegisterForm() {
 
         if (role === "modelo") {
           try {
+            // Pequeño delay para asegurar que el token esté disponible en las cookies
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            
             // Solicitar verificación como modelo - REQUERIDO antes de subir documentos
             await becomeModel(ciudadId);
             toast.success("Cuenta creada. Continúa con la verificación de identidad.");
@@ -125,29 +129,30 @@ function RegisterForm() {
   return (
     <div className="min-h-screen bg-[#120912] text-white flex flex-col lg:flex-row">
       
-      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-6 sm:px-12 lg:px-24 z-50 border-b border-gray-800">
-        <div className="flex justify-between items-center h-20">
+      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-gray-800">
+        <div className="flex justify-between items-center h-16 sm:h-20">
           <Link href="/" className="flex-shrink-0">
-            <Image src="/logo.svg" alt="xscort.cl" width={100} height={100} />
+            <Image src="/logo.png" alt="xscort.cl" width={100} height={100} />
           </Link>
-          <div className="hidden sm:flex gap-8 text-sm items-center ml-auto">
-           <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-            Inicio
-          </Link>
-          <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-            Modelos
-          </Link>
-          <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-            Servicios
-          </Link>
+          <div className="hidden sm:flex gap-6 lg:gap-8 text-sm items-center ml-auto">
+            <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+              Inicio
+            </Link>
+            <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+              Modelos
+            </Link>
+            <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+              Servicios
+            </Link>
             <div className="h-6 w-px bg-gray-700"></div>
             <NavAuthCta />
           </div>
+          <MobileMenu />
         </div>
       </nav>
 
-      {/* Columna izquierda: formulario / pasos */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 sm:px-10 lg:px-16 py-10 pt-32">
+      {/* Columna izquierda: formulario */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 md:px-8 lg:px-12 py-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold  font-montserrat tracking-tight text-white">Registro</h1>

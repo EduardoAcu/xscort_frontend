@@ -4,6 +4,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
+import MobileMenu from "@/components/MobileMenu";
 import { Heart, Flame, Feather } from "lucide-react";
 
 // ============================================================
@@ -45,12 +46,12 @@ async function getCiudades() {
 
 function Navigation() {
   return (
-    <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-6 sm:px-12 lg:px-24 z-50 border-b border-gray-800">
-      <div className="flex justify-between items-center h-20">
-        <Link href="/" className="flex-shrink-0">
-          <Image src="/logo.svg" alt="xscort.cl" width={100} height={100} />
+    <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-gray-800">
+      <div className="flex justify-between items-center h-16 sm:h-20">
+        <Link href="/" className="flex-shrink-0 w-20 sm:w-24 md:w-28">
+          <Image src="/logo.png" alt="xscort.cl" width={100} height={100} className="w-full h-auto" />
         </Link>
-        <div className="hidden sm:flex gap-8 text-sm items-center ml-auto">
+        <div className="hidden sm:flex gap-6 lg:gap-8 text-xs sm:text-sm md:text-base items-center ml-auto">
           <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
             Inicio
           </Link>
@@ -63,6 +64,7 @@ function Navigation() {
           <div className="h-6 w-px bg-gray-700"></div>
           <NavAuthCta />
         </div>
+        <MobileMenu />
       </div>
     </nav>
   );
@@ -71,7 +73,7 @@ function Navigation() {
 function HeroSection() {
   return (
     <div
-      className="pt-24 px-6 py-20 sm:px-12 lg:px-24 min-h-screen flex flex-col justify-center relative"
+      className="pt-20 sm:pt-24 md:pt-28 lg:pt-32 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 py-12 sm:py-16 md:py-20 lg:py-32 min-h-screen flex flex-col justify-center relative"
       style={{
         backgroundImage: "url(/banner01.png)",
         backgroundSize: "cover",
@@ -80,16 +82,16 @@ function HeroSection() {
       }}
     >
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-      <div className="max-w-3xl mx-auto text-center space-y-6 relative z-10">
-        <h1 className="text-5xl sm:text-6xl font-bold font-fancy leading-tight">
+      <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8 relative z-10">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-fancy leading-tight">
           La Plataforma Exclusiva de Modelos Verificadas en Chile.
         </h1>
-        <p className="text-lg text-gray-300 font-montserrat">
+        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 font-montserrat max-w-2xl mx-auto">
           Explora perfiles y contacta directamente por WhatsApp o Telegram. Seguro y discreto.
         </p>
         <Link
           href="/busqueda"
-          className="inline-block bg-pink-500 text-white px-8 py-3 rounded-lg font-bold font-montserrat hover:bg-pink-600 transition"
+          className="inline-block bg-pink-500 text-white px-6 sm:px-8 py-2 sm:py-3 md:py-4 text-sm sm:text-base font-bold font-montserrat hover:bg-pink-600 transition rounded-lg mt-4 sm:mt-6"
         >
           Ver Perfiles Verificados
         </Link>
@@ -228,7 +230,7 @@ function Footer() {
       <div className="max-w-7xl mx-auto px-4">
         {/* Sección Superior: Logo y Enlaces */}        
         <Link href="/" className="flex-shrink-0">
-          <Image src="/footer.png" alt="xscort.cl" width={150} height={150} />
+          <Image src="/logo.png" alt="xscort.cl" width={150} height={150} />
         </Link>
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           <div className="col-span-1 md:col-span-2">

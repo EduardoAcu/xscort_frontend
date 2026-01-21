@@ -41,7 +41,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: https: http:",
               "font-src 'self' https://fonts.gstatic.com data:",
-              "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https:",
+              "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 http://192.168.1.26:8000 https:",
               "frame-ancestors 'none'",
             ].join('; '),
           },
@@ -62,6 +62,12 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: '127.0.0.1',
+        port: '8000',
+        pathname: '/media/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.1.26',
         port: '8000',
         pathname: '/media/**',
       },

@@ -1,6 +1,6 @@
 "use client";
 import FilterPanel from "@/components/FilterPanel";
-import SearchResultsWrapper from "@/components/SearchResultsWrapper";
+import BusquedaContent from "@/components/BusquedaContent";
 import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
@@ -35,24 +35,7 @@ export default function BusquedaPage() {
 
       <div className="max-w-6xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 py-8 sm:py-10 md:py-14 pt-20 sm:pt-24 md:pt-28 lg:pt-32">
         <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start">
-          {/* Sidebar filters */}
-          <div className="w-full lg:w-72 shrink-0">
-            <div className="sticky top-6 sm:top-8">
-              <FilterPanel />
-            </div>
-          </div>
-
-          {/* Main content */}
-          <div className="flex-1 space-y-4 sm:space-y-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black font-fancy tracking-tight">Modelos Verificadas</h1>
-              <p className="text-pink-100 mt-1 sm:mt-2 text-xs sm:text-sm md:text-base font-montserrat">
-                Descubre perfiles exclusivos y verificados en tu zona.
-              </p>
-            </div>
-
-            <SearchResultsWrapper />
-          </div>
+          <BusquedaContent />
         </div>
       </div>
     </div>

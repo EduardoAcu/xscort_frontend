@@ -7,8 +7,6 @@ import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
 
-export const dynamic = 'force-dynamic';
-
 export default function BusquedaPage() {
   return (
     <div className="min-h-screen bg-[#120912] text-white">
@@ -52,7 +50,7 @@ export default function BusquedaPage() {
               </p>
             </div>
 
-            <Suspense fallback={<div className="text-center py-8">Cargando...</div>}>
+            <Suspense fallback={<div className="text-center py-8 text-white">Cargando resultados...</div>}>
               <GridResultados />
             </Suspense>
           </div>

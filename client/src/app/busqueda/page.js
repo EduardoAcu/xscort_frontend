@@ -1,7 +1,6 @@
 "use client";
-import { Suspense } from "react";
 import FilterPanel from "@/components/FilterPanel";
-import GridResultados from "@/components/GridResultados";
+import SearchResultsWrapper from "@/components/SearchResultsWrapper";
 import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
@@ -52,9 +51,7 @@ export default function BusquedaPage() {
               </p>
             </div>
 
-            <Suspense fallback={<div className="text-center py-8 text-white">Cargando resultados...</div>}>
-              <GridResultados />
-            </Suspense>
+            <SearchResultsWrapper />
           </div>
         </div>
       </div>

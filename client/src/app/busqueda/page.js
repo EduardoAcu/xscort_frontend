@@ -7,6 +7,8 @@ import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
 
+export const dynamic = 'force-dynamic';
+
 export default function BusquedaPage() {
   return (
     <div className="min-h-screen bg-[#120912] text-white">

@@ -34,11 +34,15 @@ export default function FormularioSubirFoto({ onSuccess }) {
       const formData = new FormData();
       formData.append("imagen", file); // 'imagen' coincide con tu backend Django
 
-      // CORRECCIÓN PRINCIPAL:
-      // Se eliminó el objeto { headers: ... }.
-      // Al pasar 'formData', Axios anula automáticamente el 'application/json' de api.js
-      // y añade el boundary necesario para subir archivos.
-      await api.post("/api/profiles/mi-galeria/subir/", formData);
+      await api.post(
+        "/api/profiles/mi-galeria/subir/",
+        formData,
+        {
+          headers: {
+            "Content-Type": undefined, 
+          },
+        }
+      );
 
       // Limpiar estado tras éxito
       setFile(null);

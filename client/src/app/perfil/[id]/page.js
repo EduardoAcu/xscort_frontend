@@ -1,10 +1,39 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import FormularioResenaWrapper from "@/components/FormularioResenaWrapper";
-import SearchHeader from "@/components/SearchHeader";
 import GaleriaPublica from "@/components/GaleriaPublica";
 import LikeButtonCliente from "@/components/LikeButtonCliente";
+import NavAuthCta from "@/components/NavAuthCta";
+import MobileMenu from "@/components/MobileMenu";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+function Navigation() {
+  return (
+    <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-gray-800">
+      <div className="flex justify-between items-center h-16 sm:h-20">
+        <Link href="/" className="flex-shrink-0 w-20 sm:w-24 md:w-28">
+          <Image src="/logo.png" alt="xscort.cl" width={100} height={100} className="w-full h-auto" />
+        </Link>
+        <div className="hidden sm:flex gap-6 lg:gap-8 text-xs sm:text-sm md:text-base items-center ml-auto">
+          <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+            Inicio
+          </Link>
+          <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+            Modelos
+          </Link>
+          <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+            Servicios
+          </Link>
+          <div className="h-6 w-px bg-gray-700"></div>
+          <NavAuthCta />
+        </div>
+        <MobileMenu />
+      </div>
+    </nav>
+  );
+}
 
 async function getPerfilData(id) {
   try {
@@ -74,10 +103,11 @@ export default async function PerfilPage({ params }) {
   const likes = perfil.likes_count || 0;
   const likedByMe = perfil.liked_by_me || false;
 
+  
   return (
     <div className="min-h-screen bg-[#120912] text-white">
-      <SearchHeader />
-      <div className="relative isolate overflow-hidden bg-gradient-to-br from-[#160d18] via-[#120912] to-[#1a0f1a]">
+      <Navigation />
+      <div className="pt-16 sm:pt-20 relative isolate overflow-hidden bg-gradient-to-br from-[#160d18] via-[#120912] to-[#1a0f1a]">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 py-8 sm:py-10 md:py-12 lg:py-14">
           <div className="grid gap-6 sm:gap-8 lg:grid-cols-[280px_1fr] xl:grid-cols-[360px_1fr] items-start">
             <div className="rounded-full overflow-hidden border border-white/5 shadow-2xl h-40 w-40 sm:h-56 sm:w-56 lg:h-64 lg:w-64">

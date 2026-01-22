@@ -32,7 +32,7 @@ export default function ListaServicios({ servicios, onDelete, loading }) {
   return (
     <div className="space-y-3 sm:space-y-4">
       {/* Desktop - Tabla */}
-      <div className="hidden md:block rounded-lg sm:rounded-xl border bg-[var(--color-card)] overflow-hidden shadow-sm bg-transparent font-montserrat">
+      <div className="hidden md:block rounded-lg sm:rounded-xl bg-[var(--color-card)] overflow-hidden shadow-sm bg-transparent font-montserrat">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-[color:var(--color-card)/0.04] border-b">

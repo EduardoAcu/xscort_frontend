@@ -76,12 +76,17 @@ const nextConfig = {
         hostname: '*.googleusercontent.com',
         pathname: '/**',
       },
-      // Agregar aquí el dominio de producción cuando esté disponible
-      // {
-      //   protocol: 'https',
-      //   hostname: 'api.xscort.cl',
-      //   pathname: '/media/**',
-      // },
+      {
+       protocol: 'https',
+       hostname: 'api.xscort.cl',
+       pathname: '/media/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.xscort.cl',
+        port: '',
+        pathname: '/**', // Permite cualquier carpeta (galeria_fotos, banners, etc.)
+      },
     ],
   },
 };

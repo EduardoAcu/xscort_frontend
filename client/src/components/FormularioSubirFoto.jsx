@@ -7,7 +7,6 @@ export default function FormularioSubirFoto({ onSuccess }) {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
@@ -33,24 +32,24 @@ export default function FormularioSubirFoto({ onSuccess }) {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("imagen", file);
+      formData.append("imagen", file); // 'imagen' coincide con tu backend Django
 
-      await api.post(
-        "/api/profiles/mi-galeria/subir/",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      // CORRECCIÓN PRINCIPAL:
+      // Se eliminó el objeto { headers: ... }.
+      // Al pasar 'formData', Axios anula automáticamente el 'application/json' de api.js
+      // y añade el boundary necesario para subir archivos.
+      await api.post("/api/profiles/mi-galeria/subir/", formData);
 
+      // Limpiar estado tras éxito
       setFile(null);
       setPreview(null);
+      
+      // Notificar al padre para recargar la galería
       if (onSuccess) {
         onSuccess();
       }
     } catch (err) {
+      console.error("Error subiendo foto:", err);
       const apiError =
         err?.response?.data?.detail ||
         err?.response?.data?.error ||
@@ -73,14 +72,20 @@ export default function FormularioSubirFoto({ onSuccess }) {
           required
           className="w-full rounded-md border px-4 py-2"
         />
-        <p className="text-xs text-[color:var(--color-muted-foreground)]">Formatos: JPG, PNG, GIF (máx 5MB)</p>
+        <p className="text-xs text-[color:var(--color-muted-foreground)]">
+          Formatos: JPG, PNG, GIF (máx 5MB)
+        </p>
       </div>
 
       {/* Preview */}
       {preview && (
         <div className="space-y-2">
           <p className="font-semibold">Vista previa</p>
-          <img src={preview} alt="Preview" className="max-h-64 w-full object-cover rounded-md" />
+          <img
+            src={preview}
+            alt="Preview"
+            className="max-h-64 w-full object-cover rounded-md"
+          />
         </div>
       )}
 

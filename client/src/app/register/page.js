@@ -165,7 +165,7 @@ function RegisterForm() {
           const userMsg = Array.isArray(errorData.username) 
             ? errorData.username[0] 
             : errorData.username;
-          setUsernameError("Este nombre de usuario ya existe. Por favor elige otro.");
+          setUsernameError();
           toast.error("Este nombre de usuario ya existe.");
         } else if (errorData?.email) {
           const emailMsg = Array.isArray(errorData.email) 

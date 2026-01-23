@@ -25,25 +25,53 @@ export default function WidgetSuscripcion({ onUpdate }) {
     fetchSuscripcion();
   }, []); 
 
-  const diasRestantes = useMemo(() => {
-    if (!suscripcion) return 0;
+const estadoSuscripcion = useMemo(() => {
+    if (!suscripcion) return { texto: "0", etiqueta: "días", color: "text-white" };
 
-    // 3. Usamos el estado 'now' en lugar de declarar un new Date() aquí dentro
-    
-    // Preferir fecha_expiracion si viene del backend (Cálculo preciso en tiempo real)
+    // Si está pausada, ignorar tiempo
+    if (suscripcion.esta_pausada) {
+      return { texto: "PAUSADA", etiqueta: "", color: "text-yellow-400" };
+    }
+
+    // Si tenemos fecha exacta, calculamos con precisión
     if (suscripcion.fecha_expiracion) {
       const exp = new Date(suscripcion.fecha_expiracion);
-      // Calculamos la diferencia usando el estado 'now' que se actualiza solo
-      const diff = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
-      return Math.max(diff, 0);
+      const diffMs = exp - now; // Diferencia en milisegundos
+
+      // Ya expiró
+      if (diffMs <= 0) {
+        return { texto: "0", etiqueta: "días (Vencida)", color: "text-red-400" };
+      }
+
+      const horasRestantes = diffMs / (1000 * 60 * 60);
+
+      // CASO CRÍTICO: Menos de 24 horas
+      if (horasRestantes < 24) {
+        return { 
+          texto: Math.ceil(horasRestantes), 
+          etiqueta: "horas restantes", 
+          color: "text-orange-400" // Alerta visual
+        };
+      }
+
+      // Más de 1 día
+      const dias = Math.ceil(horasRestantes / 24);
+      return { 
+        texto: dias, 
+        etiqueta: "días restantes", 
+        color: dias <= 3 ? "text-orange-300" : "text-white" // Naranja si quedan 3 días o menos
+      };
     }
 
-    // Si no hay fecha exacta, usamos los enteros estáticos (estos solo bajan si recargas la página)
-    if (typeof suscripcion.dias_restantes_calculado === "number") {
-      return Math.max(suscripcion.dias_restantes_calculado, 0);
-    }
-    return Math.max(suscripcion.dias_restantes || 0, 0);
-  }, [suscripcion, now]); // <--- 4. Agregamos 'now' a las dependencias
+    // Fallback si el backend no manda fecha (sistema antiguo)
+    const diasBackend = suscripcion.dias_restantes_calculado ?? suscripcion.dias_restantes ?? 0;
+    return { 
+      texto: Math.max(diasBackend, 0), 
+      etiqueta: "días restantes", 
+      color: "text-white" 
+    };
+
+  }, [suscripcion, now]);
 
   const estaPausada = suscripcion?.esta_pausada || false;
 
@@ -142,21 +170,29 @@ export default function WidgetSuscripcion({ onUpdate }) {
       <div className="mt-4 flex flex-col gap-1">
         {estaPausada ? (
           <>
-            <p className="text-4xl font-extrabold">Pausada</p>
+            <p className="text-4xl font-extrabold text-yellow-400">Pausada</p>
             <p className="text-sm text-pink-100/80 max-w-md">
-              Tu perfil no es visible para nuevos clientes mientras la suscripción esté pausada.
+              Tu perfil no es visible...
             </p>
           </>
         ) : (
           <>
             <div className="flex items-baseline gap-3">
-              <p className="text-5xl font-extrabold leading-none">{diasRestantes}</p>
+              {/* Aquí usamos el objeto calculado */}
+              <p className={`text-5xl font-extrabold leading-none ${estadoSuscripcion.color}`}>
+                {estadoSuscripcion.texto}
+              </p>
               <span className="text-sm font-medium text-pink-100/80 uppercase tracking-wide">
-                días restantes
+                {estadoSuscripcion.etiqueta}
               </span>
             </div>
+            
+            {/* Mensaje contextual */}
             <p className="text-sm text-pink-100/80 max-w-md">
-              Tu perfil está activo y visible para nuevos clientes mientras tu suscripción tenga días disponibles.
+              {estadoSuscripcion.etiqueta.includes("horas") 
+                ? "¡Atención! Tu plan vence hoy. Renueva para no perder visibilidad."
+                : "Tu perfil está activo y visible para nuevos clientes."
+              }
             </p>
           </>
         )}

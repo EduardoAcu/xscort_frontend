@@ -23,8 +23,8 @@ function RegisterForm() {
   const [role, setRole] = useState("cliente"); // cliente | modelo
   const [step, setStep] = useState(1); // 1: datos personales, 2: documentos (solo modelo)
   const [modelVerificationError, setModelVerificationError] = useState(""); // Error al verificar como modelo
-  const [usernameError, setUsernameError] = useState("El nombre de usuario ya existe"); // Error cuando username ya existe
-  const [emailError, setEmailError] = useState("El correo ya está en uso"); // Error cuando email ya existe
+  const [usernameError, setUsernameError] = useState(""); // Error cuando username ya existe
+  const [emailError, setEmailError] = useState(""); // Error cuando email ya existe
   const [isPending, startTransition] = useTransition();
 
   const register = useAuthStore((s) => s.register);

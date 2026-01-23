@@ -38,15 +38,18 @@ export default function PanelClientePage() {
     setError("");
     setMessage("");
     try {
+      // 1. CAMBIO: Solo enviamos el email en el PATCH.
+      // El username no se envía porque no permitimos cambiarlo.
       const res = await api.patch("/api/me/", {
-        username: form.username,
         email: form.email,
       });
-      setForm({ username: res.data.username, email: res.data.email });
+      
+      // Actualizamos el estado con la respuesta (por si el backend normalizó el email)
+      setForm(prev => ({ ...prev, email: res.data.email }));
       setMessage("Datos actualizados correctamente");
     } catch (err) {
       const apiErr = err?.response?.data;
-      setError(apiErr?.username?.[0] || apiErr?.email?.[0] || "No se pudo guardar");
+      setError(apiErr?.email?.[0] || "No se pudo guardar");
     } finally {
       setSaving(false);
     }
@@ -87,10 +90,12 @@ export default function PanelClientePage() {
               <input
                 name="username"
                 value={form.username}
-                onChange={handleChange}
-                className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
-                required
+                // 2. CAMBIO: Input deshabilitado (disabled) y sin onChange
+                disabled 
+                className="w-full rounded-md border border-[#3b1027] px-4 py-2 bg-[#2a1425] text-white/50 cursor-not-allowed"
+                title="El nombre de usuario no se puede cambiar"
               />
+              <p className="text-xs text-pink-200/60">El nombre de usuario no es editable.</p>
             </div>
             <div className="space-y-2">
               <label className="block font-semibold">Correo electrónico</label>
@@ -99,7 +104,7 @@ export default function PanelClientePage() {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                className="w-full rounded-md border border-[#3b1027] px-4 py-2 bg-transparent text-white focus:border-pink-500 focus:outline-none"
                 required
               />
             </div>
@@ -108,7 +113,7 @@ export default function PanelClientePage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-[#ff007f] px-4 py-2 text-white font-semibold hover:bg-pink-500 disabled:opacity-60"
+              className="rounded-lg bg-[#ff007f] px-4 py-2 text-white font-semibold hover:bg-pink-500 disabled:opacity-60 transition-colors"
             >
               {saving ? "Guardando..." : "Guardar cambios"}
             </button>

@@ -82,6 +82,17 @@ function RegisterForm() {
     return () => clearTimeout(timer);
   }, [username]);
 
+  // Mostrar notificación cuando hay error de username
+  useEffect(() => {
+    if (usernameError) {
+      const showToast = async () => {
+        const { toast } = await import("sonner");
+        toast.error(usernameError);
+      };
+      showToast();
+    }
+  }, [usernameError]);
+
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!accepted) return;

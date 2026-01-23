@@ -9,8 +9,6 @@ export default function robots() {
         // Bloquear recursos internos, APIs y paneles/protected
         disallow: [
           '/api/',      // endpoints REST
-          '/_next/',    // assets y runtime de Next.js
-          '/static/',   // assets estáticos
           '/panel/',    // paneles de usuario (protegidos)
           '/admin/',    // admin del backend
           '/private/',  // carpeta de ejemplo privada

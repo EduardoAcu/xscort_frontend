@@ -28,7 +28,7 @@ export default function GaleriaPage() {
   };
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#120912] text-white">
+      <div className="min-h-screen bg-[#120912] text-montserrat text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-10">
           <div>
             <p className="text-sm uppercase text-pink-200 font-semibold">xscort.cl</p>

@@ -58,7 +58,7 @@ export default function ModelSidebar() {
   ];
 
   return (
-    <aside className="hidden lg:flex w-64 bg-[#180417] border-r border-[#3b1027] flex-col text-white">
+    <aside className="hidden lg:flex w-64 bg-[#180417] border-r border-[#3b1027] flex-col text-white text-montserrat">
       <div className="px-6 py-6 flex items-center gap-3 border-b border-[#3b1027]">
         {avatar ? (
           <img src={avatar} alt={displayName} className="h-12 w-12 rounded-full object-cover" />

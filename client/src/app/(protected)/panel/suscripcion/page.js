@@ -106,12 +106,12 @@ export default function SuscripcionPage() {
       <div className="min-h-screen bg-[#120912] text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-10">
           <div>
-            <p className="text-sm uppercase text-pink-200 font-semibold">xscort.cl</p>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Mi Suscripción</h1>
-            <p className="text-pink-100 mt-1 text-sm sm:text-base">Elige un plan, realiza la transferencia y sube tu comprobante para activarlo.</p>
+            <p className="text-sm uppercase text-pink-200 text-montserrat font-semibold">xscort.cl</p>
+            <h1 className="text-3xl sm:text-4xl text-montserrat font-black tracking-tight">Mi Suscripción</h1>
+            <p className="text-pink-100 text-montserrat mt-1 text-sm sm:text-base">Elige un plan, realiza la transferencia y sube tu comprobante para activarlo.</p>
           </div>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 text-montserrat lg:grid-cols-3">
             {/* Columna izquierda: datos de transferencia + formulario */}
             <div className="lg:col-span-1 space-y-6">
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
@@ -148,7 +148,7 @@ export default function SuscripcionPage() {
                 </dl>
               </div>
 
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
+              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md ">
                 <h2 className="text-lg font-bold mb-4 text-white">Enviar comprobante</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
@@ -159,7 +159,7 @@ export default function SuscripcionPage() {
                       <select
                         value={selectedPlanId}
                         onChange={(e) => setSelectedPlanId(e.target.value)}
-                        className="w-full rounded-md border px-3 py-2 text-sm bg-transparent text-white"
+                        className="w-full rounded-md border px-4 py-2 bg-transparent text-white [&>option]:text-black [&>option]:bg-white"
                         required
                       >
                         <option value="">Selecciona un plan</option>
@@ -199,7 +199,7 @@ export default function SuscripcionPage() {
             </div>
 
             {/* Columna derecha: historial de solicitudes */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 text-montserrat">
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
                 <h2 className="text-lg font-bold mb-4 text-white">Historial de solicitudes</h2>
                 {loadingSolicitudes ? (

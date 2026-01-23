@@ -79,7 +79,7 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
         <select
           value={catalogoId}
           onChange={(e) => setCatalogoId(e.target.value)}
-          className="w-full rounded-md border px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-transparent"
+          className="w-full rounded-md border px-4 py-2 bg-transparent text-white [&>option]:text-black [&>option]:bg-white"
         >
           <option value="">-- Selecciona --</option>
           {catalogo.map((c) => (

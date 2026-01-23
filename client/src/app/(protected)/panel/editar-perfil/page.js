@@ -220,17 +220,18 @@ export default function EditarPerfilPage() {
                       {/* Género */}
                       <div className="space-y-2">
                         <label className="block font-semibold">Género</label>
-                        <select
-                          name="genero"
-                          value={formData.genero}
-                          onChange={handleChange}
-                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
-                        >
-                          <option value="">Selecciona género</option>
-                          <option value="M">Masculino</option>
-                          <option value="F">Femenino</option>
-                          <option value="T">Transgénero</option>
-                        </select>
+                          <select
+                            name="genero"
+                            value={formData.genero}
+                            onChange={handleChange}
+                            // 'text-white' para el select cerrado, pero las opciones heredarán color negro
+                            className="w-full rounded-md border px-4 py-2 bg-transparent text-white [&>option]:text-black [&>option]:bg-white"
+                          >
+                            <option value="">Selecciona género</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                            <option value="T">Transgénero</option>
+                          </select>
                       </div>
 
                       {/* Altura */}

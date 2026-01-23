@@ -14,22 +14,28 @@ export default function ModelSidebar() {
   const [avatar, setAvatar] = useState("");
   const [publicProfileUrl, setPublicProfileUrl] = useState("");
   
-  // Estado de bloqueo y carga
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  // --- NUEVO: Estado para menú móvil ---
   const [isOpen, setIsOpen] = useState(false);
 
-  // --- NUEVO: Cerrar menú al cambiar de ruta (navegar) ---
+  // Cerrar menú al navegar
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
+  // Bloquear scroll del body cuando el menú está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. CARGAR DATOS VISUALES
         const resPerfil = await api.get("/api/profiles/mi-perfil/");
         const data = resPerfil.data;
         
@@ -43,7 +49,6 @@ export default function ModelSidebar() {
           setAvatar(url);
         }
 
-        // 2. CARGAR ESTADO DE SUSCRIPCIÓN
         try {
           const resSub = await api.get("/api/subscriptions/mi-suscripcion/");
           const sub = resSub.data;
@@ -60,7 +65,6 @@ export default function ModelSidebar() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -88,54 +92,63 @@ export default function ModelSidebar() {
 
   return (
     <>
-      {/* --- 1. BOTÓN HAMBURGUESA (Solo visible en Móvil) --- */}
-      <div className="lg:hidden fixed top-0 left-0 w-full h-16 bg-[#180417] border-b border-[#3b1027] z-40 flex items-center px-4 justify-between">
-        <div className="flex items-center gap-3">
-            {/* Logo o Título simple para móvil */}
-            <span className="font-bold text-pink-500">XSCORT PANEL</span>
+      {/* 1. HEADER MÓVIL (Solo visible en LG hidden) */}
+      <div className="lg:hidden fixed top-0 left-0 w-full h-16 bg-[#180417] border-b border-[#3b1027] z-40 flex items-center px-4 justify-between select-none">
+        <div className="flex items-center gap-2">
+            <span className="font-bold text-pink-500 font-montserrat">XSCORT</span>
         </div>
         <button 
             onClick={() => setIsOpen(true)}
-            className="text-white p-2 rounded-md hover:bg-pink-900/50"
+            className="text-white p-2 rounded-md active:bg-pink-900/50"
+            aria-label="Abrir menú"
         >
             <span className="material-symbols-outlined text-3xl">menu</span>
         </button>
       </div>
 
-      {/* --- 2. BACKDROP (Fondo oscuro al abrir menú) --- */}
-      {isOpen && (
-        <div 
-            className="fixed inset-0 bg-black/80 z-40 lg:hidden backdrop-blur-sm"
-            onClick={() => setIsOpen(false)}
-        />
-      )}
+      {/* 2. BACKDROP OSCURO */}
+      <div 
+        className={`fixed inset-0 bg-black/80 z-40 lg:hidden backdrop-blur-sm transition-opacity duration-300 ${
+            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsOpen(false)}
+      />
 
-      {/* --- 3. SIDEBAR (Adaptable) --- */}
+      {/* 3. SIDEBAR DESLIZANTE */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 h-screen z-50
-        w-64 bg-[#180417] border-r border-[#3b1027] flex flex-col text-white text-montserrat
-        transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        fixed lg:sticky top-0 left-0 z-50
+        flex flex-col text-white text-montserrat bg-[#180417] border-r border-[#3b1027]
+        transition-transform duration-300 ease-out
+        
+        /* DIMENSIONES PARA ESCRITORIO */
+        lg:translate-x-0 lg:h-screen lg:w-64
+        
+        /* DIMENSIONES PARA MÓVIL (iPhone Fixes) */
+        h-[100dvh] w-[85vw] sm:w-80
+        ${isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:shadow-none"}
       `}>
         
-        {/* Botón cerrar (Solo móvil) */}
-        <div className="lg:hidden absolute top-4 right-4">
-            <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white">
-                <span className="material-symbols-outlined">close</span>
+        {/* Botón cerrar (X) en móvil */}
+        <div className="lg:hidden absolute top-4 right-4 z-50">
+            <button 
+                onClick={() => setIsOpen(false)} 
+                className="p-2 text-gray-400 hover:text-white bg-[#180417]/50 rounded-full"
+            >
+                <span className="material-symbols-outlined text-2xl">close</span>
             </button>
         </div>
 
-        {/* --- CONTENIDO ORIGINAL DEL SIDEBAR --- */}
-        <div className="px-6 py-6 flex items-center gap-3 border-b border-[#3b1027] mt-8 lg:mt-0">
+        {/* --- CABECERA PERFIL --- */}
+        <div className="px-6 py-8 lg:py-6 flex items-center gap-3 border-b border-[#3b1027] mt-2 lg:mt-0">
           {avatar ? (
-            <img src={avatar} alt={displayName} className="h-12 w-12 rounded-full object-cover" />
+            <img src={avatar} alt={displayName} className="h-14 w-14 lg:h-12 lg:w-12 rounded-full object-cover ring-2 ring-[#3b1027]" />
           ) : (
-            <div className="h-12 w-12 rounded-full bg-pink-500 flex items-center justify-center text-lg font-bold">
+            <div className="h-14 w-14 lg:h-12 lg:w-12 rounded-full bg-pink-500 flex items-center justify-center text-xl font-bold">
               {initials}
             </div>
           )}
           <div className="flex flex-col">
-            <span className="text-sm font-semibold truncate max-w-[140px]">{displayName}</span>
+            <span className="text-base lg:text-sm font-semibold truncate max-w-[160px]">{displayName}</span>
             <Link
               href={publicProfileUrl || "#"}
               onClick={handleProfileClick}
@@ -144,38 +157,39 @@ export default function ModelSidebar() {
                   ? "text-gray-500" 
                   : isSubscribed 
                     ? "text-pink-400 hover:text-pink-300 underline" 
-                    : "text-gray-500 cursor-not-allowed hover:text-gray-400"
+                    : "text-gray-500 cursor-not-allowed"
               }`}
-              prefetch={false}
             >
               {loading ? "Cargando..." : "Ver Perfil Público"}
             </Link>
           </div>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-2 text-sm overflow-y-auto">
+        {/* --- NAVEGACIÓN (Scrollable) --- */}
+        <nav className="flex-1 px-4 py-6 space-y-2 text-sm overflow-y-auto">
           {navItems.map((item) => {
             const active = pathname?.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 rounded-full px-4 py-2 transition ${
+                className={`flex items-center gap-4 lg:gap-3 rounded-xl px-4 py-3 lg:py-2 transition ${
                   active
-                    ? "bg-[#ff007f] text-white font-semibold"
-                    : "text-gray-200 hover:bg-[#2a0c21]"
+                    ? "bg-[#ff007f] text-white font-semibold shadow-lg shadow-pink-900/20"
+                    : "text-gray-300 hover:bg-[#2a0c21] hover:text-white"
                 }`}
-                prefetch={false}
               >
-                <span className="material-symbols-outlined text-base">{item.icon}</span>
-                <span>{item.label}</span>
+                <span className="material-symbols-outlined text-[22px] lg:text-base">{item.icon}</span>
+                <span className="text-base lg:text-sm">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="px-4 py-4 border-t border-[#3b1027]">
-          <LogoutButton className="w-full inline-flex items-center justify-center gap-1 rounded-full border border-[#ff007f] px-4 py-2 text-sm text-gray-100 hover:bg-[#ff007f] hover:text-white" />
+        {/* --- FOOTER / LOGOUT --- */}
+        {/* pb-safe o pb-8 extra en móvil para evitar la barra negra del iPhone */}
+        <div className="px-4 py-4 lg:py-4 border-t border-[#3b1027] bg-[#180417] pb-10 lg:pb-4">
+          <LogoutButton className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#ff007f] px-4 py-3 lg:py-2 text-sm text-gray-100 hover:bg-[#ff007f] hover:text-white transition-all font-semibold" />
         </div>
       </aside>
     </>

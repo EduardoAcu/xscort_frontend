@@ -236,7 +236,7 @@ function RegisterForm() {
       <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 md:px-8 lg:px-12 py-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold  font-montserrat tracking-tight text-white">Registroooos</h1>
+            <h1 className="text-3xl md:text-4xl font-bold  font-montserrat tracking-tight text-white">Registro</h1>
             <p className="text-base text-white font-montserrat mt-2">Crea tu cuenta y completa la verificación.</p>
           </div>
 

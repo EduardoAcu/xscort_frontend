@@ -345,8 +345,8 @@ export default async function HomePage() {
     <div className="min-h-screen bg-black text-white">
       <Navigation />
       <HeroSection />
-      <TrustSection />
       <CiudadesSection ciudades={ciudades} />
+      <TrustSection />
       <ServicesSection />
       <CTASection />
       <Footer />

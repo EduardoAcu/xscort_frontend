@@ -25,6 +25,7 @@ function RegisterForm() {
   const [modelVerificationError, setModelVerificationError] = useState(""); // Error al verificar como modelo
   const [usernameError, setUsernameError] = useState(""); // Error cuando username ya existe
   const [emailError, setEmailError] = useState(""); // Error cuando email ya existe
+  const [checkingUsername, setCheckingUsername] = useState(false); // Verificando si username existe
   const [isPending, startTransition] = useTransition();
 
   const register = useAuthStore((s) => s.register);
@@ -46,6 +47,40 @@ function RegisterForm() {
     };
     fetchCiudades();
   }, []);
+
+  // Validar disponibilidad de username en tiempo real
+  useEffect(() => {
+    if (!username || username.length < 3) {
+      setUsernameError("");
+      setCheckingUsername(false);
+      return;
+    }
+
+    const checkUsername = async () => {
+      setCheckingUsername(true);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/check-username/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.exists) {
+          setUsernameError("Este nombre de usuario ya está en uso.");
+        } else {
+          setUsernameError("");
+        }
+      } catch {
+        setUsernameError("");
+      } finally {
+        setCheckingUsername(false);
+      }
+    };
+
+    // Debounce de 500ms para no hacer muchas peticiones
+    const timer = setTimeout(checkUsername, 500);
+    return () => clearTimeout(timer);
+  }, [username]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -223,16 +258,23 @@ function RegisterForm() {
             <form onSubmit={onSubmit} className="space-y-4 px-4">
               <label className="flex flex-col min-w-40 flex-1">
                 <p className="text-white text-base font-medium leading-normal pb-2 font-montserrat">Nombre de Usuario</p>
-                <input
-                  className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal font-montserrat"
-                  placeholder="Ingresa tu nombre usuario"
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setUsernameError("");
-                  }}
-                  required
-                />
+                <div className="relative">
+                  <input
+                    className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal font-montserrat"
+                    placeholder="Ingresa tu nombre usuario"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                  {checkingUsername && (
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#c992ad]">
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </span>
+                  )}
+                </div>
                 {usernameError && (
                   <p className="text-xs text-red-400 mt-2 font-montserrat">{usernameError}</p>
                 )}
@@ -338,7 +380,7 @@ function RegisterForm() {
 
               <button
                 type="submit"
-                disabled={isPending || !accepted || (role === "modelo" && !ciudadId)}
+                disabled={isPending || !accepted || (role === "modelo" && !ciudadId) || !!usernameError || checkingUsername}
                 className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mt-2 disabled:opacity-60 font-montserrat"
               >
                 {isPending ? "Creando cuenta..." : "Crear Cuenta"}

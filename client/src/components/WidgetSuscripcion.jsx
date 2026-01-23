@@ -7,25 +7,44 @@ export default function WidgetSuscripcion({ onUpdate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  
+  // 1. Estado para guardar la hora actual y que sea reactiva
+  const [now, setNow] = useState(new Date());
+
+  // 2. Efecto para actualizar el reloj interno cada 1 minuto
+  useEffect(() => {
+    // Actualizamos 'now' cada 60.000ms (1 minuto) para mantener el contador fresco
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     fetchSuscripcion();
-  }, []); // Solo cargar una vez al montar
+  }, []); 
+
   const diasRestantes = useMemo(() => {
     if (!suscripcion) return 0;
-    const now = new Date();
-    // Preferir fecha_expiracion si viene del backend
+
+    // 3. Usamos el estado 'now' en lugar de declarar un new Date() aquí dentro
+    
+    // Preferir fecha_expiracion si viene del backend (Cálculo preciso en tiempo real)
     if (suscripcion.fecha_expiracion) {
       const exp = new Date(suscripcion.fecha_expiracion);
+      // Calculamos la diferencia usando el estado 'now' que se actualiza solo
       const diff = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
       return Math.max(diff, 0);
     }
-    // Si no, usar calculado; fallback a dias_restantes almacenado
+
+    // Si no hay fecha exacta, usamos los enteros estáticos (estos solo bajan si recargas la página)
     if (typeof suscripcion.dias_restantes_calculado === "number") {
       return Math.max(suscripcion.dias_restantes_calculado, 0);
     }
     return Math.max(suscripcion.dias_restantes || 0, 0);
-  }, [suscripcion]);
+  }, [suscripcion, now]); // <--- 4. Agregamos 'now' a las dependencias
+
   const estaPausada = suscripcion?.esta_pausada || false;
 
   const fetchSuscripcion = async () => {
@@ -36,7 +55,6 @@ export default function WidgetSuscripcion({ onUpdate }) {
       setError(null);
     } catch (err) {
       if (err.response?.status === 404) {
-        // No hay suscripción activa, esto es un caso esperado
         setSuscripcion(null);
         setError("");
       } else {
@@ -114,7 +132,6 @@ export default function WidgetSuscripcion({ onUpdate }) {
       </div>
     );
   }
-
 
   return (
     <div className="rounded-3xl bg-gradient-to-br from-[#7a0b4d] to-[#3b0322] p-6 shadow-lg space-y-4">

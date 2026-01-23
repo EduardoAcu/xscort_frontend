@@ -17,14 +17,14 @@ const CURRENT_YEAR = new Date().getFullYear();
 // ============================================================
 export const metadata = {
   title: "xscort Chile - El Directorio Más Completo",
-  description: "Encuentra los mejores servicios en Chile. Búsqueda rápida, segura y confiable en xscort.",
-  keywords: ['chile', 'servicios', 'directorio', 'anuncios','escort','acompañantes','modelos','contacto directo','seguridad','discreción','xscort.cl'],
+  description: "Avisos por ciudad y contacto directo.", 
+  keywords: ['chile', 'servicios', 'anuncios','escort','acompañantes','modelos','seguridad','discreción','xscort',' escorts','scort','sur','putas'],
   authors: [{ name: "xscort.cl", url: "https://xscort.cl" }],
   openGraph: {
     title: "xscort Chile - El Directorio Más Completo",
     description: "Encuentra los mejores servicios en Chile. Búsqueda rápida, segura y confiable en xscort.",
     url: "https://xscort.cl",
-    siteName: "xscort.cl",
+    siteName: "xscort",
     images: [
       {
         url: "https://xscort.cl/logo.png",

@@ -126,11 +126,11 @@ export default async function PerfilPage({ params }) {
               <LikeButtonCliente perfilId={perfil.id} initialLiked={likedByMe} initialCount={likes} />
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base text-pink-100/90">
                 {ciudad && <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10">{ciudad}</span>}
-                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10">❤️ {likes} me gusta</span>
+                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10">❤️ {likes} Me gusta</span>
               </div>
 
               {(phone || telegram) && (
-                <div className="space-y-2">
+                <div className="space-y-2 text-montserrat">
                   <p className="text-sm uppercase text-pink-200">Contacto</p>
                   <div className="flex flex-wrap gap-3">
                     {phone && (
@@ -139,7 +139,7 @@ export default async function PerfilPage({ params }) {
                           href={`tel:${phone}`}
                           className="inline-flex items-center gap-2 rounded-full bg-pink-600 px-4 py-2 font-semibold text-white hover:bg-pink-700 transition"
                         >
-                          Llamar {phone}
+                          Llamar
                         </a>
                         <a
                           href={`https://wa.me/${phone.replace(/\\D/g, "")}`}
@@ -158,7 +158,7 @@ export default async function PerfilPage({ params }) {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600 transition"
                       >
-                        Telegram {telegram}
+                        Telegram
                       </a>
                     )}
                   </div>

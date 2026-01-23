@@ -12,10 +12,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <header className="mb-2 sm:mb-4">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-fancy">Dashboard</h1>
-        <p className="mt-1 sm:mt-2 text-xs sm:text-sm md:text-base text-gray-300 font-montserrat">
-          Bienvenida de nuevo. Aquí tienes un resumen de tu actividad.
-        </p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-fancy">Panel de Escort</h1>
       </header>
 
       <section className="grid gap-4 sm:gap-6 lg:grid-cols-2">

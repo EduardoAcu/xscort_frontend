@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { toast } from "sonner"; // 1. Importar notificación
 import api from "@/lib/api";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -12,14 +13,21 @@ export default function ModelSidebar() {
   const [displayName, setDisplayName] = useState("Mi Perfil");
   const [avatar, setAvatar] = useState("");
   const [publicProfileUrl, setPublicProfileUrl] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false); // 2. Estado de suscripción
 
   useEffect(() => {
     const fetchPerfil = async () => {
       try {
         const res = await api.get("/api/profiles/mi-perfil/");
         const data = res.data;
+        
         setDisplayName(data.nombre_artistico || "Mi Perfil");
         if (data.id) setPublicProfileUrl(`/perfil/${data.id}`);
+        
+        // 3. Obtener estado de suscripción del backend
+        // Asegúrate de que tu API devuelva este campo (ej: suscripcion_activa, is_active, etc.)
+        setIsSubscribed(data.suscripcion_activa || false); 
+
         if (data.foto_perfil) {
           const url = data.foto_perfil.startsWith("http")
             ? data.foto_perfil
@@ -29,7 +37,6 @@ export default function ModelSidebar() {
           setAvatar("");
         }
       } catch (err) {
-        // Si falla, mantener valores por defecto
         console.warn("No se pudo cargar perfil para sidebar", err);
       }
     };
@@ -47,6 +54,14 @@ export default function ModelSidebar() {
           .toUpperCase()
       : "EV";
   }, [displayName]);
+
+  // 4. Función para interceptar el clic
+  const handleProfileClick = (e) => {
+    if (!isSubscribed) {
+      e.preventDefault(); // Bloquea la navegación
+      toast.error("No tienes una suscripción activa"); // Muestra el mensaje
+    }
+  };
 
   const navItems = [
     { href: "/panel/dashboard", icon: "apps", label: "Dashboard" },
@@ -69,9 +84,14 @@ export default function ModelSidebar() {
         )}
         <div className="flex flex-col">
           <span className="text-sm font-semibold truncate max-w-[140px]">{displayName}</span>
+          
+          {/* Lógica del botón de Perfil Público */}
           <Link
             href={publicProfileUrl || "#"}
-            className="text-xs text-pink-400 hover:text-pink-300"
+            onClick={handleProfileClick}
+            className={`text-xs hover:text-pink-300 transition-colors ${
+              isSubscribed ? "text-pink-400" : "text-gray-500 cursor-not-allowed"
+            }`}
             prefetch={false}
           >
             Ver Perfil Público

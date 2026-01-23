@@ -2,7 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { toast } from "sonner"; // 1. Importar notificación
+import { toast } from "sonner"; 
 import api from "@/lib/api";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -13,34 +13,52 @@ export default function ModelSidebar() {
   const [displayName, setDisplayName] = useState("Mi Perfil");
   const [avatar, setAvatar] = useState("");
   const [publicProfileUrl, setPublicProfileUrl] = useState("");
-  const [isSubscribed, setIsSubscribed] = useState(false); // 2. Estado de suscripción
+  
+  // Estado de bloqueo
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPerfil = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get("/api/profiles/mi-perfil/");
-        const data = res.data;
+        // 1. CARGAR DATOS VISUALES (Nombre y Foto)
+        const resPerfil = await api.get("/api/profiles/mi-perfil/");
+        const data = resPerfil.data;
         
         setDisplayName(data.nombre_artistico || "Mi Perfil");
         if (data.id) setPublicProfileUrl(`/perfil/${data.id}`);
         
-        // 3. Obtener estado de suscripción del backend
-        // Asegúrate de que tu API devuelva este campo (ej: suscripcion_activa, is_active, etc.)
-        setIsSubscribed(data.suscripcion_activa || false); 
-
         if (data.foto_perfil) {
           const url = data.foto_perfil.startsWith("http")
             ? data.foto_perfil
             : `${API_BASE_URL}${data.foto_perfil}`;
           setAvatar(url);
-        } else {
-          setAvatar("");
         }
+
+        // 2. CARGAR ESTADO DE SUSCRIPCIÓN (La fuente de la verdad)
+        // Hacemos una llamada separada al endpoint que sabemos que funciona (200 OK)
+        try {
+          const resSub = await api.get("/api/subscriptions/mi-suscripcion/");
+          const sub = resSub.data;
+          
+          // Lógica: Está suscrita si tiene días restantes y NO está pausada
+          const dias = sub.dias_restantes_calculado ?? sub.dias_restantes ?? 0;
+          const activa = dias > 0 && !sub.esta_pausada;
+          
+          setIsSubscribed(activa);
+        } catch (subErr) {
+          // Si da 404 es que no tiene suscripción creada
+          setIsSubscribed(false);
+        }
+
       } catch (err) {
-        console.warn("No se pudo cargar perfil para sidebar", err);
+        console.warn("Error cargando sidebar", err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchPerfil();
+
+    fetchData();
   }, []);
 
   const initials = useMemo(() => {
@@ -55,11 +73,10 @@ export default function ModelSidebar() {
       : "EV";
   }, [displayName]);
 
-  // 4. Función para interceptar el clic
   const handleProfileClick = (e) => {
     if (!isSubscribed) {
-      e.preventDefault(); // Bloquea la navegación
-      toast.error("No tienes una suscripción activa"); // Muestra el mensaje
+      e.preventDefault(); 
+      toast.error("Debes tener una suscripción activa para ver tu perfil público.");
     }
   };
 
@@ -85,16 +102,21 @@ export default function ModelSidebar() {
         <div className="flex flex-col">
           <span className="text-sm font-semibold truncate max-w-[140px]">{displayName}</span>
           
-          {/* Lógica del botón de Perfil Público */}
+          {/* ENLACE AL PERFIL PÚBLICO */}
           <Link
             href={publicProfileUrl || "#"}
             onClick={handleProfileClick}
-            className={`text-xs hover:text-pink-300 transition-colors ${
-              isSubscribed ? "text-pink-400" : "text-gray-500 cursor-not-allowed"
+            className={`text-xs transition-colors font-medium mt-1 ${
+              loading 
+                ? "text-gray-500" 
+                : isSubscribed 
+                  ? "text-pink-400 hover:text-pink-300 underline" 
+                  : "text-gray-500 cursor-not-allowed hover:text-gray-400"
             }`}
             prefetch={false}
           >
-            Ver Perfil Público
+            {loading ? "Cargando..." : "Ver Perfil Público"}
+            {!isSubscribed && !loading && <span className="ml-1 text-[10px] opacity-70">(Sin plan)</span>}
           </Link>
         </div>
       </div>

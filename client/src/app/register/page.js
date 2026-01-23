@@ -96,8 +96,22 @@ function RegisterForm() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!accepted) return;
+    
+    // Validación preventiva: si hay error en username, no permitir envío
+    if (usernameError) {
+      const { toast } = await import("sonner");
+      toast.error("Por favor, elige otro nombre de usuario.");
+      return;
+    }
+    
+    // Si aún está verificando username, no permitir envío
+    if (checkingUsername) {
+      const { toast } = await import("sonner");
+      toast.error("Por favor, espera a que se verifique el nombre de usuario.");
+      return;
+    }
+    
     setModelVerificationError("");
-    setUsernameError("");
     setEmailError("");
     
     // Validar que si es modelo, tiene ciudad seleccionada

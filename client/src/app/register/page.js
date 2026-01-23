@@ -23,6 +23,8 @@ function RegisterForm() {
   const [role, setRole] = useState("cliente"); // cliente | modelo
   const [step, setStep] = useState(1); // 1: datos personales, 2: documentos (solo modelo)
   const [modelVerificationError, setModelVerificationError] = useState(""); // Error al verificar como modelo
+  const [usernameError, setUsernameError] = useState("El nombre de usuario ya existe"); // Error cuando username ya existe
+  const [emailError, setEmailError] = useState("El correo ya está en uso"); // Error cuando email ya existe
   const [isPending, startTransition] = useTransition();
 
   const register = useAuthStore((s) => s.register);
@@ -49,6 +51,8 @@ function RegisterForm() {
     e.preventDefault();
     if (!accepted) return;
     setModelVerificationError("");
+    setUsernameError("");
+    setEmailError("");
     
     // Validar que si es modelo, tiene ciudad seleccionada
     if (role === "modelo" && !ciudadId) {
@@ -93,9 +97,26 @@ function RegisterForm() {
           router.replace(nextPath);
         }
       } catch (err) {
-        const apiError = err?.response?.data?.detail || err?.message || "Error al registrarse";
+        const errorData = err?.response?.data;
         const { toast } = await import("sonner");
-        toast.error(apiError);
+        
+        // Manejar errores específicos de username y email
+        if (errorData?.username) {
+          const userMsg = Array.isArray(errorData.username) 
+            ? errorData.username[0] 
+            : errorData.username;
+          setUsernameError("Este nombre de usuario ya existe. Por favor elige otro.");
+          toast.error("Este nombre de usuario ya existe.");
+        } else if (errorData?.email) {
+          const emailMsg = Array.isArray(errorData.email) 
+            ? errorData.email[0] 
+            : errorData.email;
+          setEmailError("Este correo electrónico ya está registrado. ¿Deseas iniciar sesión?");
+          toast.error("Este correo ya está registrado.");
+        } else {
+          const apiError = errorData?.detail || err?.message || "Error al registrarse";
+          toast.error(apiError);
+        }
       }
     });
   };
@@ -206,9 +227,15 @@ function RegisterForm() {
                   className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal font-montserrat"
                   placeholder="Ingresa tu nombre usuario"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setUsernameError("");
+                  }}
                   required
                 />
+                {usernameError && (
+                  <p className="text-xs text-red-400 mt-2 font-montserrat">{usernameError}</p>
+                )}
               </label>
 
               <label className="flex flex-col min-w-40 flex-1">
@@ -218,9 +245,15 @@ function RegisterForm() {
                   className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal font-montserrat"
                   placeholder="ejemplo@gmail.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError("");
+                  }}
                   required
                 />
+                {emailError && (
+                  <p className="text-xs text-red-400 mt-2 font-montserrat">{emailError}</p>
+                )}
               </label>
 
               <label className="flex flex-col min-w-40 flex-1">

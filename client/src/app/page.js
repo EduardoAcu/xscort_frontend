@@ -16,12 +16,12 @@ const CURRENT_YEAR = new Date().getFullYear();
 // METADATA
 // ============================================================
 export const metadata = {
-  title: "xscort Chile - El Directorio Más Completo",
+  title: "Escorts y Acompañantes VIP en Chile - xscort: Avisos Verificados y Contacto Directo",
   description: "Avisos por ciudad y contacto directo.", 
-  keywords: ['chile', 'servicios', 'anuncios','escort','acompañantes','modelos','seguridad','discreción','xscort',' escorts','scort','sur','putas'],
+  keywords: ['masajes eroticos','trato de pololo','lluvia dorada','bdsm','dupla','despedidas de soltero','anal','oral con condon','rubias','morenas','pelirrojas','bbw','flacas','tetonas','culonas','petite','chilenas','venezolanas','colombianas','argentinas','peruanas','brasilenas','paraguayas','maduras','vip','acompañantes de lujo','xscort',' escorts','scort','escort','putas'],
   authors: [{ name: "xscort.cl", url: "https://xscort.cl" }],
   openGraph: {
-    title: "xscort Chile - El Directorio Más Completo",
+    title: "Escorts y Acompañantes VIP en Chile - xscort: Avisos Verificados y Contacto Directo",
     description: "Encuentra los mejores servicios en Chile. Búsqueda rápida, segura y confiable en xscort.",
     url: "https://xscort.cl",
     siteName: "xscort",
@@ -30,7 +30,7 @@ export const metadata = {
         url: "https://xscort.cl/logo.png",
         width: 1200,
         height: 630,
-        alt: "xscort Chile - El Directorio Más Completo",
+        alt: "Escorts y Acompañantes VIP en Chile - xscort: Avisos Verificados y Contacto Directo",
       },
     ],
     locale: "es_CL",

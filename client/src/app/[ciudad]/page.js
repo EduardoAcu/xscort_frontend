@@ -1,39 +1,93 @@
-import { getCiudades } from "@/lib/api";
-import NavAuthCta from "@/components/NavAuthCta";
-import MobileMenu from "@/components/MobileMenu";
 import Link from "next/link";
 import Image from "next/image";
-// IMPORTANTE: Importamos el componente que acabamos de crear
-import ProfileCard from "@/components/ProfileCard";
+import NavAuthCta from "@/components/NavAuthCta";
+import MobileMenu from "@/components/MobileMenu";
+// ⚠️ NO importamos nada más externo para evitar errores 500
+import { MapPin, Star } from "lucide-react"; 
 
 // ============================================================
-// 1. FUNCIÓN PARA BUSCAR PERFILES (BLINDADA)
+// 1. COMPONENTES INTERNOS (Para evitar "Module not found")
 // ============================================================
+
+// Tarjeta de Perfil definida aquí mismo
+function ProfileCard({ profile }) {
+  if (!profile) return null;
+
+  return (
+    <Link href={`/perfil/${profile.slug || profile.id}`} className="group relative block h-full">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-zinc-900 border border-white/10 transition-all duration-300 group-hover:border-pink-500/50 group-hover:shadow-lg group-hover:shadow-pink-500/20">
+        <Image
+          src={profile.foto_principal || "/placeholder.jpg"} 
+          alt={profile.nombre_fantasia || "Modelo"}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          sizes="(max-width: 768px) 50vw, 25vw"
+        />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/60 to-transparent" />
+        <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
+            <MapPin className="w-3 h-3 text-pink-500" />
+            <span className="text-[10px] font-bold uppercase text-white tracking-wider">
+                {profile.ciudad_nombre || "Chile"}
+            </span>
+        </div>
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <div className="flex items-end justify-between">
+            <div>
+              <h3 className="text-xl font-bold text-white font-fancy leading-tight group-hover:text-pink-500 transition-colors">
+                {profile.nombre_fantasia}
+              </h3>
+              <p className="text-sm text-gray-300 font-light">
+                {profile.edad ? `${profile.edad} años` : "Consultar"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ============================================================
+// 2. FUNCIONES DE DATOS (Con logs de error)
+// ============================================================
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 async function getPerfilesPorCiudad(slug) {
+  console.log(`🔍 Buscando perfiles para: ${slug} en ${API_URL}`);
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    // Nota: Ajusta '?ciudad=' según como lo reciba tu Django backend (puede ser ?city= o ?location=)
-    const res = await fetch(`${apiUrl}/api/profiles/public/?ciudad=${slug}`, {
-      cache: 'no-store', // Para que siempre muestre las nuevas modelos al instante
+    // Probamos filtrar. Asegúrate que tu backend soporte ?ciudad=
+    const res = await fetch(`${API_URL}/api/profiles/public/?ciudad=${slug}`, {
+      cache: 'no-store',
     });
 
     if (!res.ok) {
-        console.warn(`Error ${res.status} al buscar perfiles en ${slug}`);
+        console.error(`❌ Error API Perfiles: ${res.status} ${res.statusText}`);
         return [];
     }
     
     const data = await res.json();
-    // Protección anti-caídas (Maneja arrays directos o paginación de Django)
     if (Array.isArray(data)) return data;
     if (data.results) return data.results;
     return [];
   } catch (error) {
-    console.error("Error fetching perfiles:", error);
+    console.error("🔥 EXCEPCIÓN FETCH PERFILES:", error);
     return [];
   }
 }
 
-// Función auxiliar
+async function getCiudadesInterno() {
+    try {
+        const res = await fetch(`${API_URL}/api/profiles/ciudades/`, { next: { revalidate: 3600 } });
+        if(!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data) ? data : (data.results || []);
+    } catch (e) { 
+        console.error("Error ciudades:", e);
+        return []; 
+    }
+}
+
 const capitalizeCity = (str) => {
   if (!str) return "";
   const map = { 'chillan': 'Chillán', 'concepcion': 'Concepción', 'valparaiso': 'Valparaíso' };
@@ -41,7 +95,7 @@ const capitalizeCity = (str) => {
 }
 
 // ============================================================
-// 2. METADATA
+// 3. METADATA
 // ============================================================
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -49,25 +103,34 @@ export async function generateMetadata({ params }) {
   const ciudadNombre = capitalizeCity(ciudadSlug);
 
   return {
-    title: `Escorts en ${ciudadNombre} - Modelos Verificadas | xscort`,
-    description: `Directorio de escorts y modelos independientes en ${ciudadNombre}. Fotos reales, trato directo y perfiles verificados.`,
+    title: `Escorts en ${ciudadNombre} | xscort`,
+    description: `Encuentra modelos verificadas en ${ciudadNombre}.`,
     alternates: { canonical: `https://xscort.cl/${ciudadSlug}` },
   };
 }
 
 // ============================================================
-// 3. PÁGINA VISUAL
+// 4. PÁGINA PRINCIPAL
 // ============================================================
 export default async function CiudadPage({ params }) {
   const resolvedParams = await params;
   const ciudadSlug = resolvedParams.ciudad;
   const ciudadNombre = capitalizeCity(ciudadSlug);
   
-  // Ejecutamos las dos peticiones a la vez (Ciudades + Perfiles)
-  const [ciudades, perfiles] = await Promise.all([
-    getCiudades(),
-    getPerfilesPorCiudad(ciudadSlug)
-  ]);
+  let perfiles = [];
+  let ciudades = [];
+  let errorMsg = null;
+
+  try {
+      // Cargamos datos
+      [ciudades, perfiles] = await Promise.all([
+        getCiudadesInterno(),
+        getPerfilesPorCiudad(ciudadSlug)
+      ]);
+  } catch (error) {
+      console.error("🔥 Error CRÍTICO en carga de página:", error);
+      errorMsg = "Ocurrió un error cargando los datos.";
+  }
 
   return (
     <main className="min-h-screen bg-[#050205] text-white">
@@ -98,13 +161,12 @@ export default async function CiudadPage({ params }) {
           </h1>
           
           <p className="text-gray-400 max-w-3xl text-lg leading-relaxed font-light">
-            Encuentra las mejores <strong>modelos y escorts en {ciudadNombre}</strong>. 
-            En xscort verificamos los perfiles para garantizarte seguridad. 
-            Actualmente mostrando <strong>{perfiles.length} perfiles verificados</strong> en esta zona.
+             Directorio exclusivo en {ciudadNombre}.
+             {errorMsg && <span className="text-red-500 block mt-2">({errorMsg})</span>}
           </p>
         </div>
 
-        {/* === GRID DE PERFILES (Aquí está el cambio clave) === */}
+        {/* GRID DE PERFILES */}
         {perfiles.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-16">
                 {perfiles.map(perfil => (
@@ -114,7 +176,7 @@ export default async function CiudadPage({ params }) {
         ) : (
             <div className="p-12 text-center border border-dashed border-gray-800 rounded-2xl bg-white/5 mb-16">
                 <p className="text-gray-400 text-xl mb-4">
-                    No encontramos modelos disponibles en <strong className="text-white">{ciudadNombre}</strong> por el momento.
+                    No encontramos modelos disponibles en <strong className="text-white">{ciudadNombre}</strong>.
                 </p>
                 <Link href="/busqueda" className="text-pink-500 hover:underline font-bold">
                     Ver modelos en todo Chile
@@ -122,7 +184,7 @@ export default async function CiudadPage({ params }) {
             </div>
         )}
 
-        {/* BOTONES DE OTRAS CIUDADES */}
+        {/* BOTONES OTRAS CIUDADES */}
         <div>
              <h3 className="text-xl font-bold mb-6 text-white font-fancy text-center md:text-left">Ver en otras ciudades</h3>
              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
@@ -132,14 +194,7 @@ export default async function CiudadPage({ params }) {
                     <Link 
                         key={c.slug || c.id}
                         href={`/${c.slug || c.id}`} 
-                        className="
-                            bg-zinc-800 text-white
-                            font-montserrat font-bold text-xs tracking-wide
-                            px-5 py-2
-                            rounded-full
-                            border border-white/10
-                            hover:bg-pink-600 hover:scale-105 transition-all
-                        "
+                        className="bg-zinc-800 text-white px-5 py-2 rounded-full text-xs font-bold hover:bg-pink-600 transition-all"
                     >
                         {c.nombre}
                     </Link>

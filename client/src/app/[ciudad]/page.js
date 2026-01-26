@@ -3,16 +3,46 @@ import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
 import Link from "next/link";
 import Image from "next/image";
+// IMPORTANTE: Importamos el componente que acabamos de crear
+import ProfileCard from "@/components/ProfileCard";
 
-// Función para poner Mayúsculas (ej: chillan -> Chillán)
+// ============================================================
+// 1. FUNCIÓN PARA BUSCAR PERFILES (BLINDADA)
+// ============================================================
+async function getPerfilesPorCiudad(slug) {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    // Nota: Ajusta '?ciudad=' según como lo reciba tu Django backend (puede ser ?city= o ?location=)
+    const res = await fetch(`${apiUrl}/api/profiles/public/?ciudad=${slug}`, {
+      cache: 'no-store', // Para que siempre muestre las nuevas modelos al instante
+    });
+
+    if (!res.ok) {
+        console.warn(`Error ${res.status} al buscar perfiles en ${slug}`);
+        return [];
+    }
+    
+    const data = await res.json();
+    // Protección anti-caídas (Maneja arrays directos o paginación de Django)
+    if (Array.isArray(data)) return data;
+    if (data.results) return data.results;
+    return [];
+  } catch (error) {
+    console.error("Error fetching perfiles:", error);
+    return [];
+  }
+}
+
+// Función auxiliar
 const capitalizeCity = (str) => {
   if (!str) return "";
-  // Mapeo manual de tildes si quieres perfección, o simple capitalize
   const map = { 'chillan': 'Chillán', 'concepcion': 'Concepción', 'valparaiso': 'Valparaíso' };
   return map[str.toLowerCase()] || str.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
-// 1. METADATA DINÁMICA (Para que Google vea el título correcto)
+// ============================================================
+// 2. METADATA
+// ============================================================
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const ciudadSlug = resolvedParams.ciudad;
@@ -20,25 +50,24 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `Escorts en ${ciudadNombre} - Modelos Verificadas | xscort`,
-    description: `Directorio de escorts y modelos independientes en ${ciudadNombre}. Fotos reales, trato directo y perfiles verificados en ${ciudadNombre}.`,
-    alternates: {
-      canonical: `https://xscort.cl/${ciudadSlug}`,
-    },
-    openGraph: {
-      title: `Escorts en ${ciudadNombre} | xscort`,
-      url: `https://xscort.cl/${ciudadSlug}`,
-    },
+    description: `Directorio de escorts y modelos independientes en ${ciudadNombre}. Fotos reales, trato directo y perfiles verificados.`,
+    alternates: { canonical: `https://xscort.cl/${ciudadSlug}` },
   };
 }
 
-// 2. LA PÁGINA VISUAL
+// ============================================================
+// 3. PÁGINA VISUAL
+// ============================================================
 export default async function CiudadPage({ params }) {
   const resolvedParams = await params;
   const ciudadSlug = resolvedParams.ciudad;
   const ciudadNombre = capitalizeCity(ciudadSlug);
   
-  // Aquí llamamos a las ciudades para el menú de navegación
-  const ciudades = await getCiudades();
+  // Ejecutamos las dos peticiones a la vez (Ciudades + Perfiles)
+  const [ciudades, perfiles] = await Promise.all([
+    getCiudades(),
+    getPerfilesPorCiudad(ciudadSlug)
+  ]);
 
   return (
     <main className="min-h-screen bg-[#050205] text-white">
@@ -59,7 +88,7 @@ export default async function CiudadPage({ params }) {
 
       <div className="pt-32 pb-16 px-4 max-w-7xl mx-auto">
         
-        {/* ENCABEZADO (Igual que Sexosur: Título + Texto SEO) */}
+        {/* ENCABEZADO */}
         <div className="mb-12 text-center md:text-left border-b border-white/10 pb-8">
           <span className="text-pink-500 text-xs font-bold tracking-widest uppercase mb-2 block">
             UBICACIÓN
@@ -70,38 +99,46 @@ export default async function CiudadPage({ params }) {
           
           <p className="text-gray-400 max-w-3xl text-lg leading-relaxed font-light">
             Encuentra las mejores <strong>modelos y escorts en {ciudadNombre}</strong>. 
-            En xscort verificamos los perfiles para garantizarte seguridad y realidad. 
-            Revisa las fotos, servicios y contacta directamente por WhatsApp a las acompañantes disponibles en {ciudadNombre}.
+            En xscort verificamos los perfiles para garantizarte seguridad. 
+            Actualmente mostrando <strong>{perfiles.length} perfiles verificados</strong> en esta zona.
           </p>
         </div>
 
-        {/* AQUÍ CARGARÍAS LOS PERFILES FILTRADOS (Igual que Sexosur) */}
-        {/* En el futuro aquí va: <GridPerfiles ciudad={ciudadSlug} /> */}
-        <div className="p-12 text-center border border-dashed border-gray-800 rounded-2xl bg-white/5 mb-16">
-            <p className="text-gray-500 text-xl">
-                Cargando perfiles disponibles en <strong className="text-white">{ciudadNombre}</strong>...
-            </p>
-        </div>
+        {/* === GRID DE PERFILES (Aquí está el cambio clave) === */}
+        {perfiles.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-16">
+                {perfiles.map(perfil => (
+                    <ProfileCard key={perfil.id} profile={perfil} />
+                ))}
+            </div>
+        ) : (
+            <div className="p-12 text-center border border-dashed border-gray-800 rounded-2xl bg-white/5 mb-16">
+                <p className="text-gray-400 text-xl mb-4">
+                    No encontramos modelos disponibles en <strong className="text-white">{ciudadNombre}</strong> por el momento.
+                </p>
+                <Link href="/busqueda" className="text-pink-500 hover:underline font-bold">
+                    Ver modelos en todo Chile
+                </Link>
+            </div>
+        )}
 
-        {/* BOTONES DE OTRAS CIUDADES (Estilo Píldora Rosa como pediste) */}
+        {/* BOTONES DE OTRAS CIUDADES */}
         <div>
              <h3 className="text-xl font-bold mb-6 text-white font-fancy text-center md:text-left">Ver en otras ciudades</h3>
              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                {ciudades.map(c => {
-                 // No mostrar la ciudad actual
                  if((c.slug || c.id) === ciudadSlug) return null;
-                 
                  return (
                     <Link 
                         key={c.slug || c.id}
                         href={`/${c.slug || c.id}`} 
                         className="
-                            bg-pink-600 text-white
+                            bg-zinc-800 text-white
                             font-montserrat font-bold text-xs tracking-wide
                             px-5 py-2
                             rounded-full
-                            border border-pink-400/30
-                            hover:bg-pink-500 hover:scale-105 transition-all
+                            border border-white/10
+                            hover:bg-pink-600 hover:scale-105 transition-all
                         "
                     >
                         {c.nombre}

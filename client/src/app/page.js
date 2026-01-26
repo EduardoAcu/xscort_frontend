@@ -115,13 +115,13 @@ function HeroSection() {
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-fancy leading-tight text-white drop-shadow-lg">
           Exclusividad y <br/> <span className="text-pink-500">Contacto Directo.</span>
         </h1>
-        <p className="text-base sm:text-lg md:text-xl text-montserrat text-gray-200 font-light max-w-2xl mx-auto drop-shadow-md">
+        <p className="text-base sm:text-lg md:text-xl font-montserrat text-gray-200 font-light max-w-2xl mx-auto drop-shadow-md">
           La plataforma de anuncios verificados más confiable de Chile. Conecta por WhatsApp sin intermediarios.
         </p>
         <div className="pt-4">
             <Link
             href="/busqueda"
-            className="inline-block bg-pink-600 text-white px-8 py-4 text-base font-bold tracking-widest uppercase hover:bg-pink-500 transition-all rounded-full shadow-lg hover:shadow-pink-500/25 transform hover:-translate-y-1"
+            className="inline-block bg-pink-600 text-white px-8 py-4 text-base font-montserrat font-bold tracking-widest uppercase hover:bg-pink-500 transition-all rounded-full shadow-lg hover:shadow-pink-500/25 transform hover:-translate-y-1"
             >
             Ver Modelos Disponibles
             </Link>
@@ -138,7 +138,7 @@ function CiudadesSection({ ciudades }) {
   return (
     <div className="px-6 py-16 sm:px-12 lg:px-24 bg-[#120912] border-b border-white/5">
       <h2 className="text-3xl font-bold text-center mb-4 font-fancy text-white">Encuentra en tu Ciudad</h2>
-      <p className="text-center text-gray-400 mb-10 font-light">
+      <p className="text-center font-montserrat text-gray-400 mb-10 font-light">
         Selecciona tu ubicación para filtrar perfiles locales
       </p>
         <div className="flex flex-wrap justify-center gap-3 max-w-5xl mx-auto">
@@ -219,7 +219,7 @@ function ServicesSection() {
       <h2 className="text-3xl font-bold text-center mb-4 font-fancy text-white">
         Servicios Exclusivos
       </h2>
-      <p className="text-center text-gray-400 mb-16 max-w-2xl mx-auto font-light">
+      <p className="text-center text-gray-400 mb-16 max-w-2xl mx-auto font-montserrat  font-light">
         Cada perfil es único. Contacta para consultar disponibilidad de servicios específicos.
       </p>
       <div className="grid sm:grid-cols-3 gap-8 max-w-6xl mx-auto">

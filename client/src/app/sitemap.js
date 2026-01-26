@@ -7,7 +7,7 @@ const baseUrl = 'https://xscort.cl'
 // ============================================================
 const publicRoutes = [
   { path: '/', changeFrequency: 'daily', priority: 1 },
-  { path: '/busqueda', changeFrequency: 'daily', priority: 0.9 },
+  { path: '/busqueda', changeFrequency: 'daily', priority: 0.8 }, // Bajamos un poco la prioridad de la búsqueda genérica
   { path: '/login', changeFrequency: 'monthly', priority: 0.3 },
   { path: '/register', changeFrequency: 'monthly', priority: 0.3 },
   { path: '/terminos', changeFrequency: 'yearly', priority: 0.1 },
@@ -60,11 +60,14 @@ export default async function sitemap() {
     const ciudades = await getCiudadesSitemap();
 
     cityRoutes = ciudades.map((c) => ({
-      // URL para Google: https://xscort.cl/busqueda?ciudad=chillan
-      url: `${baseUrl}/busqueda?ciudad=${c.slug || c.id}`,
+      // 🚀 CAMBIO CLAVE PARA SEO: URL LIMPIA
+      // Antes: .../busqueda?ciudad=chillan
+      // Ahora: .../chillan (Google ama esto)
+      url: `${baseUrl}/${c.slug || c.id}`,
+      
       lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 0.9, // Alta prioridad para competir localmente
+      priority: 0.9, // Alta prioridad: Estas son tus páginas de venta principales
     }));
     
   } catch (error) {

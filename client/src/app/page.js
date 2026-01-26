@@ -115,7 +115,7 @@ function HeroSection() {
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-fancy leading-tight text-white drop-shadow-lg">
           Exclusividad y <br/> <span className="text-pink-500">Contacto Directo.</span>
         </h1>
-        <p className="text-base sm:text-lg md:text-xl text-gray-200 font-light max-w-2xl mx-auto drop-shadow-md">
+        <p className="text-base sm:text-lg md:text-xl text-montserrat text-gray-200 font-light max-w-2xl mx-auto drop-shadow-md">
           La plataforma de anuncios verificados más confiable de Chile. Conecta por WhatsApp sin intermediarios.
         </p>
         <div className="pt-4">

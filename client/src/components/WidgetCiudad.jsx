@@ -9,6 +9,12 @@ export default function WidgetCiudad({ ciudadActual }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // 1. Lógica segura: Detecta si llega objeto o texto y extrae el string correcto
+  const nombreCiudadMostrar = 
+    typeof ciudadActual === "object" && ciudadActual !== null
+      ? ciudadActual.nombre
+      : ciudadActual; 
   
   useEffect(() => {
     const fetchCiudades = async () => {
@@ -28,9 +34,9 @@ export default function WidgetCiudad({ ciudadActual }) {
     e.preventDefault();
     setError("");
     setSuccess("");
+    
     if (!nuevaCiudadId) {
-      setError("Selecciona una ciudad");
-      setError("Ingresa una nueva ciudad");
+      setError("Selecciona una ciudad nueva");
       return;
     }
 
@@ -38,7 +44,9 @@ export default function WidgetCiudad({ ciudadActual }) {
     try {
       await api.post(
         "/api/profiles/solicitar-cambio-ciudad/",
-        { ciudad_nueva_id: nuevaCiudadId },
+        { 
+          ciudad_nueva: nuevaCiudadId 
+        }
       );
       setSuccess("¡Solicitud enviada! Será revisada por un administrador.");
       setNuevaCiudadId("");
@@ -56,68 +64,74 @@ export default function WidgetCiudad({ ciudadActual }) {
 
   return (
     <>
-      <div className="rounded-lg bg-[var(--color-card)] p-6 shadow-sm bg-transparent">
-        <h3 className="text-xl font-bold mb-4 font-montserrat">Ubicación</h3>
+      <div className="rounded-lg bg-[var(--color-card)] p-6 shadow-sm bg-transparent border border-white/5">
+        <h3 className="text-xl font-bold mb-4 font-montserrat text-white">Ubicación</h3>
         
         <div className="space-y-4">
           <div>
-            <p className="text-sm text-[color:var(--color-muted-foreground)] font-montserrat">Ciudad actual</p>
-            <p className="text-2xl font-bold text-white-600 font-montserrat">{ciudadActual || "No especificada"}</p>
+            <p className="text-sm text-gray-400 font-montserrat uppercase tracking-wider font-bold">Ciudad actual</p>
+            
+            {/* CORRECCIÓN AQUÍ: Usamos la variable segura, no el objeto directo */}
+            <p className="text-2xl font-bold text-pink-500 font-montserrat">
+              {nombreCiudadMostrar || "Sin ciudad"}
+            </p>
           </div>
 
           <button
             onClick={() => setShowModal(true)}
-            className="w-full rounded-lg bg-pink-600 px-4 py-2 text-white font-semibold hover:bg-pink-500 transition font-montserrat"
+            className="w-full rounded-lg bg-pink-600 px-4 py-2 text-white font-semibold hover:bg-pink-500 transition font-montserrat shadow-lg shadow-pink-600/20"
           >
-            Solicitar Cambio de Ciudad
+            Solicitar Cambio
           </button>
         </div>
       </div>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="rounded-lg bg-zinc-950 p-6 max-w-md w-full shadow-lg border border-gray-800">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="rounded-2xl bg-[#1b0d18] p-6 max-w-md w-full shadow-2xl border border-pink-500/20">
             <h2 className="text-2xl font-bold mb-4 font-montserrat text-white">Solicitar Cambio de Ciudad</h2>
 
             <form onSubmit={handleSolicitar} className="space-y-4">
               <div className="space-y-2 font-montserrat">
-                <label className="block text-sm font-medium font-montserrat text-gray-300">Nueva Ciudad *</label>
+                <label className="block text-sm font-bold font-montserrat text-gray-300 uppercase">Nueva Ciudad *</label>
                 <select
                   value={nuevaCiudadId}
                   onChange={(e) => setNuevaCiudadId(e.target.value)}
                   required
-                  className="w-full rounded-md border border-gray-700 bg-zinc-900 px-4 py-2 text-white hover:border-gray-600 focus:border-pink-500 focus:outline-none transition"
+                  className="w-full rounded-lg border border-white/10 bg-black/40 px-4 py-3 text-white hover:border-pink-500/50 focus:border-pink-500 focus:outline-none transition [&>option]:text-black"
                 >
-                  <option value="">Selecciona una ciudad</option>
+                  <option value="">Selecciona una ciudad...</option>
                   {ciudades.map((c) => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
                   ))}
                 </select>
               </div>
 
-              <p className="text-xs text-gray-400 bg-zinc-900/50 p-3 rounded font-montserrat border border-gray-800">
-                Tu solicitud será revisada por un administrador. Este proceso puede tomar un tiempo.
+              <p className="text-xs text-gray-400 bg-white/5 p-3 rounded-lg font-montserrat border border-white/5">
+                ℹ️ Tu solicitud será revisada por un administrador. Mientras se aprueba, tu perfil seguirá mostrándose en <strong>{nombreCiudadMostrar}</strong>.
               </p>
 
-              {error && <p className="text-sm text-red-500 font-montserrat">{error}</p>}
-              {success && <p className="text-sm text-green-500 font-montserrat">{success}</p>}
+              {error && <p className="text-sm text-red-400 bg-red-900/20 p-2 rounded border border-red-500/30 font-montserrat">{error}</p>}
+              {success && <p className="text-sm text-green-400 bg-green-900/20 p-2 rounded border border-green-500/30 font-montserrat">{success}</p>}
 
               <div className="flex gap-3 pt-4 font-montserrat">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
                   disabled={loading}
-                  className="flex-1 rounded-lg border border-gray-700 px-4 py-2 text-gray-300 hover:bg-zinc-900 hover:border-gray-600 disabled:opacity-60 transition"
+                  className="flex-1 rounded-lg border border-white/10 px-4 py-2 text-gray-300 hover:bg-white/5 transition"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 rounded-lg bg-pink-600 px-4 py-2 text-white font-semibold hover:bg-pink-700 disabled:opacity-60 transition"
+                  className="flex-1 rounded-lg bg-pink-600 px-4 py-2 text-white font-semibold hover:bg-pink-500 disabled:opacity-60 transition shadow-lg shadow-pink-600/20"
                 >
-                  {loading ? "Enviando..." : "Solicitar"}
+                  {loading ? "Enviando..." : "Enviar Solicitud"}
                 </button>
               </div>
             </form>

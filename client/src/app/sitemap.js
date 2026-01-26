@@ -11,17 +11,6 @@ const publicRoutes = [
   { path: '/forgot-password', changeFrequency: 'monthly', priority: 0.2 },
 ]
 
-// Rutas de panel (protegidas) — incluidas como referencia, pero pueden omitirse si prefieres
-const panelRoutes = [
-  { path: '/panel/dashboard', changeFrequency: 'weekly', priority: 0.5 },
-  { path: '/panel/cliente', changeFrequency: 'weekly', priority: 0.5 },
-  { path: '/panel/galeria', changeFrequency: 'weekly', priority: 0.4 },
-  { path: '/panel/editar-perfil', changeFrequency: 'weekly', priority: 0.4 },
-  { path: '/panel/suscripcion', changeFrequency: 'weekly', priority: 0.4 },
-  { path: '/panel/servicios', changeFrequency: 'weekly', priority: 0.4 },
-  { path: '/panel/verificacion', changeFrequency: 'weekly', priority: 0.4 },
-]
-
 const routes = [...publicRoutes, ...panelRoutes]
 
 export default function sitemap() {

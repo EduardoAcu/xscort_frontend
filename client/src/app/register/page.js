@@ -348,7 +348,7 @@ function RegisterForm() {
                   >
                     <option value="">Selecciona una ciudad</option>
                     {ciudades.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
+                      <option key={c.id} value={c.id}>{c.nombre}</option>
                     ))}
                   </select>
                   <p className="text-xs text-[#c992ad] mt-1 font-montserrat">Selecciona la ciudad donde ofrecerás servicios</p>

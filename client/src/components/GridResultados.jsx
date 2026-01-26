@@ -20,7 +20,7 @@ export default function GridResultados() {
   const cacheRef = useRef({});
   const debounceTimerRef = useRef(null);
 
-  // Construir clave de caché basada en parámetros de búsqueda
+  // Construir clave de caché
   const getCacheKey = useCallback(() => {
     const ciudad = searchParams.get("ciudad") || "";
     const tags = searchParams.get("tags") || "";
@@ -28,13 +28,11 @@ export default function GridResultados() {
     return `${ciudad}|${tags}|${servicio}|${currentPage}`;
   }, [searchParams, currentPage]);
 
-  // Función para obtener perfiles del API
   const fetchPerfiles = useCallback(async () => {
     try {
       setLoading(true);
       const cacheKey = getCacheKey();
 
-      // Verificar si está en caché
       if (cacheRef.current[cacheKey]) {
         const cachedData = cacheRef.current[cacheKey];
         setPerfiles(cachedData.results);
@@ -61,7 +59,6 @@ export default function GridResultados() {
       const results = response.data.results || response.data;
       const count = response.data.count || response.data.length || 0;
 
-      // Guardar en caché
       cacheRef.current[cacheKey] = { results, count };
 
       setPerfiles(results);
@@ -76,23 +73,16 @@ export default function GridResultados() {
     }
   }, [searchParams, currentPage, pageSize, getCacheKey]);
 
-  // UseEffect con debouncing para evitar llamadas múltiples
   useEffect(() => {
-    // Limpiar timer anterior
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
-
-    // Establecer nuevo timer (300ms de debounce)
     debounceTimerRef.current = setTimeout(() => {
       fetchPerfiles();
     }, 300);
 
-    // Cleanup
     return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
   }, [searchParams, currentPage, fetchPerfiles]);
 
@@ -106,48 +96,74 @@ export default function GridResultados() {
     ));
 
   const Badge = () => (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--color-primary)/0.12] text-[color:var(--color-primary)] text-xs font-semibold px-2 py-1">
-      <span className="h-2 w-2 rounded-full bg-[color:var(--color-primary)]" /> Verificada
+    <span className="inline-flex items-center gap-1 rounded-full bg-pink-500/20 text-pink-400 text-xs font-semibold px-2 py-1 backdrop-blur-sm border border-pink-500/30">
+      <span className="h-2 w-2 rounded-full bg-pink-500" /> Verificada
     </span>
   );
 
-  if (loading) return <div className="py-8 text-center">Cargando resultados...</div>;
-  if (error) return <div className="py-8 text-center text-red-400">{error}</div>;
-  if (!perfiles || perfiles.length === 0) return <div className="py-8 text-center text-pink-100">No se encontraron resultados</div>;
+  if (loading) return <div className="py-20 text-center text-pink-200">Buscando modelos...</div>;
+  if (error) return <div className="py-20 text-center text-red-400">{error}</div>;
+  if (!perfiles || perfiles.length === 0) return <div className="py-20 text-center text-pink-100/60 italic">No se encontraron resultados para tu búsqueda.</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:gap-4 md:gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="space-y-8 font-montserrat">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {perfiles.map((perfil) => {
           const img = perfil.foto_perfil
             ? perfil.foto_perfil.startsWith("http")
               ? perfil.foto_perfil
               : `${API_URL}${perfil.foto_perfil}`
             : null;
+          
           const nombre = perfil.nombre_artistico || "Modelo";
-          const ciudad = perfil.ciudad || "";
-          const rating = perfil.rating || perfil.puntuacion || 4.8;
+          
+          // CORRECCIÓN CLAVE: Extraer nombre de ciudad seguro
+          const ciudadNombre = typeof perfil.ciudad === 'object' && perfil.ciudad !== null 
+              ? perfil.ciudad.nombre 
+              : perfil.ciudad || "Sin ubicación";
+
+          const rating = perfil.rating || perfil.puntuacion || 5.0;
+          const href = `/perfil/${perfil.slug || perfil.id}`; // Preferimos slug
+
           return (
-            <Link key={perfil.id} href={`/perfil/${perfil.id}`}>
-              <div className="group overflow-hidden rounded-lg sm:rounded-xl lg:rounded-2xl border border-white/10 bg-[#1a0f1a] shadow-xl hover:-translate-y-1 transition">
-                <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 w-full overflow-hidden">
-                  {img && (
+            <Link key={perfil.id} href={href}>
+              <div className="group overflow-hidden rounded-2xl border border-white/5 bg-[#1a0f1a] shadow-lg hover:shadow-pink-500/10 hover:-translate-y-1 transition-all duration-300">
+                <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-black">
+                  {img ? (
                     <Image
                       src={img}
                       alt={nombre}
                       fill
-                      className="object-cover transition duration-500 group-hover:scale-105"
+                      className="object-cover transition duration-700 group-hover:scale-110"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-white/5 text-white/30">
+                        <span className="material-symbols-outlined text-4xl">person</span>
+                    </div>
                   )}
-                  <div className="absolute top-2 right-2">
+                  
+                  {/* Gradiente para mejorar lectura de texto sobre imagen */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+
+                  <div className="absolute top-3 right-3">
                     <Badge />
                   </div>
+                  
+                  {/* Info sobrepuesta en la imagen (Estilo Moderno) */}
+                  <div className="absolute bottom-0 left-0 w-full p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                     <h3 className="text-xl font-bold text-white mb-0.5 shadow-black drop-shadow-md">{nombre}</h3>
+                     <p className="text-sm text-pink-200 font-medium flex items-center gap-1 shadow-black drop-shadow-md">
+                        <span className="material-symbols-outlined text-[16px]">location_on</span>
+                        {ciudadNombre}
+                     </p>
+                  </div>
                 </div>
-                <div className="p-4 space-y-1">
-                  <p className="text-sm text-pink-200">{ciudad}</p>
-                  <h3 className="text-lg font-bold">{nombre}</h3>
-                  <div className="flex items-center gap-1 text-sm">{stars(rating)}</div>
+                
+                {/* Footer de la tarjeta */}
+                <div className="p-3 bg-white/[0.02] border-t border-white/5 flex items-center justify-between">
+                   <div className="flex items-center gap-1 text-sm">{stars(rating)}</div>
+                   <span className="text-xs text-gray-400 group-hover:text-pink-400 transition-colors">Ver Perfil →</span>
                 </div>
               </div>
             </Link>
@@ -156,11 +172,11 @@ export default function GridResultados() {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 text-sm">
+        <div className="flex items-center justify-center gap-2 text-sm pt-4">
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(currentPage - 1)}
-            className="rounded-full border border-white/15 px-3 py-2 text-white/80 disabled:opacity-40 hover:bg-[color:var(--color-card)/0.05]"
+            className="rounded-full border border-white/10 w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition"
           >
             ‹
           </button>
@@ -168,10 +184,10 @@ export default function GridResultados() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`rounded-full px-3 py-2 ${
+              className={`rounded-full w-10 h-10 flex items-center justify-center font-bold transition ${
                 currentPage === page
-                  ? "bg-pink-600 text-white"
-                  : "border border-white/15 text-white/80 hover:bg-[color:var(--color-card)/0.05]"
+                  ? "bg-pink-600 text-white shadow-lg shadow-pink-600/20"
+                  : "border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white"
               }`}
             >
               {page}
@@ -180,14 +196,14 @@ export default function GridResultados() {
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(currentPage + 1)}
-            className="rounded-full border border-white/15 px-3 py-2 text-white/80 disabled:opacity-40 hover:bg-[color:var(--color-card)/0.05]"
+            className="rounded-full border border-white/10 w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition"
           >
             ›
           </button>
         </div>
       )}
 
-      <div className="text-center text-xs text-pink-100/80">
+      <div className="text-center text-xs text-gray-500 mt-4">
         Mostrando {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, totalCount)} de {totalCount} resultados
       </div>
     </div>

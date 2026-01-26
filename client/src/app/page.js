@@ -87,9 +87,6 @@ function Navigation() {
           <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
             Modelos
           </Link>
-          <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-            Servicios
-          </Link>
           <div className="h-6 w-px bg-gray-700"></div>
           <NavAuthCta />
         </div>
@@ -149,17 +146,32 @@ function CiudadesSection({ ciudades }) {
       <p className="text-center text-gray-300 mb-10 font-montserrat">
         Selecciona una ciudad para ver modelos disponibles
       </p>
-      <div className="flex flex-wrap justify-center gap-3">
-        {ciudades.map((c) => (
-          <Link
-            key={c.value}
-            href={`/busqueda?ciudad=${c.value}`}
-            className="bg-pink-500 px-4 py-2 rounded-full border border-white/15 text-sm text-pink-100 hover:bg-pink-600 font-montserrat font-semibold"
-          >
-            {c.label}
-          </Link>
-        ))}
-      </div>
+        <div className="flex flex-wrap justify-center gap-3">
+          {ciudades.map((c) => (
+            <Link
+              // 1. FIX DATA: Usamos el Slug o ID como clave única
+              key={c.slug || c.id}
+              // 2. FIX URL: Usamos el Slug para la URL amigable
+              href={`/busqueda?ciudad=${c.slug || c.id}`}
+              className="
+                /* ESTILO VIBRANTE (Volvemos al original mejorado) */
+                bg-pink-600 text-white
+                font-montserrat font-bold text-sm tracking-wide
+                px-6 py-3
+                rounded-full /* Redondeado completo */
+                border border-pink-400/30 /* Borde sutil rosa */
+                shadow-md shadow-pink-600/20 /* Sombra 'glow' suave */
+                
+                /* Animación al pasar el mouse */
+                transition-all duration-300
+                hover:bg-pink-500 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/40
+              "
+            >
+              {/* 3. FIX NOMBRE: Usamos la propiedad real de la API */}
+              {c.nombre}
+            </Link>
+          ))}
+        </div>
     </div>
   );
 }

@@ -23,7 +23,7 @@ export default function ModelSidebar() {
     setIsOpen(false);
   }, [pathname]);
 
-  // Bloquear scroll del body cuando el menú está abierto
+  // Bloquear scroll del body cuando el menú está abierto (Móvil)
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -36,12 +36,17 @@ export default function ModelSidebar() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // 1. Cargar Perfil
         const resPerfil = await api.get("/api/profiles/mi-perfil/");
         const data = resPerfil.data;
         
         setDisplayName(data.nombre_artistico || "Mi Perfil");
-        if (data.id) setPublicProfileUrl(`/perfil/${data.id}`);
         
+        // Lógica de URL pública (Slug o ID)
+        const slug = data.slug || data.id; 
+        if (slug) setPublicProfileUrl(`/perfil/${slug}`);
+        
+        // Avatar
         if (data.foto_perfil) {
           const url = data.foto_perfil.startsWith("http")
             ? data.foto_perfil
@@ -49,6 +54,7 @@ export default function ModelSidebar() {
           setAvatar(url);
         }
 
+        // 2. Cargar Suscripción
         try {
           const resSub = await api.get("/api/subscriptions/mi-suscripcion/");
           const sub = resSub.data;
@@ -93,9 +99,9 @@ export default function ModelSidebar() {
   return (
     <>
       {/* 1. HEADER MÓVIL (Solo visible en LG hidden) */}
-      <div className="lg:hidden fixed top-0 left-0 w-full h-16 bg-[#180417] border-b border-[#3b1027] z-40 flex items-center px-4 justify-between select-none">
+      <div className="lg:hidden fixed top-0 left-0 w-full h-16 bg-[#180417] border-b border-[#3b1027] z-40 flex items-center px-4 justify-between select-none font-montserrat">
         <div className="flex items-center gap-2">
-            <span className="font-bold text-pink-500 font-montserrat">XSCORT</span>
+            <span className="font-bold text-pink-500">XSCORT</span>
         </div>
         <button 
             onClick={() => setIsOpen(true)}
@@ -117,7 +123,7 @@ export default function ModelSidebar() {
       {/* 3. SIDEBAR DESLIZANTE */}
       <aside className={`
         fixed lg:sticky top-0 left-0 z-50
-        flex flex-col text-white text-montserrat bg-[#180417] border-r border-[#3b1027]
+        flex flex-col text-white font-montserrat bg-[#180417] border-r border-[#3b1027]
         transition-transform duration-300 ease-out
         
         /* DIMENSIONES PARA ESCRITORIO */
@@ -187,7 +193,6 @@ export default function ModelSidebar() {
         </nav>
 
         {/* --- FOOTER / LOGOUT --- */}
-        {/* pb-safe o pb-8 extra en móvil para evitar la barra negra del iPhone */}
         <div className="px-4 py-4 lg:py-4 border-t border-[#3b1027] bg-[#180417] pb-10 lg:pb-4">
           <LogoutButton className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#ff007f] px-4 py-3 lg:py-2 text-sm text-gray-100 hover:bg-[#ff007f] hover:text-white transition-all font-semibold" />
         </div>

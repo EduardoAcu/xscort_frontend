@@ -4,7 +4,7 @@ import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
 
 // ============================================================
-// 0. ÍCONOS SVG MANUALES (Para evitar Error 500 por falta de librerías)
+// 0. ÍCONOS MANUALES (Para no depender de librerías externas)
 // ============================================================
 const MapPin = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -20,9 +20,8 @@ const NavIcon = ({ className }) => (
 );
 
 // ============================================================
-// 1. COMPONENTES INTERNOS (Diseño Premium Glass)
+// 1. COMPONENTE TARJETA INTERNO (Funciona sin el archivo externo)
 // ============================================================
-
 function ProfileCard({ profile }) {
   if (!profile) return null;
 
@@ -30,7 +29,7 @@ function ProfileCard({ profile }) {
     <Link href={`/perfil/${profile.slug || profile.id}`} className="group relative block h-full">
       <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#120912] border border-white/5 transition-all duration-500 group-hover:border-pink-500/50 group-hover:shadow-[0_0_30px_-5px_rgba(236,72,153,0.3)] group-hover:-translate-y-2">
         
-        {/* FOTO PRINCIPAL */}
+        {/* FOTO */}
         <Image
           src={profile.foto_principal || "/placeholder.jpg"} 
           alt={profile.nombre_fantasia || "Modelo"}
@@ -39,10 +38,10 @@ function ProfileCard({ profile }) {
           sizes="(max-width: 768px) 50vw, 25vw"
         />
         
-        {/* DEGRADADO OSCURO INFERIOR */}
+        {/* DEGRADADO */}
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#050205] via-[#050205]/80 to-transparent opacity-90" />
         
-        {/* ETIQUETA CIUDAD (Flotante) */}
+        {/* ETIQUETA CIUDAD */}
         <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 group-hover:border-pink-500/30 transition-colors">
             <MapPin className="w-3 h-3 text-pink-500" />
             <span className="text-[10px] font-bold uppercase text-white tracking-wider">
@@ -50,7 +49,7 @@ function ProfileCard({ profile }) {
             </span>
         </div>
 
-        {/* INFO DE LA MODELO */}
+        {/* INFO */}
         <div className="absolute inset-x-0 bottom-0 p-5">
           <div className="flex items-end justify-between">
             <div className="space-y-1">
@@ -64,7 +63,7 @@ function ProfileCard({ profile }) {
               </div>
             </div>
             
-            {/* BOTÓN "VER" */}
+            {/* FLECHA */}
             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm group-hover:bg-pink-600 group-hover:text-white transition-colors duration-300">
                <ChevronRight className="w-4 h-4" />
             </div>
@@ -108,7 +107,7 @@ async function getCiudadesInterno() {
 
 const capitalizeCity = (str) => {
   if (!str) return "";
-  const map = { 'chillan': 'Chillán', 'concepcion': 'Concepción', 'valparaiso': 'Valparaíso', 'villarrica': 'Villarrica' };
+  const map = { 'chillan': 'Chillán', 'concepcion': 'Concepción', 'valparaiso': 'Valparaíso' };
   return map[str.toLowerCase()] || str.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
@@ -128,7 +127,7 @@ export async function generateMetadata({ params }) {
 }
 
 // ============================================================
-// 4. PÁGINA PRINCIPAL (DISEÑO PREMIUM)
+// 4. PÁGINA PRINCIPAL
 // ============================================================
 export default async function CiudadPage({ params }) {
   const resolvedParams = await params;
@@ -150,7 +149,7 @@ export default async function CiudadPage({ params }) {
   return (
     <div className="min-h-screen bg-[#050205] text-white selection:bg-pink-500 selection:text-white">
       
-      {/* FONDO "SPOTLIGHT" (Efecto de luz superior) */}
+      {/* FONDO SPOTLIGHT */}
       <div className="fixed top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-900/20 via-[#050205] to-[#050205] -z-10 pointer-events-none" />
 
       {/* NAVBAR */}
@@ -170,9 +169,8 @@ export default async function CiudadPage({ params }) {
 
       <div className="pt-32 pb-24 px-4 max-w-7xl mx-auto">
         
-        {/* === HERO SECTION DE CIUDAD === */}
+        {/* HEADER */}
         <div className="relative mb-16">
-          {/* Breadcrumb sutil */}
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-4 font-montserrat">
             <Link href="/" className="hover:text-pink-500 transition-colors">Chile</Link>
             <ChevronRight className="w-3 h-3" />
@@ -188,19 +186,17 @@ export default async function CiudadPage({ params }) {
                 </span>
               </h1>
               
-              {/* Tarjeta de Descripción Glass */}
               <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm max-w-2xl mt-6">
                  <div className="flex items-start gap-3">
                     <Sparkles className="w-5 h-5 text-yellow-500 mt-1 flex-shrink-0" />
                     <p className="text-gray-300 text-sm md:text-base leading-relaxed font-light font-montserrat">
-                       Estás viendo la selección exclusiva de modelos verificadas en <strong>{ciudadNombre}</strong>. 
-                       En xscort garantizamos fotos reales y trato directo. Sin agencias, sin comisiones ocultas.
+                       Selección exclusiva de modelos verificadas en <strong>{ciudadNombre}</strong>. 
+                       Fotos reales y trato directo.
                     </p>
                  </div>
               </div>
             </div>
 
-            {/* Contador de Modelos */}
             <div className="flex-shrink-0 mb-2">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-bold uppercase tracking-wide animate-pulse">
                     <span className="w-2 h-2 rounded-full bg-pink-500"></span>
@@ -210,7 +206,7 @@ export default async function CiudadPage({ params }) {
           </div>
         </div>
 
-        {/* === GRID DE PERFILES === */}
+        {/* GRID DE PERFILES */}
         {perfiles.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-24">
                 {perfiles.map(perfil => (
@@ -232,7 +228,7 @@ export default async function CiudadPage({ params }) {
             </div>
         )}
 
-        {/* === NAVEGACIÓN ENTRE CIUDADES === */}
+        {/* NAVEGACIÓN OTRAS CIUDADES */}
         <div className="bg-[#0a060a] border border-white/5 rounded-3xl p-8 md:p-12">
              <div className="flex items-center gap-3 mb-8">
                 <div className="p-2 bg-pink-600 rounded-lg">

@@ -136,9 +136,9 @@ function CiudadesSection({ ciudades }) {
   if (!ciudades || ciudades.length === 0) return null;
 
   return (
-    <div className="px-6 py-20 sm:px-12 lg:px-24 bg-[#120912] border-b border-white/5">
+    <div className="px-6 py-16 sm:px-12 lg:px-24 bg-[#120912] border-b border-white/5">
       <h2 className="text-3xl font-bold text-center mb-4 font-fancy text-white">Encuentra en tu Ciudad</h2>
-      <p className="text-center text-gray-400 mb-12 font-light">
+      <p className="text-center text-gray-400 mb-10 font-light">
         Selecciona tu ubicación para filtrar perfiles locales
       </p>
         <div className="flex flex-wrap justify-center gap-3 max-w-5xl mx-auto">
@@ -147,14 +147,17 @@ function CiudadesSection({ ciudades }) {
               key={c.slug || c.id}
               href={`/busqueda?ciudad=${c.slug || c.id}`}
               className="
-                bg-[#1b101a] text-gray-300
-                font-semibold text-xs uppercase tracking-widest
+                /* ESTILO VIBRANTE: Botones tipo filtro llamativos (estilo Sexosur) */
+                bg-pink-600 text-white
+                font-montserrat font-bold text-sm tracking-wide
                 px-6 py-3
                 rounded-full
-                border border-white/10
+                border border-pink-400/30
+                shadow-md shadow-pink-600/20
+                
+                /* Interacción */
                 transition-all duration-300
-                hover:bg-pink-600 hover:text-white hover:border-pink-500 hover:shadow-lg hover:shadow-pink-500/20
-                hover:-translate-y-0.5
+                hover:bg-pink-500 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/40
               "
             >
               {c.nombre}

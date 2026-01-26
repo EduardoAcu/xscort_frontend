@@ -145,7 +145,8 @@ function CiudadesSection({ ciudades }) {
           {ciudades.map((c) => (
             <Link
               key={c.slug || c.id}
-              href={`/busqueda?ciudad=${c.slug || c.id}`}
+              // 🚀 CAMBIO VITAL: Apuntamos a la URL limpia (ej: /chillan) en vez de la búsqueda
+              href={`/${c.slug || c.id}`}
               className="
                 /* ESTILO VIBRANTE: Botones tipo filtro llamativos (estilo Sexosur) */
                 bg-pink-600 text-white

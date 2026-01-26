@@ -2,14 +2,27 @@ import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
-// Iconos para el diseño
-import { MapPin, Star, Sparkles, Navigation as NavIcon, ChevronRight } from "lucide-react"; 
 
 // ============================================================
-// 1. COMPONENTES INTERNOS (Diseño Mejorado)
+// 0. ÍCONOS SVG MANUALES (Para evitar Error 500 por falta de librerías)
+// ============================================================
+const MapPin = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+);
+const ChevronRight = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"/></svg>
+);
+const Sparkles = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 9h4"/><path d="M3 5h4"/></svg>
+);
+const NavIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+);
+
+// ============================================================
+// 1. COMPONENTES INTERNOS (Diseño Premium Glass)
 // ============================================================
 
-// Tarjeta de Perfil (ProfileCard) con diseño "Glass" sutil
 function ProfileCard({ profile }) {
   if (!profile) return null;
 
@@ -207,7 +220,7 @@ export default async function CiudadPage({ params }) {
         ) : (
             <div className="py-24 px-8 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.02] mb-24">
                 <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Navigation className="w-8 h-8 text-gray-500" />
+                    <NavIcon className="w-8 h-8 text-gray-500" />
                 </div>
                 <h3 className="text-xl font-bold text-white font-fancy mb-2">Sin resultados en esta zona</h3>
                 <p className="text-gray-400 mb-6 font-light">

@@ -27,13 +27,13 @@ export default function BarraFiltros() {
     const cargarDatos = async () => {
       try {
         // Ciudades
-        const resC = await fetch(`${API_URL}/api/profiles/ciudades/`, { cache: 'no-store' });
+        const resC = await fetch(`${API_URL}/api/profiles/ciudades/`, { next: { revalidate: 300 }});
         if (resC.ok) {
             const data = await resC.json();
             setCiudades(Array.isArray(data) ? data : (data.results || []));
         }
         // Servicios
-        const resS = await fetch(`${API_URL}/api/profiles/servicios-catalogo/`, { cache: 'no-store' });
+        const resS = await fetch(`${API_URL}/api/profiles/servicios-catalogo/`, { next: { revalidate: 300 }});
         if (resS.ok) {
             const data = await resS.json();
             setServiciosCatalogo(Array.isArray(data) ? data : (data.results || []));

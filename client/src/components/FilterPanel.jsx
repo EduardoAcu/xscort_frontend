@@ -27,7 +27,7 @@ export default function FilterPanel() {
       try {
         // --- CIUDADES ---
         // Usamos 'no-store' para evitar cachés fantasmas de Next.js
-        const resC = await fetch(`${API_URL}/api/profiles/ciudades/`, { cache: 'no-store' });
+        const resC = await fetch(`${API_URL}/api/profiles/ciudades/`, { next: { revalidate: 300 }});
         if (resC.ok) {
             const data = await resC.json();
             // Detectamos si viene como array puro [..] o objeto paginado { results: [..] }
@@ -35,7 +35,7 @@ export default function FilterPanel() {
         }
 
         // --- SERVICIOS ---
-        const resS = await fetch(`${API_URL}/api/profiles/servicios-catalogo/`, { cache: 'no-store' });
+        const resS = await fetch(`${API_URL}/api/profiles/servicios-catalogo/`, { next: { revalidate: 300 }});
         if (resS.ok) {
             const data = await resS.json();
             setServiciosCatalogo(Array.isArray(data) ? data : (data.results || []));

@@ -2,11 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
-// ⚠️ NO importamos nada más externo para evitar errores 500
+// Importamos iconos directamente para evitar errores
 import { MapPin, Star } from "lucide-react"; 
 
 // ============================================================
-// 1. COMPONENTES INTERNOS (Para evitar "Module not found")
+// 1. COMPONENTES INTERNOS (Para evitar fallos de importación)
 // ============================================================
 
 // Tarjeta de Perfil definida aquí mismo
@@ -48,30 +48,25 @@ function ProfileCard({ profile }) {
 }
 
 // ============================================================
-// 2. FUNCIONES DE DATOS (Con logs de error)
+// 2. FUNCIONES DE DATOS
 // ============================================================
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 async function getPerfilesPorCiudad(slug) {
-  console.log(`🔍 Buscando perfiles para: ${slug} en ${API_URL}`);
   try {
-    // Probamos filtrar. Asegúrate que tu backend soporte ?ciudad=
     const res = await fetch(`${API_URL}/api/profiles/public/?ciudad=${slug}`, {
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-        console.error(`❌ Error API Perfiles: ${res.status} ${res.statusText}`);
-        return [];
-    }
+    if (!res.ok) return [];
     
     const data = await res.json();
     if (Array.isArray(data)) return data;
     if (data.results) return data.results;
     return [];
   } catch (error) {
-    console.error("🔥 EXCEPCIÓN FETCH PERFILES:", error);
+    console.error("Error fetch perfiles:", error);
     return [];
   }
 }
@@ -119,17 +114,14 @@ export default async function CiudadPage({ params }) {
   
   let perfiles = [];
   let ciudades = [];
-  let errorMsg = null;
 
   try {
-      // Cargamos datos
       [ciudades, perfiles] = await Promise.all([
         getCiudadesInterno(),
         getPerfilesPorCiudad(ciudadSlug)
       ]);
   } catch (error) {
-      console.error("🔥 Error CRÍTICO en carga de página:", error);
-      errorMsg = "Ocurrió un error cargando los datos.";
+      console.error("Error cargando datos:", error);
   }
 
   return (
@@ -162,7 +154,6 @@ export default async function CiudadPage({ params }) {
           
           <p className="text-gray-400 max-w-3xl text-lg leading-relaxed font-light">
              Directorio exclusivo en {ciudadNombre}.
-             {errorMsg && <span className="text-red-500 block mt-2">({errorMsg})</span>}
           </p>
         </div>
 
@@ -206,4 +197,4 @@ export default async function CiudadPage({ params }) {
       </div>
     </main>
   );
-}x  
+}

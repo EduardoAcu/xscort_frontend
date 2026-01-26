@@ -11,15 +11,17 @@ const publicRoutes = [
   { path: '/forgot-password', changeFrequency: 'monthly', priority: 0.2 },
 ]
 
-const routes = [...publicRoutes, ...panelRoutes]
+// CORRECCIÓN: Eliminamos "...panelRoutes" porque no existe y no debe indexarse.
+const routes = [...publicRoutes]
 
-export default function sitemap() {
-  return routes.map((r) => ({
+export default async function sitemap() {
+  // 1. Mapeamos las rutas estáticas
+  const staticMap = routes.map((r) => ({
     url: `${baseUrl}${r.path}`,
     lastModified: new Date(),
     changeFrequency: r.changeFrequency,
     priority: r.priority,
   }))
+
+  return staticMap
 }
-
-

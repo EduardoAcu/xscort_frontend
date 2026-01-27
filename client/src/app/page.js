@@ -88,7 +88,7 @@ function HeroSection() {
         {/* Imagen de Fondo Optimizada */}
         <div className="absolute inset-0 z-0">
             <Image 
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1600&auto=format&fit=crop"
+                src="/banner01.png"
                 alt="Fondo Home Escorts Chile"
                 fill
                 className="object-cover opacity-50"

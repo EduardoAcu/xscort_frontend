@@ -56,7 +56,7 @@ export default function FormularioFotoPerfil({ initialFotoUrl, onSuccess }) {
       const formData = new FormData();
       formData.append("foto_perfil", file);
 
-      const res = await api.patch("/api/profiles/mi-perfil/actualizar/", formData, {
+      const res = await api.patch("/api/profiles/mi-perfil/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

@@ -77,7 +77,7 @@ export default function FormularioSubirFoto({ onSuccess }) {
       const formData = new FormData();
       formData.append("imagen", file);
 
-      await api.post("/api/profiles/mi-galeria/subir/", formData, {
+      await api.post("/api/profiles/mi-galeria/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

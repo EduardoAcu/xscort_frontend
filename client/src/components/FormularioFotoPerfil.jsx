@@ -128,7 +128,7 @@ export default function FormularioFotoPerfil({ initialFotoUrl, onSuccess }) {
             <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg, image/png, image/webp, image/gif"
                 onChange={handleFileChange}
                 className="hidden"
             />

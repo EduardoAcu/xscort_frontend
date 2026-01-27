@@ -139,7 +139,7 @@ export default function FormularioSubirFoto({ onSuccess }) {
             <input
               ref={inputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg, image/png, image/webp, image/gif"
               onChange={handleChange}
               className="hidden"
             />

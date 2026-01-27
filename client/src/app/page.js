@@ -127,11 +127,24 @@ function HeroSection() {
 }
 
 function CiudadesSection({ ciudades }) {
-  if (!ciudades || ciudades.length === 0) return null;
+  // 1. DATOS DE RESPALDO (Para que la sección nunca desaparezca)
+  const datosPorDefecto = [
+    { id: 1, nombre: "Santiago", slug: "santiago" },
+    { id: 2, nombre: "Viña del Mar", slug: "vina-del-mar" },
+    { id: 3, nombre: "Concepción", slug: "concepcion" },
+    { id: 4, nombre: "Antofagasta", slug: "antofagasta" },
+    { id: 5, nombre: "Iquique", slug: "iquique" },
+    { id: 6, nombre: "Temuco", slug: "temuco" },
+  ];
 
-  // Separamos las ciudades principales para destacarlas (opcional, visual)
-  const topCiudades = ciudades.slice(0, 4);
-  const restoCiudades = ciudades.slice(4);
+  // 2. SELECCIÓN INTELIGENTE:
+  // Si 'ciudades' (de la API) tiene datos, los usamos.
+  // Si no, usamos 'datosPorDefecto'.
+  const listaAUsar = (ciudades && ciudades.length > 0) ? ciudades : datosPorDefecto;
+
+  // Separamos las ciudades principales
+  const topCiudades = listaAUsar.slice(0, 4);
+  const restoCiudades = listaAUsar.slice(4);
 
   return (
     <section className="px-4 py-20 max-w-7xl mx-auto border-b border-white/5">
@@ -158,6 +171,7 @@ function CiudadesSection({ ciudades }) {
               "
             >
               <div className="flex items-center gap-3 relative z-10">
+                 {/* Asegúrate de importar MapPin de lucide-react arriba */}
                  <MapPin className="w-5 h-5 text-pink-500 group-hover:animate-bounce" />
                  <span className="font-bold text-lg text-white font-fancy tracking-wide">{c.nombre}</span>
               </div>

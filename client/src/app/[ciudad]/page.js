@@ -4,7 +4,26 @@ import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
 
 // ============================================================
-// 0. ÍCONOS MANUALES
+// 0. CONFIGURACIÓN
+// ============================================================
+// Eliminamos el slash final para evitar dobles slashes //
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
+
+// Helper para Imágenes (Soporte R2 / S3 / Local)
+const getImageUrl = (path) => {
+  if (!path) return "/placeholder.jpg";
+  
+  // 1. Si ya es una URL completa (Cloudflare R2, S3, Google Photos), la usamos directo
+  if (path.startsWith("http") || path.startsWith("https")) {
+    return path;
+  }
+  
+  // 2. Si es relativa (ej: /media/...), le pegamos el dominio de la API
+  return `${API_URL}${path}`;
+};
+
+// ============================================================
+// 1. ÍCONOS MANUALES (SVG)
 // ============================================================
 const MapPin = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -20,22 +39,27 @@ const NavIcon = ({ className }) => (
 );
 
 // ============================================================
-// 1. COMPONENTE TARJETA (Con SEO de Imágenes Mejorado)
+// 2. COMPONENTE TARJETA
 // ============================================================
 function ProfileCard({ profile }) {
   if (!profile) return null;
+
+  // Lógica de Imagen Robusta para R2
+  // Intentamos obtener foto_principal, si no existe, foto_perfil
+  const rawImage = profile.foto_principal || profile.foto_perfil;
+  const finalImage = getImageUrl(rawImage);
 
   return (
     <Link href={`/perfil/${profile.slug || profile.id}`} className="group relative block h-full">
       <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#120912] border border-white/5 transition-all duration-500 group-hover:border-pink-500/50 group-hover:shadow-[0_0_30px_-5px_rgba(236,72,153,0.3)] group-hover:-translate-y-2">
         
-        {/* FOTO - MEJORA SEO: Alt Text descriptivo */}
         <Image
-          src={profile.foto_principal || "/placeholder.jpg"} 
-          alt={`Escort ${profile.nombre_fantasia} en ${profile.ciudad_nombre || "Chile"} - xscort`}
+          src={finalImage} 
+          alt={`Escort ${profile.nombre_fantasia} en ${profile.ciudad_nombre || "Chile"}`}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 768px) 50vw, 25vw"
+          // unoptimized={true} // DESCOMENTAR SI NEXT.JS FALLA AL OPTIMIZAR IMÁGENES EXTERNAS DE R2
         />
         
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#050205] via-[#050205]/80 to-transparent opacity-90" />
@@ -51,7 +75,7 @@ function ProfileCard({ profile }) {
           <div className="flex items-end justify-between">
             <div className="space-y-1">
               <h3 className="text-2xl font-bold text-white font-fancy leading-none tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-pink-400 transition-all">
-                {profile.nombre_fantasia}
+                {profile.nombre_fantasia || profile.nombre_artistico}
               </h3>
               <div className="flex items-center gap-2 text-sm text-gray-400 font-light">
                 <span>{profile.edad ? `${profile.edad} años` : "Consultar"}</span>
@@ -70,15 +94,15 @@ function ProfileCard({ profile }) {
 }
 
 // ============================================================
-// 2. FUNCIONES DE DATOS
+// 3. FUNCIONES DE DATOS
 // ============================================================
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-// Reemplaza la función completa (líneas 81-90) por esta:
 async function getPerfilesPorCiudad(slug) {
   try {
+    // Usamos el filtro corregido ?ciudad__slug=
+    // Quitamos 'public/' porque la lista suele estar en la raíz del endpoint
     const url = `${API_URL}/api/profiles/?ciudad__slug=${slug}`;
-    console.log("📡 Buscando en:", url);
+    console.log("📡 Buscando en:", url); 
 
     const res = await fetch(url, { 
       cache: 'no-store',
@@ -111,7 +135,7 @@ const capitalizeCity = (str) => {
 }
 
 // ============================================================
-// 3. METADATA (AQUÍ ESTÁ LA MAGIA DEL SEO)
+// 4. METADATA
 // ============================================================
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -119,40 +143,15 @@ export async function generateMetadata({ params }) {
   const ciudadNombre = capitalizeCity(ciudadSlug);
   const currentYear = new Date().getFullYear();
 
-  // Título Optimizado para CTR (Click Through Rate)
-  const title = `Escorts en ${ciudadNombre} - Fotos Reales y WhatsApp ${currentYear} | xscort`;
-  
-  // Descripción persuasiva
-  const description = `Directorio de Escorts y Modelos independientes en ${ciudadNombre}. Perfiles verificados, trato directo sin agencias y discreción total. Encuentra tu compañía ideal hoy.`;
-
   return {
-    title: title,
-    description: description,
-    keywords: [`escorts ${ciudadNombre}`, `acompañantes ${ciudadNombre}`, 'modelos vip', 'trato directo', 'fotos reales'],
-    alternates: { 
-      canonical: `https://xscort.cl/${ciudadSlug}` 
-    },
-    // OpenGraph para WhatsApp/Facebook
-    openGraph: {
-      title: title,
-      description: description,
-      url: `https://xscort.cl/${ciudadSlug}`,
-      siteName: 'xscort.cl',
-      type: 'website',
-      images: [
-        {
-          url: 'https://xscort.cl/logo.png', // O una imagen genérica de la ciudad si tuvieras
-          width: 1200,
-          height: 630,
-          alt: `Escorts en ${ciudadNombre}`,
-        }
-      ]
-    }
+    title: `Escorts en ${ciudadNombre} - Fotos Reales ${currentYear} | xscort`,
+    description: `Directorio de Escorts y Modelos independientes en ${ciudadNombre}. Perfiles verificados.`,
+    alternates: { canonical: `https://xscort.cl/${ciudadSlug}` },
   };
 }
 
 // ============================================================
-// 4. PÁGINA PRINCIPAL
+// 5. PÁGINA PRINCIPAL
 // ============================================================
 export default async function CiudadPage({ params }) {
   const resolvedParams = await params;
@@ -169,7 +168,6 @@ export default async function CiudadPage({ params }) {
       ]);
   } catch (error) { console.error("Error cargando datos:", error); }
 
-  // SCHEMA.ORG (JSON-LD): Para que Google entienda la estructura (Breadcrumb)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -188,12 +186,7 @@ export default async function CiudadPage({ params }) {
 
   return (
     <div className="min-h-screen bg-[#050205] text-white selection:bg-pink-500 selection:text-white">
-      
-      {/* Schema Injection */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* FONDO SPOTLIGHT */}
       <div className="fixed top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-900/20 via-[#050205] to-[#050205] -z-10 pointer-events-none" />

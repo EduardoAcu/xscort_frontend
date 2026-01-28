@@ -5,9 +5,19 @@ import MobileMenu from "@/components/MobileMenu";
 import { Heart, Flame, Feather, MapPin, Search } from "lucide-react";
 
 // ============================================================
-// CONSTANTS
+// CONSTANTES GLOBALES (Datos de Respaldo)
 // ============================================================
 const CURRENT_YEAR = new Date().getFullYear();
+
+// Definimos esto FUERA de los componentes para evitar errores de Build
+const CIUDADES_DEFAULT = [
+  { id: 1, nombre: "Santiago", slug: "santiago" },
+  { id: 2, nombre: "Viña del Mar", slug: "vina-del-mar" },
+  { id: 3, nombre: "Concepción", slug: "concepcion" },
+  { id: 4, nombre: "Antofagasta", slug: "antofagasta" },
+  { id: 5, nombre: "Iquique", slug: "iquique" },
+  { id: 6, nombre: "Temuco", slug: "temuco" },
+];
 
 // ============================================================
 // METADATA (SEO PRINCIPAL)
@@ -31,32 +41,44 @@ export const metadata = {
 };
 
 // ============================================================
-// API DATA FETCHING
+// API DATA FETCHING (Lógica Blindada)
 // ============================================================
 async function getCiudades() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    console.log(`📡 [Server] Conectando a ciudades en: ${apiUrl}/api/profiles/ciudades/`);
+
+    // 'no-store' = Desactiva la caché totalmente. Vital para ver cambios inmediatos.
     const res = await fetch(`${apiUrl}/api/profiles/ciudades/`, {
-      next: { revalidate: 3600 }, // Caché de 1 hora para que la home vuele
+      cache: 'no-store', 
+      next: { revalidate: 0 } 
     });
     
-    if (!res.ok) return [];
-    
-    const data = await res.json();
-    
-    // Normalización de datos (Django a veces devuelve paginación, a veces lista)
-    if (Array.isArray(data)) return data;
-    if (data && Array.isArray(data.results)) return data.results;
-    
-    return [];
+    if (res.ok) {
+        const data = await res.json();
+        const lista = Array.isArray(data) ? data : (data.results || []);
+        
+        console.log(`✅ [Server] Ciudades encontradas: ${lista.length}`);
+
+        if (lista.length > 0) {
+            return lista;
+        }
+    } else {
+        console.error(`❌ [Server] Error API: ${res.status} ${res.statusText}`);
+    }
   } catch (error) {
-    console.error("Error fetching ciudades:", error);
-    return [];
+    console.error("🔥 [Server] Error de conexión:", error.message);
+    console.error("💡 Consejo: Verifica que NEXT_PUBLIC_API_URL en Coolify sea https://api.xscort.cl");
   }
+
+  // Si falló la conexión o la lista está vacía, usamos el respaldo
+  // para que la sección NO desaparezca visualmente.
+  return CIUDADES_DEFAULT;
 }
 
 // ============================================================
-// COMPONENTES DE SECCIÓN
+// COMPONENTES UI
 // ============================================================
 
 function Navigation() {
@@ -85,8 +107,8 @@ function Navigation() {
 function HeroSection() {
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-        {/* Imagen de Fondo Optimizada */}
         <div className="absolute inset-0 z-0">
+            {/* Asegúrate de que /banner01.png exista en /public */}
             <Image 
                 src="/banner01.png"
                 alt="Fondo Home Escorts Chile"
@@ -94,7 +116,6 @@ function HeroSection() {
                 className="object-cover opacity-50"
                 priority
             />
-            {/* Degradados para legibilidad */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-[#050205]/40 to-black/60"></div>
         </div>
 
@@ -106,7 +127,6 @@ function HeroSection() {
                 El directorio más confiable de Chile. Conecta directamente por WhatsApp con modelos verificadas.
             </p>
 
-            {/* Botón de Acción Principal */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link
                     href="/busqueda"
@@ -127,10 +147,11 @@ function HeroSection() {
 }
 
 function CiudadesSection({ ciudades }) {
+  // LÓGICA DE VISUALIZACIÓN:
+  // Si la API devolvió datos (y no es la lista default), usamos esos.
+  // Si ciudades es null o vacío, usamos CIUDADES_DEFAULT.
+  const listaAUsar = (ciudades && ciudades.length > 0) ? ciudades : CIUDADES_DEFAULT;
 
-  const listaAUsar = (ciudades && ciudades.length > 0) ? ciudades : datosPorDefecto;
-
-  // Separamos las ciudades principales
   const topCiudades = listaAUsar.slice(0, 4);
   const restoCiudades = listaAUsar.slice(4);
 
@@ -145,7 +166,6 @@ function CiudadesSection({ ciudades }) {
         </p>
       </div>
 
-      {/* Grid de Destinos Principales */}
       <div className="flex flex-wrap justify-center gap-4 mb-8">
           {topCiudades.map((c) => (
             <Link
@@ -159,17 +179,14 @@ function CiudadesSection({ ciudades }) {
               "
             >
               <div className="flex items-center gap-3 relative z-10">
-                 {/* Asegúrate de importar MapPin de lucide-react arriba */}
                  <MapPin className="w-5 h-5 text-pink-500 group-hover:animate-bounce" />
                  <span className="font-bold text-lg text-white font-fancy tracking-wide">{c.nombre}</span>
               </div>
-              {/* Efecto hover fondo */}
               <div className="absolute inset-0 bg-gradient-to-r from-pink-900/20 to-purple-900/20 opacity-0 group-hover:opacity-100 transition-opacity" />
             </Link>
           ))}
       </div>
 
-      {/* Resto de ciudades (Tags) */}
       {restoCiudades.length > 0 && (
           <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
              {restoCiudades.map((c) => (
@@ -188,7 +205,6 @@ function CiudadesSection({ ciudades }) {
 }
 
 function ServiceCard({ icon: Icon, title, description, accentColor }) {
-  // Mapeo de colores para bordes y brillos
   const colors = {
     red: "text-red-400 group-hover:text-red-300",
     orange: "text-orange-400 group-hover:text-orange-300",
@@ -263,7 +279,6 @@ function ServicesSection() {
 function CTASection() {
   return (
     <section className="py-24 px-6 relative overflow-hidden">
-      {/* Fondo decorativo */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-900/20 via-[#050205] to-[#050205] z-0"></div>
       
       <div className="relative z-10 max-w-4xl mx-auto text-center bg-[#120912]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-12">
@@ -335,7 +350,6 @@ function Footer() {
 export default async function HomePage() {
   const ciudades = await getCiudades();
 
-  // SCHEMA.ORG (JSON-LD) - Vital para SEO
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -350,12 +364,10 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#050205] text-white selection:bg-pink-500 selection:text-white">
-      {/* Schema Injection */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
       <Navigation />
       <HeroSection />
       <CiudadesSection ciudades={ciudades} />

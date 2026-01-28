@@ -9,18 +9,6 @@ import { Heart, Flame, Feather, MapPin, Search } from "lucide-react";
 // ============================================================
 const CURRENT_YEAR = new Date().getFullYear();
 
-// Definimos esto FUERA de los componentes para evitar errores de Build
-const CIUDADES_DEFAULT = [
-  { id: 1, nombre: "Santiago", slug: "santiago" },
-  { id: 2, nombre: "Viña del Mar", slug: "vina-del-mar" },
-  { id: 3, nombre: "Concepción", slug: "concepcion" },
-  { id: 4, nombre: "Antofagasta", slug: "antofagasta" },
-  { id: 5, nombre: "Iquique", slug: "iquique" },
-  { id: 6, nombre: "Temuco", slug: "temuco" },
-  { id: 7, nombre: "La Serena", slug: "la-serena" },
-  { id: 8, nombre: "Valparaíso", slug: "valparaiso" },
-];
-
 // ============================================================
 // METADATA (SEO PRINCIPAL)
 // ============================================================
@@ -147,23 +135,16 @@ function HeroSection() {
 }
 
 function CiudadesSection({ ciudades }) {
-  // 1. DATOS DE RESPALDO (Backup dentro del componente por seguridad visual)
-  const backupData = [
-    { id: 101, nombre: "Santiago", slug: "santiago" },
-    { id: 102, nombre: "Viña del Mar", slug: "vina-del-mar" },
-    { id: 103, nombre: "Concepción", slug: "concepcion" },
-    { id: 104, nombre: "Antofagasta", slug: "antofagasta" },
-  ];
+
 
   // 2. SELECCIÓN DE DATOS
-  // Usamos los que vienen de la API, si no, el backup.
   const displayCities = (ciudades && Array.isArray(ciudades) && ciudades.length > 0) 
-    ? ciudades 
-    : backupData;
+    ? ciudades.slice(0, 12) 
+    : CIUDADES_DEFAULT.slice(0, 12);
 
   return (
     <section className="px-4 py-20 bg-black/20 border-b border-white/5">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold font-fancy text-white mb-4">
               Destinos Populares
@@ -173,31 +154,33 @@ function CiudadesSection({ ciudades }) {
           </p>
         </div>
 
-        {/* --- NUEVO DISEÑO: GRID UNIFICADO Y LIMPIO --- */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {/* --- DISEÑO PIRAMIDAL / CENTRADO --- */}
+        <div className="flex flex-wrap justify-center gap-4">
             {displayCities.map((c, index) => (
               <Link
                 key={c.slug || c.id || index}
                 href={`/${c.slug || c.id}`}
                 className="
                   group relative 
-                  flex items-center justify-center gap-3
-                  px-6 py-4 
-                  rounded-xl
-                  bg-white/[0.03] 
+                  flex items-center gap-3
+                  px-8 py-4 
+                  rounded-full
+                  bg-[#150d15] 
                   border border-white/10 
-                  backdrop-blur-sm
                   transition-all duration-300
-                  hover:bg-white/[0.08] 
-                  hover:border-pink-500/50
-                  hover:shadow-[0_0_15px_-5px_rgba(236,72,153,0.3)]
+                  hover:border-pink-500 
+                  hover:shadow-[0_0_20px_-5px_rgba(236,72,153,0.5)]
                   hover:-translate-y-1
+                  active:scale-95
                 "
               >
-                <MapPin className="w-5 h-5 text-pink-600 group-hover:text-pink-400 transition-colors" />
-                <span className="font-bold text-sm md:text-base text-gray-200 group-hover:text-white font-fancy tracking-wide">
+                <MapPin className="w-5 h-5 text-pink-600 group-hover:text-pink-400 group-hover:animate-bounce transition-colors" />
+                <span className="font-bold text-base text-gray-200 group-hover:text-white font-fancy tracking-wide">
                   {c.nombre}
                 </span>
+                
+                {/* Efecto de brillo interior */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500/0 via-pink-500/5 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               </Link>
             ))}
         </div>
@@ -285,7 +268,7 @@ function CTASection() {
       
       <div className="relative z-10 max-w-4xl mx-auto text-center bg-[#120912]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-12">
         <h2 className="text-3xl md:text-5xl font-bold font-fancy text-white mb-6">
-            ¿Eres Modelo Independiente?
+            ¿Eres Modelo?
         </h2>
         <p className="text-gray-300 mb-10 font-light text-lg font-montserrat leading-relaxed">
           Únete a la plataforma más exclusiva de Chile. Sin comisiones por cita, tú controlas tus tarifas y horarios.

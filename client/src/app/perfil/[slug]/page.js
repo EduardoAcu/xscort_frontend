@@ -1,267 +1,249 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
-import NavBar from "@/components/NavBar";
-// Componentes internos
-import CabeceraPerfil from "@/components/CabeceraPerfil"; 
-import BotonesContacto from "@/components/BotonesContacto";
-import FormularioResenaWrapper from "@/components/FormularioResenaWrapper";
-import GaleriaPublica from "@/components/GaleriaPublica";
-// Iconos
-import { ChevronRight, MapPin } from "lucide-react";
+import { 
+  MapPin, Calendar, Phone, MessageCircle, 
+  CheckCircle2, ChevronRight, Star, Share2, 
+  ArrowLeft, Camera, Heart 
+} from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// URL Base (Asegura que no tenga slash final extra)
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
 // Función auxiliar para URLs de imágenes
 const getImageUrl = (path) => {
-  if (!path) return "/placeholder.jpg"; 
+  if (!path) return null;
   return path.startsWith("http") ? path : `${API_URL}${path}`;
 };
 
 // ============================================================
-// 1. DATA FETCHING
+// 1. DATA FETCHING (Servidor)
 // ============================================================
 async function getPerfilData(slug) {
   try {
-    const res = await fetch(`${API_URL}/api/profiles/public/${slug}/`, { 
-      next: { revalidate: 60 }, 
+    // Importante: El slash final es vital para Django
+    const url = `${API_URL}/api/profiles/public/${slug}/`;
+    console.log("📡 Fetching Perfil:", url); // Esto aparecerá en la terminal de tu servidor (Coolify/Local)
+
+    const res = await fetch(url, { 
+      next: { revalidate: 0 }, // 0 para datos siempre frescos
+      headers: { "Content-Type": "application/json" }
     });
-    if (!res.ok) return null;
+
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`Error API: ${res.status}`);
+    
     return await res.json();
   } catch (error) {
-    console.error("Error fetching perfil:", error);
+    console.error("❌ Error fetching perfil:", error.message);
     return null; 
   }
 }
 
 // ============================================================
-// 2. METADATA DINÁMICA
+// 2. METADATA SEO
 // ============================================================
 export async function generateMetadata({ params }) {
+  // En Next.js 15, params es una promesa
   const resolvedParams = await params;
-  const slug = resolvedParams.slug || resolvedParams.id;
+  const slug = resolvedParams.slug;
   const perfil = await getPerfilData(slug);
 
-  if (!perfil) {
-    return { title: "Perfil no encontrado | xscort.cl" };
-  }
+  if (!perfil) return { title: "Perfil no encontrado | xscort.cl" };
 
-  const nombre = perfil.nombre_artistico || perfil.nombre_fantasia;
-  const ciudad = perfil.ciudad_nombre || "Chile";
-  const titulo = `${nombre} - Escort en ${ciudad} | Fotos Reales y WhatsApp`;
-  const descripcion = perfil.biografia 
-    ? perfil.biografia.substring(0, 160) 
-    : `Contacta a ${nombre}, ${perfil.edad} años en ${ciudad}. Servicios exclusivos, fotos verificadas y trato directo.`;
-
+  const nombre = perfil.nombre_artistico || "Modelo";
+  const ciudad = perfil.ciudad?.nombre || "Chile";
+  
   return {
-    title: titulo,
-    description: descripcion,
-    alternates: {
-      canonical: `https://xscort.cl/perfil/${slug}`,
-    },
+    title: `${nombre} - Escort en ${ciudad} | xscort.cl`,
+    description: perfil.biografia?.substring(0, 160) || `Contacta a ${nombre}. Fotos reales y trato directo.`,
     openGraph: {
-      title: titulo,
-      description: descripcion,
-      url: `https://xscort.cl/perfil/${slug}`,
-      siteName: "xscort.cl",
-      locale: "es_CL",
-      type: "profile",
-      images: [
-        {
-          url: getImageUrl(perfil.foto_principal),
-          width: 800,
-          height: 800,
-          alt: `Escort ${nombre} en ${ciudad}`,
-        },
-      ],
+      images: [getImageUrl(perfil.foto_perfil) || "/banner-social.jpg"],
     },
   };
 }
 
 // ============================================================
-// 3. PÁGINA DE PERFIL
+// 3. COMPONENTE DE PÁGINA (UI)
 // ============================================================
 export default async function PerfilPage({ params }) {
   const resolvedParams = await params;
-  const slug = resolvedParams.slug || resolvedParams.id;
+  const slug = resolvedParams.slug;
   const perfil = await getPerfilData(slug);
 
-  if (!perfil) notFound();
+  // Si la API devuelve null (404), mostramos la página de error de Next.js
+  if (!perfil) {
+    notFound();
+  }
 
-  // Datos seguros
-  const galeria = perfil.galeria_fotos || [];
-  const resenas = perfil.resenas || [];
-  const servicios = perfil.servicios || [];
-  const fotoPerfilUrl = getImageUrl(perfil.foto_principal);
-  const nombre = perfil.nombre_artistico || perfil.nombre_fantasia;
-  const ciudad = perfil.ciudad_nombre || "Chile";
-  const ciudadSlug = perfil.ciudad_slug || "busqueda"; // Fallback si la API no manda slug de ciudad
-
-  // SCHEMA 1: PERSONA (Para datos ricos)
-  const schemaPerson = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": nombre,
-    "image": fotoPerfilUrl,
-    "description": perfil.biografia,
-    "jobTitle": "Escort",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": ciudad,
-      "addressCountry": "CL"
-    },
-    "url": `https://xscort.cl/perfil/${slug}`
-  };
-
-  // SCHEMA 2: BREADCRUMB (Para navegación en Google)
-  const schemaBreadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Inicio",
-        "item": "https://xscort.cl"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": ciudad,
-        "item": `https://xscort.cl/${ciudadSlug}`
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": nombre,
-        "item": `https://xscort.cl/perfil/${slug}`
-      }
-    ]
-  };
+  // --- PREPARACIÓN DE DATOS ---
+  const fotoPrincipal = getImageUrl(perfil.foto_perfil);
+  const galeria = perfil.galeria || []; // Ajusta según tu API (puede ser perfil.images)
+  const isVerified = perfil.verificacion_estado === "aprobado";
+  const ciudadNombre = perfil.ciudad?.nombre || "Chile";
+  const ciudadSlug = perfil.ciudad?.slug || "busqueda";
+  const whatsappLimpio = perfil.telefono_contacto?.replace(/[^0-9]/g, "");
 
   return (
-    <div className="min-h-screen bg-[#050205] text-gray-300 font-montserrat pb-20 selection:bg-pink-500 selection:text-white">
-      <NavBar />
+    <div className="min-h-screen bg-[#050205] text-gray-200 font-montserrat pb-20 selection:bg-pink-500 selection:text-white">
       
-      {/* Schema Injections */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaPerson) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaBreadcrumb) }} />
+      {/* 1. NAVBAR FLOTANTE */}
+      <nav className="fixed top-0 w-full bg-[#050205]/80 backdrop-blur-xl z-50 border-b border-white/5 h-16 flex items-center justify-between px-4 sm:px-8">
+        <Link href={`/${ciudadSlug}`} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-bold uppercase hidden sm:inline">Volver</span>
+        </Link>
+        <Link href="/" className="font-bold text-xl tracking-widest text-pink-500 font-fancy">
+            XSCORT
+        </Link>
+        <div className="w-8"></div> {/* Espaciador para centrar logo */}
+      </nav>
 
-      {/* FONDO SPOTLIGHT (Efecto Premium) */}
-      <div className="fixed top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-900/20 via-[#050205] to-[#050205] -z-10 pointer-events-none" />
-      
-      {/* Contenedor Principal */}
-      <div className="pt-24 md:pt-28">
-        
-        {/* BREADCRUMBS VISUALES (Navegación) */}
-        <div className="max-w-5xl mx-auto px-4 md:px-0 mb-6">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-montserrat">
-                <Link href="/" className="hover:text-pink-500 transition-colors">Chile</Link>
-                <ChevronRight className="w-3 h-3" />
-                <Link href={`/${ciudadSlug}`} className="hover:text-pink-500 transition-colors">{ciudad}</Link>
-                <ChevronRight className="w-3 h-3" />
-                <span className="text-pink-500 font-bold">{nombre}</span>
-            </div>
-        </div>
-
-        {/* 1. HEADER DEL PERFIL */}
-        <CabeceraPerfil perfil={perfil} />
-
-        {/* 2. BOTONES DE ACCIÓN */}
-        <BotonesContacto perfil={perfil} />
-
-        {/* Contenedor centralizado */}
-        <div className="max-w-5xl mx-auto px-4 md:px-0 mt-12 space-y-16">
-
-            {/* 3. GALERÍA */}
-            {galeria.length > 0 && (
-                <section>
-                    <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-2">
-                        <h2 className="text-sm font-semibold uppercase tracking-widest text-white flex items-center gap-2">
-                           <span className="w-1.5 h-1.5 bg-pink-500 rounded-full"></span> Galería de Fotos
-                        </h2>
-                        <span className="text-[10px] text-gray-500">{galeria.length} FOTOS</span>
-                    </div>
-                    {/* Pasamos URLs limpias y ALT text para SEO de imágenes */}
-                    <GaleriaPublica 
-                        fotos={galeria.map((f) => getImageUrl(f.imagen || f.url))} 
-                    />
-                </section>
-            )}
-
-            {/* 4. SERVICIOS */}
-            {servicios.length > 0 && (
-                <section>
-                    <h3 className="text-sm font-semibold uppercase tracking-widest text-white mb-4 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-pink-500 rounded-full"></span> Servicios
-                    </h3>
-                    <div className="flex flex-wrap gap-3">
-                        {servicios.map((srv, idx) => (
-                             <div key={idx} className="text-xs text-gray-300 border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] py-2 px-4 rounded-full transition-colors cursor-default">
-                                {typeof srv === 'object' ? srv.nombre : srv}
-                             </div>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            {/* 5. RESEÑAS & FEEDBACK */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-white/5 pt-12">
-                
-                {/* Listado */}
-                <div>
-                    <h2 className="text-sm font-semibold uppercase tracking-widest text-white mb-6">
-                        Opiniones Reales ({resenas.length})
-                    </h2>
-                    {resenas.length > 0 ? (
-                        <div className="space-y-8">
-                            {resenas.slice(0, 5).map((r) => ( 
-                                <div key={r.id} className="pb-6 border-b border-white/5 last:border-0">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-pink-500/10 flex items-center justify-center text-[10px] text-pink-500 font-bold">
-                                                {(r.usuario_nombre || "A")[0].toUpperCase()}
-                                            </div>
-                                            <span className="text-xs font-bold text-white uppercase">{r.usuario_nombre || "Anónimo"}</span>
-                                        </div>
-                                        <div className="flex text-pink-500 text-[10px]">
-                                            {[...Array(5)].map((_, i) => (
-                                                <span key={i} className={i < (r.rating || r.puntuacion) ? "opacity-100" : "opacity-30"}>★</span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <p className="text-sm text-gray-400 font-light italic leading-relaxed pl-8">
-                                        "{r.comentario}"
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center p-8 border border-dashed border-white/10 rounded-lg bg-white/[0.02]">
-                            <p className="text-xs text-gray-500 mb-2">Este perfil aún no tiene reseñas.</p>
-                            <p className="text-sm text-pink-500 font-bold">¡Sé el primero en contar tu experiencia!</p>
-                        </div>
-                    )}
+      {/* 2. PORTADA HERO */}
+      <div className="pt-16 w-full max-w-4xl mx-auto">
+        <div className="relative aspect-[3/4] md:aspect-[16/9] w-full bg-zinc-900 overflow-hidden md:rounded-b-3xl shadow-2xl">
+            {fotoPrincipal ? (
+                <Image 
+                    src={fotoPrincipal} 
+                    alt={perfil.nombre_artistico}
+                    fill
+                    className="object-cover"
+                    priority
+                />
+            ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-gray-700">
+                    <Camera className="w-12 h-12 opacity-50" />
                 </div>
-
-                {/* Formulario */}
-                <div>
-                    <div className="bg-[#120912] border border-white/10 p-8 rounded-2xl sticky top-24 shadow-2xl shadow-black/50">
-                        <h3 className="text-sm font-bold text-white uppercase mb-2">Escribir Reseña</h3>
-                        <p className="text-xs text-gray-500 mb-6">Comparte tu experiencia de forma anónima y segura.</p>
-                        <FormularioResenaWrapper perfilId={perfil.id} />
-                    </div>
-                </div>
-
-            </section>
+            )}
             
-            {/* BOTÓN VOLVER (UX) */}
-            <div className="pt-12 text-center">
-                 <Link href={`/${ciudadSlug}`} className="inline-flex items-center gap-2 text-pink-500 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">
-                    <ChevronRight className="w-4 h-4 rotate-180" /> Volver a {ciudad}
-                 </Link>
+            {/* Gradiente Oscuro Inferior */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-transparent to-transparent opacity-90"></div>
+
+            {/* Información sobre la foto */}
+            <div className="absolute bottom-0 left-0 w-full p-6 sm:p-10 z-10">
+                <div className="flex flex-col gap-2">
+                    <div className="flex gap-2 mb-1">
+                        {isVerified && (
+                            <span className="inline-flex items-center gap-1 bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide backdrop-blur-md">
+                                <CheckCircle2 className="w-3 h-3" /> Verificada
+                            </span>
+                        )}
+                        <span className="inline-flex items-center gap-1 bg-pink-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-pink-900/40">
+                            <Star className="w-3 h-3 fill-current" /> Premium
+                        </span>
+                    </div>
+
+                    <h1 className="text-4xl sm:text-6xl font-black text-white font-fancy drop-shadow-lg leading-none">
+                        {perfil.nombre_artistico}
+                    </h1>
+                    
+                    <div className="flex flex-wrap items-center gap-4 text-gray-200 text-sm sm:text-base font-light mt-2">
+                        <div className="flex items-center gap-1.5">
+                            <MapPin className="w-4 h-4 text-pink-500" />
+                            {ciudadNombre}
+                        </div>
+                        {perfil.edad && (
+                            <div className="flex items-center gap-1.5">
+                                <Calendar className="w-4 h-4 text-pink-500" />
+                                {perfil.edad} años
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
       </div>
+
+      {/* 3. CONTENIDO PRINCIPAL */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 mt-8 space-y-12">
+        
+        {/* Botones de Acción */}
+        <div className="grid grid-cols-2 gap-4">
+            {whatsappLimpio ? (
+                <a 
+                    href={`https://wa.me/${whatsappLimpio}?text=Hola ${perfil.nombre_artistico}, te vi en xscort.cl`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebc57] text-black py-4 rounded-xl font-bold transition-transform active:scale-95 shadow-lg shadow-green-900/20"
+                >
+                    <Phone className="w-5 h-5" /> WhatsApp
+                </a>
+            ) : (
+                <button disabled className="flex items-center justify-center gap-2 bg-gray-800 text-gray-500 py-4 rounded-xl font-bold cursor-not-allowed">
+                    <Phone className="w-5 h-5" /> No disponible
+                </button>
+            )}
+            
+            <button className="flex items-center justify-center gap-2 bg-[#1a1018] border border-white/10 hover:bg-white/5 text-white py-4 rounded-xl font-bold transition-transform active:scale-95">
+                <Share2 className="w-5 h-5 text-pink-500" /> Compartir
+            </button>
+        </div>
+
+        {/* Sobre Mí */}
+        <section>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 mb-4 flex items-center gap-2">
+                <Heart className="w-4 h-4" /> Sobre Mí
+            </h3>
+            <div className="bg-[#120912] p-6 rounded-2xl border border-white/5 text-gray-300 leading-relaxed font-light whitespace-pre-wrap shadow-lg">
+                {perfil.biografia || "Esta modelo aún no ha agregado una descripción detallada."}
+            </div>
+        </section>
+
+        {/* Detalles Físicos (Grid) */}
+        <section>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 mb-4 flex items-center gap-2">
+                 <CheckCircle2 className="w-4 h-4" /> Detalles
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <DetailCard label="Altura" value={perfil.altura ? `${perfil.altura} cm` : "--"} />
+                <DetailCard label="Peso" value={perfil.peso ? `${perfil.peso} kg` : "--"} />
+                <DetailCard label="Medidas" value={perfil.medidas || "--"} />
+                <DetailCard label="Nacionalidad" value={perfil.nacionalidad || "--"} />
+                <DetailCard label="Género" value={perfil.genero === "M" ? "Hombre" : perfil.genero === "F" ? "Mujer" : "Trans"} />
+                <DetailCard label="Atención" value="Consultar" />
+            </div>
+        </section>
+
+        {/* Galería (Si existe) */}
+        {galeria.length > 0 && (
+            <section>
+                <div className="flex items-center justify-between mb-4">
+                     <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 flex items-center gap-2">
+                        <Camera className="w-4 h-4" /> Galería
+                    </h3>
+                    <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-400">
+                        {galeria.length} Fotos
+                    </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {galeria.map((img, idx) => {
+                        const url = getImageUrl(typeof img === 'string' ? img : img.imagen);
+                        return (
+                            <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-white/5 group">
+                                <Image
+                                    src={url}
+                                    alt={`Foto ${idx + 1}`}
+                                    fill
+                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+        )}
+
+      </div>
     </div>
   );
+}
+
+// Subcomponente pequeño para tarjetas de detalles
+function DetailCard({ label, value }) {
+    return (
+        <div className="bg-[#120912] border border-white/5 p-4 rounded-xl text-center hover:border-pink-500/30 transition-colors">
+            <span className="block text-[10px] text-gray-500 uppercase tracking-widest mb-1">{label}</span>
+            <span className="block text-white font-bold text-sm">{value}</span>
+        </div>
+    );
 }

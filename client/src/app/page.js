@@ -44,36 +44,37 @@ export const metadata = {
 // API DATA FETCHING (Lógica Blindada)
 // ============================================================
 async function getCiudades() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
   
   try {
     console.log(`📡 [Server] Conectando a ciudades en: ${apiUrl}/api/profiles/ciudades/`);
 
-    // 'no-store' = Desactiva la caché totalmente. Vital para ver cambios inmediatos.
     const res = await fetch(`${apiUrl}/api/profiles/ciudades/`, {
       cache: 'no-store', 
-      next: { revalidate: 0 } 
+      next: { revalidate: 0 },
+      // 👇 AGREGAMOS ESTO PARA QUE NO NOS BLOQUEEN
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Referer": "https://xscort.cl", // Tu dominio real
+      }
     });
     
     if (res.ok) {
         const data = await res.json();
         const lista = Array.isArray(data) ? data : (data.results || []);
-        
         console.log(`✅ [Server] Ciudades encontradas: ${lista.length}`);
-
-        if (lista.length > 0) {
-            return lista;
-        }
+        if (lista.length > 0) return lista;
     } else {
-        console.error(`❌ [Server] Error API: ${res.status} ${res.statusText}`);
+        // Logueamos el cuerpo del error para ver si Django nos dice por qué
+        const errorText = await res.text();
+        console.error(`❌ [Server] Error API ${res.status}: ${errorText}`);
     }
   } catch (error) {
     console.error("🔥 [Server] Error de conexión:", error.message);
-    console.error("💡 Consejo: Verifica que NEXT_PUBLIC_API_URL en Coolify sea https://api.xscort.cl");
   }
 
-  // Si falló la conexión o la lista está vacía, usamos el respaldo
-  // para que la sección NO desaparezca visualmente.
   return CIUDADES_DEFAULT;
 }
 

@@ -44,7 +44,7 @@ export const metadata = {
 // API DATA FETCHING (Lógica Blindada)
 // ============================================================
 async function getCiudades() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   
   try {
     console.log(`📡 [Server] Conectando a ciudades en: ${apiUrl}/api/profiles/ciudades/`);

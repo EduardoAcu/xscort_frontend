@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import WidgetCiudad from "@/components/WidgetCiudad";
 import FormularioFotoPerfil from "@/components/FormularioFotoPerfil";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -29,7 +28,6 @@ export default function EditarPerfilPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   
-  // ciudadActual ahora puede recibir el objeto completo del backend (id, nombre, slug)
   const [ciudadActual, setCiudadActual] = useState(null); 
   const [fotoPerfilUrl, setFotoPerfilUrl] = useState("");
 
@@ -40,11 +38,9 @@ export default function EditarPerfilPage() {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      // Backend: MiPerfilView (GET)
       const res = await api.get("/api/profiles/mi-perfil/");
       const data = res.data;
 
-      // Mapeo de datos Backend -> Frontend
       setFormData({
         nombre_publico: data.nombre_artistico || "",
         descripcion: data.biografia || "",
@@ -58,9 +54,8 @@ export default function EditarPerfilPage() {
         telegram_contacto: data.telegram_contacto || "",
       });
 
-      setCiudadActual(data.ciudad); // Guardamos el objeto ciudad completo
+      setCiudadActual(data.ciudad);
 
-      // Manejo de URL de foto
       if (data.foto_perfil) {
         const url = data.foto_perfil.startsWith("http")
           ? data.foto_perfil
@@ -71,13 +66,11 @@ export default function EditarPerfilPage() {
       }
       setError("");
     } catch (err) {
-      // Aunque get_or_create previene el 404, mantenemos manejo de errores por seguridad
       const apiError =
         err?.response?.data?.error ||
         err?.response?.data?.detail ||
         "Error al cargar el perfil";
       setError(apiError);
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -95,8 +88,6 @@ export default function EditarPerfilPage() {
     setSubmitting(true);
 
     try {
-      // CORRECCIÓN IMPORTANTE:
-      // La ruta ya no es /actualizar/, es la misma raíz /mi-perfil/ con método PATCH
       await api.patch(
         "/api/profiles/mi-perfil/", 
         {
@@ -114,9 +105,7 @@ export default function EditarPerfilPage() {
       );
       
       setSuccess("¡Perfil actualizado correctamente!");
-      // Opcional: Recargar datos para asegurar sincronización
-      // fetchProfileData(); 
-      window.scrollTo(0, 0); // Subir para ver el mensaje de éxito
+      window.scrollTo(0, 0);
       
     } catch (err) {
       const apiError =
@@ -139,7 +128,6 @@ export default function EditarPerfilPage() {
     );
   }
 
-  // Si el backend indica que no existe perfil de modelo, mostramos un mensaje amigable
   if (error && error.includes("No tienes un perfil de modelo asociado")) {
     return (
       <ProtectedRoute requireModel>
@@ -151,16 +139,10 @@ export default function EditarPerfilPage() {
               suscripción activa.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center">
-              <a
-                href="/panel/verificacion"
-                className="rounded-lg bg-[#ff007f] px-4 py-2 text-white font-semibold hover:bg-pink-500"
-              >
+              <a href="/panel/verificacion" className="rounded-lg bg-[#ff007f] px-4 py-2 text-white font-semibold hover:bg-pink-500">
                 Ir a verificación
               </a>
-              <a
-                href="/panel/suscripcion"
-                className="rounded-lg border border-pink-600 px-4 py-2 font-semibold hover:bg-white/5"
-              >
+              <a href="/panel/suscripcion" className="rounded-lg border border-pink-600 px-4 py-2 font-semibold hover:bg-white/5">
                 Ver planes de suscripción
               </a>
             </div>
@@ -173,10 +155,10 @@ export default function EditarPerfilPage() {
   return (
     <ProtectedRoute requireModel>
       <div className="min-h-screen bg-[#120912] text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 lg:px-10 py-10">
           
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 text-center sm:text-left">
             <p className="text-sm uppercase text-pink-200 font-semibold font-montserrat tracking-widest">xscort.cl</p>
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-montserrat mt-2">Editar Mi Perfil</h1>
             <p className="text-pink-100 mt-2 text-sm sm:text-base font-montserrat opacity-80">
@@ -184,10 +166,18 @@ export default function EditarPerfilPage() {
             </p>
           </div>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-3">
-            {/* Columna Principal: Formulario */}
-            <div className="lg:col-span-2 space-y-6 font-montserrat">
-              <div className="rounded-2xl bg-[#1b0d18] p-6 sm:p-8 shadow-xl border border-white/5">
+          <div className="space-y-8 font-montserrat">
+            
+            {/* 1. SECCIÓN FOTO DE PERFIL (AHORA ARRIBA) */}
+            <section>
+                <FormularioFotoPerfil
+                  initialFotoUrl={fotoPerfilUrl}
+                  onSuccess={(url) => setFotoPerfilUrl(url)}
+                />
+            </section>
+
+            {/* 2. SECCIÓN FORMULARIO DE DATOS */}
+            <section className="rounded-2xl bg-[#1b0d18] p-6 sm:p-8 shadow-xl border border-white/5">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   
                   {/* Feedback UI */}
@@ -375,23 +365,8 @@ export default function EditarPerfilPage() {
                     </button>
                   </div>
                 </form>
-              </div>
-            </div>
+            </section>
 
-            {/* Columna Lateral: Foto y Ciudad */}
-            <div className="lg:col-span-1 space-y-8">
-              {/* Foto de Perfil */}
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-xl border border-white/5">
-                <h3 className="text-lg font-bold text-white mb-4">Foto de Perfil</h3>
-                <FormularioFotoPerfil
-                  initialFotoUrl={fotoPerfilUrl}
-                  onSuccess={(url) => setFotoPerfilUrl(url)}
-                />
-                <p className="text-xs text-gray-500 mt-3 text-center">
-                    Esta foto aparecerá en las búsquedas y en la portada de tu perfil.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

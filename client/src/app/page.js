@@ -17,6 +17,8 @@ const CIUDADES_DEFAULT = [
   { id: 4, nombre: "Antofagasta", slug: "antofagasta" },
   { id: 5, nombre: "Iquique", slug: "iquique" },
   { id: 6, nombre: "Temuco", slug: "temuco" },
+  { id: 7, nombre: "La Serena", slug: "la-serena" },
+  { id: 8, nombre: "Valparaíso", slug: "valparaiso" },
 ];
 
 // ============================================================
@@ -52,12 +54,11 @@ async function getCiudades() {
     const res = await fetch(`${apiUrl}/api/profiles/ciudades/`, {
       cache: 'no-store', 
       next: { revalidate: 0 },
-      // 👇 AGREGAMOS ESTO PARA QUE NO NOS BLOQUEEN
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Referer": "https://xscort.cl", // Tu dominio real
+        "Referer": "https://xscort.cl",
       }
     });
     
@@ -67,7 +68,6 @@ async function getCiudades() {
         console.log(`✅ [Server] Ciudades encontradas: ${lista.length}`);
         if (lista.length > 0) return lista;
     } else {
-        // Logueamos el cuerpo del error para ver si Django nos dice por qué
         const errorText = await res.text();
         console.error(`❌ [Server] Error API ${res.status}: ${errorText}`);
     }
@@ -109,7 +109,6 @@ function HeroSection() {
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-            {/* Asegúrate de que /banner01.png exista en /public */}
             <Image 
                 src="/banner01.png"
                 alt="Fondo Home Escorts Chile"
@@ -148,8 +147,7 @@ function HeroSection() {
 }
 
 function CiudadesSection({ ciudades }) {
-  // 1. DATOS FIJOS DE EMERGENCIA (Hardcoded dentro del componente)
-  // Esto asegura que SIEMPRE haya datos, sin importar qué pase afuera.
+  // 1. DATOS DE RESPALDO (Backup dentro del componente por seguridad visual)
   const backupData = [
     { id: 101, nombre: "Santiago", slug: "santiago" },
     { id: 102, nombre: "Viña del Mar", slug: "vina-del-mar" },
@@ -157,69 +155,53 @@ function CiudadesSection({ ciudades }) {
     { id: 104, nombre: "Antofagasta", slug: "antofagasta" },
   ];
 
-  // 2. LÓGICA SIMPLIFICADA
-  // Si 'ciudades' existe y tiene algo, úsalo. Si no, usa el backup.
+  // 2. SELECCIÓN DE DATOS
+  // Usamos los que vienen de la API, si no, el backup.
   const displayCities = (ciudades && Array.isArray(ciudades) && ciudades.length > 0) 
     ? ciudades 
     : backupData;
 
-  // Separamos (Top 4 vs Resto)
-  const topCiudades = displayCities.slice(0, 4);
-  const restoCiudades = displayCities.slice(4);
-
-  // --- ELIMINADA LA LÍNEA QUE OCULTABA LA SECCIÓN ---
-  // Ahora el componente siempre retornará HTML
-
   return (
-    <section className="px-4 py-20 max-w-7xl mx-auto border-b border-white/5 bg-zinc-900/20">
-      {/* Debug visual: Si ves esto, el componente carga */}
-      {/* <div className="text-xs text-red-500 text-center mb-2">DEBUG: Cargando {displayCities.length} ciudades</div> */}
+    <section className="px-4 py-20 bg-black/20 border-b border-white/5">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold font-fancy text-white mb-4">
+              Destinos Populares
+          </h2>
+          <p className="text-gray-400 font-montserrat font-light">
+              Selecciona tu ciudad para ver modelos disponibles.
+          </p>
+        </div>
 
-      <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold font-fancy text-white mb-4">
-            Destinos Populares
-        </h2>
-        <p className="text-gray-400 font-montserrat font-light">
-            Encuentra compañía cerca de ti.
-        </p>
+        {/* --- NUEVO DISEÑO: GRID UNIFICADO Y LIMPIO --- */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {displayCities.map((c, index) => (
+              <Link
+                key={c.slug || c.id || index}
+                href={`/${c.slug || c.id}`}
+                className="
+                  group relative 
+                  flex items-center justify-center gap-3
+                  px-6 py-4 
+                  rounded-xl
+                  bg-white/[0.03] 
+                  border border-white/10 
+                  backdrop-blur-sm
+                  transition-all duration-300
+                  hover:bg-white/[0.08] 
+                  hover:border-pink-500/50
+                  hover:shadow-[0_0_15px_-5px_rgba(236,72,153,0.3)]
+                  hover:-translate-y-1
+                "
+              >
+                <MapPin className="w-5 h-5 text-pink-600 group-hover:text-pink-400 transition-colors" />
+                <span className="font-bold text-sm md:text-base text-gray-200 group-hover:text-white font-fancy tracking-wide">
+                  {c.nombre}
+                </span>
+              </Link>
+            ))}
+        </div>
       </div>
-
-      {/* Grid Principal */}
-      <div className="flex flex-wrap justify-center gap-4 mb-8">
-          {topCiudades.map((c, index) => (
-            <Link
-              key={c.slug || c.id || index}
-              href={`/${c.slug || c.id}`}
-              className="
-                group relative px-8 py-4 rounded-2xl
-                bg-[#150d15] border border-white/10
-                overflow-hidden transition-all duration-300
-                hover:border-pink-500 hover:shadow-[0_0_30px_-10px_rgba(236,72,153,0.3)]
-              "
-            >
-              <div className="flex items-center gap-3 relative z-10">
-                 <MapPin className="w-5 h-5 text-pink-500 group-hover:animate-bounce" />
-                 <span className="font-bold text-lg text-white font-fancy tracking-wide">{c.nombre}</span>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-900/20 to-purple-900/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </Link>
-          ))}
-      </div>
-
-      {/* Resto de ciudades (Tags) */}
-      {restoCiudades.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
-             {restoCiudades.map((c, index) => (
-                <Link
-                    key={c.slug || c.id || index}
-                    href={`/${c.slug || c.id}`}
-                    className="px-4 py-2 rounded-full border border-white/5 bg-white/[0.02] text-xs text-gray-400 hover:text-white hover:bg-pink-600 hover:border-pink-500 transition-all uppercase tracking-wider"
-                >
-                    {c.nombre}
-                </Link>
-             ))}
-          </div>
-      )}
     </section>
   );
 }

@@ -1,67 +1,102 @@
-// ============================================================
-// IMPORTS
-// ============================================================
 import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
-import { Heart, Flame, Feather } from "lucide-react";
+import { Heart, Flame, Feather, MapPin, Search } from "lucide-react";
 
 // ============================================================
-// CONSTANTS
+// CONSTANTES GLOBALES (Datos de Respaldo)
 // ============================================================
 const CURRENT_YEAR = new Date().getFullYear();
 
+// Definimos esto FUERA de los componentes para evitar errores de Build
+const CIUDADES_DEFAULT = [
+  { id: 1, nombre: "Santiago", slug: "santiago" },
+  { id: 2, nombre: "Viña del Mar", slug: "vina-del-mar" },
+  { id: 3, nombre: "Concepción", slug: "concepcion" },
+  { id: 4, nombre: "Antofagasta", slug: "antofagasta" },
+  { id: 5, nombre: "Iquique", slug: "iquique" },
+  { id: 6, nombre: "Temuco", slug: "temuco" },
+  { id: 7, nombre: "La Serena", slug: "la-serena" },
+  { id: 8, nombre: "Valparaíso", slug: "valparaiso" },
+];
+
 // ============================================================
-// METADATA
+// METADATA (SEO PRINCIPAL)
 // ============================================================
 export const metadata = {
-  title: "xscort.cl - Plataforma de Modelos Verificadas en Chile",
-  description: "Conecta con modelos de compañía verificadas en Chile. Contacta directamente por WhatsApp o Telegram. Seguro y discreto.",
+  title: "Escorts en Chile - Directorio Premium y Seguro | xscort",
+  description: "Encuentra modelos independientes y verificadas en Chile. Santiago, Viña, Concepción y más. Trato directo, sin intermediarios y fotos reales.", 
+  keywords: ['escorts chile', 'acompañantes', 'modelos vip', 'xscort', 'chillan', 'concepcion', 'viña del mar', 'mujeres independientes', 'trato directo'],
+  alternates: {
+    canonical: "https://xscort.cl",
+  },
+  openGraph: {
+    title: "Escorts y Acompañantes VIP en Chile - xscort",
+    description: "La guía más segura de modelos verificadas en Chile.",
+    url: "https://xscort.cl",
+    siteName: "xscort",
+    images: [{ url: "https://xscort.cl/banner-social.jpg", width: 1200, height: 630 }],
+    locale: "es_CL",
+    type: "website",
+  },
 };
 
 // ============================================================
-// API FUNCTIONS
+// API DATA FETCHING (Lógica Blindada)
 // ============================================================
-
-/**
- * Obtiene ciudades disponibles del API
- */
 async function getCiudades() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    console.log(`📡 [Server] Conectando a ciudades en: ${apiUrl}/api/profiles/ciudades/`);
+
     const res = await fetch(`${apiUrl}/api/profiles/ciudades/`, {
-      next: { revalidate: 300 },
+      cache: 'no-store', 
+      next: { revalidate: 0 },
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Referer": "https://xscort.cl",
+      }
     });
-    return res.ok ? await res.json() : [];
+    
+    if (res.ok) {
+        const data = await res.json();
+        const lista = Array.isArray(data) ? data : (data.results || []);
+        console.log(`✅ [Server] Ciudades encontradas: ${lista.length}`);
+        if (lista.length > 0) return lista;
+    } else {
+        const errorText = await res.text();
+        console.error(`❌ [Server] Error API ${res.status}: ${errorText}`);
+    }
   } catch (error) {
-    console.error("Error fetching ciudades:", error);
-    return [];
+    console.error("🔥 [Server] Error de conexión:", error.message);
   }
+
+  return CIUDADES_DEFAULT;
 }
 
 // ============================================================
-// SUB-COMPONENTS
+// COMPONENTES UI
 // ============================================================
 
 function Navigation() {
   return (
-    <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-gray-800">
+    <nav className="fixed top-0 w-full bg-[#050205]/90 backdrop-blur-md px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-white/5">
       <div className="flex justify-between items-center h-16 sm:h-20">
-        <Link href="/" className="flex-shrink-0 w-20 sm:w-24 md:w-28">
-          <Image src="/logo.png" alt="xscort.cl" width={100} height={100} className="w-full h-auto" />
+        <Link href="/" className="flex-shrink-0 w-24 sm:w-28 opacity-90 hover:opacity-100 transition-opacity">
+          <Image src="/logo.png" alt="xscort.cl" width={120} height={40} className="w-full h-auto object-contain" />
         </Link>
-        <div className="hidden sm:flex gap-6 lg:gap-8 text-xs sm:text-sm md:text-base items-center ml-auto">
-          <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+        <div className="hidden sm:flex gap-8 text-sm font-medium items-center ml-auto">
+          <Link href="/" className="text-gray-300 hover:text-white transition-colors uppercase tracking-wide font-montserrat text-xs">
             Inicio
           </Link>
-          <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
+          <Link href="/busqueda" className="text-gray-300 hover:text-white transition-colors uppercase tracking-wide font-montserrat text-xs">
             Modelos
           </Link>
-          <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-            Servicios
-          </Link>
-          <div className="h-6 w-px bg-gray-700"></div>
+          <div className="h-4 w-px bg-white/10"></div>
           <NavAuthCta />
         </div>
         <MobileMenu />
@@ -72,87 +107,124 @@ function Navigation() {
 
 function HeroSection() {
   return (
-    <div
-      className="pt-20 sm:pt-24 md:pt-28 lg:pt-32 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 py-12 sm:py-16 md:py-20 lg:py-32 min-h-screen flex flex-col justify-center relative"
-      style={{
-        backgroundImage: "url(/banner01.png)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
-      }}
-    >
-      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-      <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8 relative z-10">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-fancy leading-tight">
-          La Plataforma Exclusiva de Modelos Verificadas en Chile.
-        </h1>
-        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 font-montserrat max-w-2xl mx-auto">
-          Explora perfiles y contacta directamente por WhatsApp o Telegram. Seguro y discreto.
-        </p>
-        <Link
-          href="/busqueda"
-          className="inline-block bg-pink-500 text-white px-6 sm:px-8 py-2 sm:py-3 md:py-4 text-sm sm:text-base font-bold font-montserrat hover:bg-pink-600 transition rounded-lg mt-4 sm:mt-6"
-        >
-          Ver Perfiles Verificados
-        </Link>
-      </div>
-    </div>
-  );
-}
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+            <Image 
+                src="/banner01.png"
+                alt="Fondo Home Escorts Chile"
+                fill
+                className="object-cover opacity-50"
+                priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-[#050205]/40 to-black/60"></div>
+        </div>
 
-function TrustSection() {
-  return (
-    <div className="px-6 py-16 sm:px-12 lg:px-24 bg-gray-950 text-center space-y-4">
-      <h2 className="text-3xl font-bold font-fancy">Confianza y Contacto Directo.</h2>
-      <p className="text-gray-300 max-w-2xl mx-auto font-montserrat">
-        xscort.cl te conecta con modelos de compañía verificadas. Explora perfiles auténticos y
-        contacta directamente a través de WhatsApp o Telegram para coordinar encuentros. Garantizamos
-        seguridad, discreción y una experiencia exclusiva sin intermediarios.
-      </p>
-    </div>
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-10">
+            <h1 className="text-5xl md:text-7xl font-bold font-fancy mb-6 leading-tight text-white drop-shadow-2xl">
+                Descubre la <br/> <span className="text-pink-500 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">Exclusividad.</span>
+            </h1>
+            <p className="text-lg md:text-xl text-gray-200 mb-10 font-light max-w-2xl mx-auto font-montserrat drop-shadow-lg">
+                El directorio más confiable de Chile. Conecta directamente por WhatsApp con modelos verificadas.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link
+                    href="/busqueda"
+                    className="group bg-pink-600 hover:bg-pink-500 text-white px-8 py-4 rounded-full font-bold uppercase tracking-widest transition-all shadow-lg shadow-pink-900/40 hover:scale-105 flex items-center gap-2"
+                >
+                    <Search className="w-4 h-4" /> Explorar Modelos
+                </Link>
+                <Link 
+                    href="/register"
+                    className="text-white border border-white/30 hover:bg-white/10 px-8 py-4 rounded-full font-bold uppercase tracking-widest transition-all"
+                >
+                    Publicar Aviso
+                </Link>
+            </div>
+        </div>
+    </section>
   );
 }
 
 function CiudadesSection({ ciudades }) {
+  // 1. DATOS DE RESPALDO (Backup dentro del componente por seguridad visual)
+  const backupData = [
+    { id: 101, nombre: "Santiago", slug: "santiago" },
+    { id: 102, nombre: "Viña del Mar", slug: "vina-del-mar" },
+    { id: 103, nombre: "Concepción", slug: "concepcion" },
+    { id: 104, nombre: "Antofagasta", slug: "antofagasta" },
+  ];
+
+  // 2. SELECCIÓN DE DATOS
+  // Usamos los que vienen de la API, si no, el backup.
+  const displayCities = (ciudades && Array.isArray(ciudades) && ciudades.length > 0) 
+    ? ciudades 
+    : backupData;
+
   return (
-    <div className="px-6 py-16 sm:px-12 lg:px-24 bg-gray-950">
-      <h2 className="text-3xl font-bold text-center mb-4 font-fancy">Ciudades</h2>
-      <p className="text-center text-gray-300 mb-10 font-montserrat">
-        Selecciona una ciudad para ver modelos disponibles
-      </p>
-      <div className="flex flex-wrap justify-center gap-3">
-        {ciudades.map((c) => (
-          <Link
-            key={c.value}
-            href={`/busqueda?ciudad=${c.value}`}
-            className="bg-pink-500 px-4 py-2 rounded-full border border-white/15 text-sm text-pink-100 hover:bg-pink-600 font-montserrat font-semibold"
-          >
-            {c.label}
-          </Link>
-        ))}
+    <section className="px-4 py-20 bg-black/20 border-b border-white/5">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold font-fancy text-white mb-4">
+              Destinos Populares
+          </h2>
+          <p className="text-gray-400 font-montserrat font-light">
+              Selecciona tu ciudad para ver modelos disponibles.
+          </p>
+        </div>
+
+        {/* --- NUEVO DISEÑO: GRID UNIFICADO Y LIMPIO --- */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {displayCities.map((c, index) => (
+              <Link
+                key={c.slug || c.id || index}
+                href={`/${c.slug || c.id}`}
+                className="
+                  group relative 
+                  flex items-center justify-center gap-3
+                  px-6 py-4 
+                  rounded-xl
+                  bg-white/[0.03] 
+                  border border-white/10 
+                  backdrop-blur-sm
+                  transition-all duration-300
+                  hover:bg-white/[0.08] 
+                  hover:border-pink-500/50
+                  hover:shadow-[0_0_15px_-5px_rgba(236,72,153,0.3)]
+                  hover:-translate-y-1
+                "
+              >
+                <MapPin className="w-5 h-5 text-pink-600 group-hover:text-pink-400 transition-colors" />
+                <span className="font-bold text-sm md:text-base text-gray-200 group-hover:text-white font-fancy tracking-wide">
+                  {c.nombre}
+                </span>
+              </Link>
+            ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
 function ServiceCard({ icon: Icon, title, description, accentColor }) {
-  const borderClass = accentColor === "red" ? "hover:border-red-500/50" : accentColor === "orange" ? "hover:border-orange-500/50" : "hover:border-teal-500/50";
-  const bgClass = accentColor === "red" ? "group-hover:bg-red-500/10" : accentColor === "orange" ? "group-hover:bg-orange-500/10" : "group-hover:bg-teal-500/10";
-  const textClass = accentColor === "red" ? "group-hover:text-red-400" : accentColor === "orange" ? "group-hover:text-orange-400" : "group-hover:text-teal-400";
-  const iconClass = accentColor === "red" ? "text-red-500" : accentColor === "orange" ? "text-orange-500" : "text-teal-500";
-  const gradientClass = accentColor === "red" ? "from-red-500/5" : accentColor === "orange" ? "from-orange-500/5" : "from-teal-500/5";
-
+  const colors = {
+    red: "text-red-400 group-hover:text-red-300",
+    orange: "text-orange-400 group-hover:text-orange-300",
+    teal: "text-teal-400 group-hover:text-teal-300",
+  };
+  
   return (
-    <div className={`group relative p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800 ${borderClass} transition-all duration-300 hover:-translate-y-1`}>
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity`} />
-      <div className="flex flex-col items-center text-center space-y-4 relative z-10">
-        <div className={`p-3 bg-zinc-800 rounded-full ${bgClass} transition-colors`}>
-          <Icon className={`w-8 h-8 ${iconClass}`} />
+    <div className="group p-8 rounded-3xl bg-[#120912] border border-white/5 transition-all duration-500 hover:-translate-y-2 hover:border-pink-500/30 hover:bg-[#1a0f1a]">
+      <div className="flex flex-col items-center text-center space-y-4">
+        <div className={`p-4 rounded-2xl bg-white/[0.03] transition-transform group-hover:scale-110 duration-500`}>
+          <Icon className={`w-8 h-8 ${colors[accentColor]}`} />
         </div>
-        <h3 className={`text-xl font-bold font-fancy text-white ${textClass} transition-colors`}>
+        <h3 className="text-xl font-bold font-fancy text-white group-hover:text-pink-200 transition-colors">
           {title}
         </h3>
-        <p className="text-gray-400 text-sm leading-relaxed font-montserrat">{description}</p>
+        <p className="text-gray-400 text-sm leading-relaxed font-light font-montserrat">
+            {description}
+        </p>
       </div>
     </div>
   );
@@ -162,144 +234,112 @@ function ServicesSection() {
   const services = [
     {
       icon: Heart,
-      title: "Experiencia GFE",
-      description:
-        'Más que una cita. Disfruta de un trato de novios ("Girlfriend Experience") con conexión real, besos y caricias sin prisas.',
+      title: "Experiencia de Pareja",
+      description: "Conexión real, besos y caricias. Ideal para quienes buscan un trato cercano y sin prisas.",
       color: "red",
     },
     {
       icon: Flame,
       title: "Encuentros Íntimos",
-      description:
-        "Momentos de pasión absoluta en la privacidad de un hotel o domicilio. Discreción garantizada y servicios a tu medida.",
+      description: "Pasión y privacidad en hoteles o domicilio. Disfruta de momentos intensos con total discreción.",
       color: "orange",
     },
     {
       icon: Feather,
-      title: "Masajes & Relax",
-      description:
-        "Deja que las manos expertas y los aceites despierten cada centímetro de tu piel. Disfruta de terapias eróticas y tántricas que suben la temperatura progresivamente hasta alcanzar un desenlace intenso e inolvidable.",
+      title: "Masajes y Relax",
+      description: "Terapias sensitivas y relajantes para desconectar del estrés diario. Déjate consentir.",
       color: "teal",
     },
   ];
 
   return (
-    <div className="px-6 py-16 sm:px-12 lg:px-24 bg-gray-950" id="servicios">
-      <h2 className="text-3xl font-bold text-center mb-4 font-fancy">
-        Servicios Exclusivos y Contacto Directo
-      </h2>
-      <p className="text-center text-gray-300 mb-12 max-w-2xl mx-auto font-montserrat">
-        Encuentra la compañía perfecta para cualquier ocasión. Contacta directamente con las modelos
-        para escuchar los detalles.
-      </p>
-      <div className="grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto px-4">
-        {services.map((service, idx) => (
-          <ServiceCard
-            key={idx}
-            icon={service.icon}
-            title={service.title}
-            description={service.description}
-            accentColor={service.color}
-          />
-        ))}
+    <section className="px-4 py-24 bg-black/40" id="servicios">
+      <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold font-fancy text-white mb-4">
+                Servicios Exclusivos
+            </h2>
+            <div className="w-20 h-1 bg-pink-600 mx-auto rounded-full"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {services.map((service, idx) => (
+              <ServiceCard
+                key={idx}
+                icon={service.icon}
+                title={service.title}
+                description={service.description}
+                accentColor={service.color}
+              />
+            ))}
+          </div>
       </div>
-    </div>
+    </section>
   );
 }
 
 function CTASection() {
   return (
-    <div className="px-6 py-16 sm:px-12 lg:px-24 bg-gradient-to-r from-pink-900 to-pink-700 text-center space-y-4">
-      <h2 className="text-3xl font-bold font-fancy">¿Eres Modelo? Únete a Nuestra Plataforma</h2>
-      <p className="text-gray-100 max-w-2xl mx-auto font-montserrat">
-        Publica tu perfil verificado en nuestra plataforma y conecta directamente con clientes. Ofrece
-        tus servicios y maneja tu negocio de forma segura y discreta.
-      </p>
-      <Link
-        href="/register"
-        className="inline-block bg-white text-pink-600 px-8 py-3 rounded-lg font-semibold font-montserrat hover:bg-gray-100 transition"
-      >
-        Publica tu Perfil Aquí
-      </Link>
-    </div>
+    <section className="py-24 px-6 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-900/20 via-[#050205] to-[#050205] z-0"></div>
+      
+      <div className="relative z-10 max-w-4xl mx-auto text-center bg-[#120912]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-12">
+        <h2 className="text-3xl md:text-5xl font-bold font-fancy text-white mb-6">
+            ¿Eres Modelo Independiente?
+        </h2>
+        <p className="text-gray-300 mb-10 font-light text-lg font-montserrat leading-relaxed">
+          Únete a la plataforma más exclusiva de Chile. Sin comisiones por cita, tú controlas tus tarifas y horarios.
+          Te ayudamos a destacar con un perfil profesional.
+        </p>
+        <Link
+          href="/register"
+          className="inline-flex bg-white text-black px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-pink-500 hover:text-white transition-all transform hover:scale-105 shadow-xl"
+        >
+          Crear Perfil Gratis
+        </Link>
+      </div>
+    </section>
   );
 }
+
 function Footer() {
   return (
-    <footer className="bg-zinc-950 text-gray-400 py-12 border-t border-zinc-900 mt-20">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Sección Superior: Logo y Enlaces */}        
-        <Link href="/" className="flex-shrink-0">
-          <Image src="/logo.png" alt="xscort.cl" width={150} height={150} />
-        </Link>
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
+    <footer className="bg-black text-gray-500 py-16 border-t border-white/10 font-montserrat">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2">
-            <p className="text-sm max-w-sm font-montserrat">
-              La guía definitiva de avisos clasificados para adultos en Chile. Encuentra y publica
-              anuncios con seguridad y discreción.
+             <Link href="/" className="inline-block mb-6 opacity-80 hover:opacity-100 transition-opacity">
+               <Image src="/logo.png" alt="xscort.cl" width={140} height={40} />
+             </Link>
+            <p className="text-sm max-w-sm font-light leading-relaxed">
+              La guía premium de avisos clasificados para adultos en Chile. Seguridad, discreción y calidad verificada.
             </p>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4 font-fancy">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/terminos" className="hover:text-pink-500 transition font-montserrat">
-                  Términos y Condiciones
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacidad" className="hover:text-pink-500 transition font-montserrat">
-                  Políticas de Privacidad
-                </Link>
-              </li>
-              <li>
-                <Link href="/cookies" className="hover:text-pink-500 transition font-montserrat">
-                  Política de Cookies
-                </Link>
-              </li>
+            <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Legal</h3>
+            <ul className="space-y-3 text-sm font-light">
+              <li><Link href="/terminos" className="hover:text-pink-500 transition-colors">Términos y Condiciones</Link></li>
+              <li><Link href="/privacidad" className="hover:text-pink-500 transition-colors">Políticas de Privacidad</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold font-fancy mb-4">Anunciantes</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/login" className="hover:text-pink-500 transition font-montserrat">
-                  Acceso Socias
-                </Link>
-              </li>
+            <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Comunidad</h3>
+            <ul className="space-y-3 text-sm font-light">
+              <li><Link href="/register" className="hover:text-pink-500 transition-colors">Publicar Aviso</Link></li>
+              <li><Link href="/login" className="hover:text-pink-500 transition-colors">Ingreso Socias</Link></li>
+              <li><Link href="/busqueda" className="hover:text-pink-500 transition-colors">Buscar Modelos</Link></li>
             </ul>
           </div>
         </div>
 
-        {/* Separador */}
-        <div className="border-t border-zinc-900 my-8"></div>
-
-        {/* Descargo Legal */}
-        <div className="bg-zinc-900/50 p-6 rounded-lg text-xs text-justify text-gray-500 leading-relaxed mb-8 border border-zinc-800">
-          <p className="mb-2 font-bold font-montserrat text-gray-400 uppercase">Descargo de Responsabilidad Legal:</p>
-          <p>
-            xscort.cl actúa única y exclusivamente como un portal de avisos publicitarios para
-            mayores de 18 años.
-            <strong>
-              {" "}
-              NO somos una agencia de modelos, NO poseemos vínculo laboral, subordinación ni
-              dependencia con las personas anunciantes.
-            </strong>{" "}
-            El Sitio no organiza citas, no fija tarifas, ni participa en modo alguno en los acuerdos
-            privados entre usuarios y anunciantes. Nos reservamos el derecho a retirar cualquier
-            anuncio que presuntamente vulnere la legalidad vigente o nuestras normas de publicación,
-            sin que esto implique responsabilidad solidaria sobre los hechos de terceros. Todas las
-            personas que aparecen en este sitio han declarado ser mayores de edad y han contratado el
-            servicio de publicación por voluntad propia.
-          </p>
-        </div>
-
-        {/* Copyright */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-sm">
+        <div className="border-t border-white/10 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-xs opacity-60">
           <p>© {CURRENT_YEAR} xscort.cl - Todos los derechos reservados.</p>
-          <p className="mt-2 md:mt-0 text-xs">Solo mayores de 18 años (+18)</p>
+          <div className="flex items-center gap-2 mt-4 md:mt-0">
+             <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+             <p className="font-bold text-white uppercase tracking-wider">Sitio Exclusivo +18</p>
+          </div>
         </div>
       </div>
     </footer>
@@ -312,11 +352,26 @@ function Footer() {
 export default async function HomePage() {
   const ciudades = await getCiudades();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "xscort",
+    "url": "https://xscort.cl",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://xscort.cl/busqueda?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#050205] text-white selection:bg-pink-500 selection:text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navigation />
       <HeroSection />
-      <TrustSection />
       <CiudadesSection ciudades={ciudades} />
       <ServicesSection />
       <CTASection />

@@ -75,7 +75,7 @@ export default function FormularioVerificacion({ onSuccess, ciudadId }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-transparent p-6 shadow-sm space-y-6">
+    <form onSubmit={handleSubmit} className="rounded-lg bg-transparent p-6 shadow-sm space-y-6">
       <div>
         <h3 className="text-2xl font-bold mb-2">Documentos de Verificación</h3>
         <p className="text-sm text-[color:var(--color-muted-foreground)]">
@@ -104,9 +104,9 @@ export default function FormularioVerificacion({ onSuccess, ciudadId }) {
 
       {/* Selfie con Documento */}
       <div className="space-y-3">
-        <label className="block font-semibold">Selfie con Documento</label>
+        <label className="block font-semibold">Foto de cuerpo completo</label>
         <p className="text-xs text-[color:var(--color-muted-foreground)]">
-          Tu foto sosteniendo el documento (para verificar que eres tú)
+          Sube una foto de cuerpo completo en ropa interior. (para verificar que eres tú)
         </p>
         <input
           type="file"

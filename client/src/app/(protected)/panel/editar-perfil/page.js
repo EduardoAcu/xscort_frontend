@@ -5,11 +5,11 @@ import api from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import WidgetCiudad from "@/components/WidgetCiudad";
 import FormularioFotoPerfil from "@/components/FormularioFotoPerfil";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function EditarPerfilPage() {
   const router = useRouter();
-  
 
   const [formData, setFormData] = useState({
     nombre_publico: "",
@@ -23,11 +23,14 @@ export default function EditarPerfilPage() {
     telefono_contacto: "",
     telegram_contacto: "",
   });
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [ciudadActual, setCiudadActual] = useState("");
+  
+  // ciudadActual ahora puede recibir el objeto completo del backend (id, nombre, slug)
+  const [ciudadActual, setCiudadActual] = useState(null); 
   const [fotoPerfilUrl, setFotoPerfilUrl] = useState("");
 
   useEffect(() => {
@@ -37,9 +40,11 @@ export default function EditarPerfilPage() {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/profiles/mi-perfil/", {
-      });
+      // Backend: MiPerfilView (GET)
+      const res = await api.get("/api/profiles/mi-perfil/");
       const data = res.data;
+
+      // Mapeo de datos Backend -> Frontend
       setFormData({
         nombre_publico: data.nombre_artistico || "",
         descripcion: data.biografia || "",
@@ -52,7 +57,10 @@ export default function EditarPerfilPage() {
         telefono_contacto: data.telefono_contacto || "",
         telegram_contacto: data.telegram_contacto || "",
       });
-      setCiudadActual(data.ciudad || "");
+
+      setCiudadActual(data.ciudad); // Guardamos el objeto ciudad completo
+
+      // Manejo de URL de foto
       if (data.foto_perfil) {
         const url = data.foto_perfil.startsWith("http")
           ? data.foto_perfil
@@ -63,6 +71,7 @@ export default function EditarPerfilPage() {
       }
       setError("");
     } catch (err) {
+      // Aunque get_or_create previene el 404, mantenemos manejo de errores por seguridad
       const apiError =
         err?.response?.data?.error ||
         err?.response?.data?.detail ||
@@ -83,11 +92,13 @@ export default function EditarPerfilPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
-
     setSubmitting(true);
+
     try {
+      // CORRECCIÓN IMPORTANTE:
+      // La ruta ya no es /actualizar/, es la misma raíz /mi-perfil/ con método PATCH
       await api.patch(
-        "/api/profiles/mi-perfil/actualizar/",
+        "/api/profiles/mi-perfil/", 
         {
           nombre_artistico: formData.nombre_publico,
           biografia: formData.descripcion,
@@ -99,10 +110,14 @@ export default function EditarPerfilPage() {
           nacionalidad: formData.nacionalidad || null,
           telefono_contacto: formData.telefono_contacto || null,
           telegram_contacto: formData.telegram_contacto || null,
-        },
+        }
       );
+      
       setSuccess("¡Perfil actualizado correctamente!");
-      setTimeout(() => router.push("/panel/dashboard"), 2000);
+      // Opcional: Recargar datos para asegurar sincronización
+      // fetchProfileData(); 
+      window.scrollTo(0, 0); // Subir para ver el mensaje de éxito
+      
     } catch (err) {
       const apiError =
         err?.response?.data?.detail ||
@@ -117,8 +132,8 @@ export default function EditarPerfilPage() {
   if (loading) {
     return (
       <ProtectedRoute requireModel>
-        <div className="min-h-screen bg-[#120912] px-4 sm:px-8 lg:px-10 py-10 text-white">
-          <div className="max-w-2xl mx-auto text-center">Cargando perfil...</div>
+        <div className="min-h-screen bg-[#120912] px-4 sm:px-8 lg:px-10 py-10 text-white flex items-center justify-center">
+          <div className="animate-pulse">Cargando perfil...</div>
         </div>
       </ProtectedRoute>
     );
@@ -159,196 +174,202 @@ export default function EditarPerfilPage() {
     <ProtectedRoute requireModel>
       <div className="min-h-screen bg-[#120912] text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-10">
-          <div>
-            <p className="text-sm uppercase text-pink-200 font-semibold font-montserrat">xscort.cl</p>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-montserrat">Editar Mi Perfil</h1>
-            <p className="text-pink-100 mt-1 text-sm sm:text-base font-montserrat">Actualiza tu información personal</p>
+          
+          {/* Header */}
+          <div className="mb-8">
+            <p className="text-sm uppercase text-pink-200 font-semibold font-montserrat tracking-widest">xscort.cl</p>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-montserrat mt-2">Editar Mi Perfil</h1>
+            <p className="text-pink-100 mt-2 text-sm sm:text-base font-montserrat opacity-80">
+                Personaliza cómo te ven los clientes en la plataforma.
+            </p>
           </div>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            {/* Form */}
+          <div className="mt-8 grid gap-8 lg:grid-cols-3">
+            {/* Columna Principal: Formulario */}
             <div className="lg:col-span-2 space-y-6 font-montserrat">
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
+              <div className="rounded-2xl bg-[#1b0d18] p-6 sm:p-8 shadow-xl border border-white/5">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  
+                  {/* Feedback UI */}
+                  {error && (
+                    <div className="p-4 bg-red-900/20 border border-red-500/50 text-red-200 rounded-lg text-sm">
+                        {error}
+                    </div>
+                  )}
+                  {success && (
+                    <div className="p-4 bg-green-900/20 border border-green-500/50 text-green-200 rounded-lg text-sm">
+                        {success}
+                    </div>
+                  )}
+
                   {/* Nombre Público */}
                   <div className="space-y-2">
-                    <label className="block font-semibold">Nombre Público *</label>
+                    <label className="block text-sm font-bold text-pink-100 uppercase tracking-wide">Nombre Público *</label>
                     <input
                       type="text"
                       name="nombre_publico"
                       value={formData.nombre_publico}
                       onChange={handleChange}
                       required
-                      className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                      className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-3 text-white focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
                       placeholder="Tu nombre artístico"
-                    />
-                  </div>
-
-                  {/* Edad */}
-                  <div className="space-y-2">
-                    <label className="block font-semibold">Edad</label>
-                    <input
-                      type="number"
-                      name="edad"
-                      value={formData.edad}
-                      onChange={handleChange}
-                      min="18"
-                      max="100"
-                      className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
-                      placeholder="Ej: 25"
                     />
                   </div>
 
                   {/* Descripción */}
                   <div className="space-y-2">
-                    <label className="block font-semibold">Descripción</label>
+                    <label className="block text-sm font-bold text-pink-100 uppercase tracking-wide">Sobre mí</label>
                     <textarea
                       name="descripcion"
                       value={formData.descripcion}
                       onChange={handleChange}
-                      className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
-                      rows="5"
-                      placeholder="Cuéntanos sobre ti..."
+                      className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-3 text-white focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all min-h-[120px]"
+                      placeholder="Cuéntanos qué te hace única, tus gustos y qué ofreces..."
                     />
                   </div>
 
-                  {/* Características Físicas */}
-                  <div className="border-t border-gray-700 pt-6">
-                    <h3 className="text-lg font-semibold mb-4">Características Físicas</h3>
+                  {/* Bloque: Datos Físicos */}
+                  <div className="pt-6 border-t border-white/10">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="w-1 h-6 bg-pink-500 rounded-full"></span>
+                        Características Físicas
+                    </h3>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      {/* Edad */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold text-gray-400 uppercase">Edad</label>
+                        <input
+                          type="number"
+                          name="edad"
+                          value={formData.edad}
+                          onChange={handleChange}
+                          min="18"
+                          className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white focus:border-pink-500 outline-none"
+                        />
+                      </div>
+
                       {/* Género */}
                       <div className="space-y-2">
-                        <label className="block font-semibold">Género</label>
-                        <select
-                          name="genero"
-                          value={formData.genero}
-                          onChange={handleChange}
-                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
-                        >
-                          <option value="">Selecciona género</option>
-                          <option value="M">Masculino</option>
-                          <option value="F">Femenino</option>
-                          <option value="T">Transgénero</option>
-                        </select>
+                        <label className="block text-xs font-bold text-gray-400 uppercase">Género</label>
+                          <select
+                            name="genero"
+                            value={formData.genero}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white focus:border-pink-500 outline-none [&>option]:text-black"
+                          >
+                            <option value="">Selecciona...</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                            <option value="T">Transgénero</option>
+                          </select>
                       </div>
 
                       {/* Altura */}
                       <div className="space-y-2">
-                        <label className="block font-semibold">Altura (cm)</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase">Altura (cm)</label>
                         <input
                           type="number"
                           name="altura"
                           value={formData.altura}
                           onChange={handleChange}
-                          min="100"
-                          max="250"
-                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                          className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white focus:border-pink-500 outline-none"
                           placeholder="Ej: 170"
                         />
                       </div>
 
                       {/* Peso */}
                       <div className="space-y-2">
-                        <label className="block font-semibold">Peso (kg)</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase">Peso (kg)</label>
                         <input
                           type="number"
                           name="peso"
                           value={formData.peso}
                           onChange={handleChange}
-                          min="30"
-                          max="200"
-                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                          className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white focus:border-pink-500 outline-none"
                           placeholder="Ej: 60"
                         />
                       </div>
 
                       {/* Medidas */}
                       <div className="space-y-2">
-                        <label className="block font-semibold">Medidas (cm)</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase">Medidas</label>
                         <input
                           type="text"
                           name="medidas"
                           value={formData.medidas}
                           onChange={handleChange}
-                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
+                          className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white focus:border-pink-500 outline-none"
                           placeholder="Ej: 90-60-90"
                         />
                       </div>
-                    </div>
 
-                    {/* Nacionalidad */}
-                    <div className="space-y-2 mt-4">
-                      <label className="block font-semibold">Nacionalidad</label>
-                      <input
-                        type="text"
-                        name="nacionalidad"
-                        value={formData.nacionalidad}
-                        onChange={handleChange}
-                        className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
-                        placeholder="Ej: Chilena"
-                      />
+                      {/* Nacionalidad */}
+                      <div className="space-y-2">
+                         <label className="block text-xs font-bold text-gray-400 uppercase">Nacionalidad</label>
+                         <input
+                           type="text"
+                           name="nacionalidad"
+                           value={formData.nacionalidad}
+                           onChange={handleChange}
+                           className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white focus:border-pink-500 outline-none"
+                           placeholder="Ej: Chilena"
+                         />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Información de Contacto */}
-                  <div className="border-t border-gray-700 pt-6">
-                    <h3 className="text-lg font-semibold mb-4">Información de Contacto Público</h3>
+                  {/* Bloque: Contacto */}
+                  <div className="pt-6 border-t border-white/10">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="w-1 h-6 bg-pink-500 rounded-full"></span>
+                        Contacto Público
+                    </h3>
                     
-                    <div className="grid grid-cols-1 gap-4">
-                      {/* Teléfono */}
+                    <div className="grid grid-cols-1 gap-5">
                       <div className="space-y-2">
-                        <label className="block font-semibold">Teléfono</label>
-                        <input
-                          type="tel"
-                          name="telefono_contacto"
-                          value={formData.telefono_contacto}
-                          onChange={handleChange}
-                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
-                          placeholder="+56 9 1234 5678"
-                        />
-                        <p className="text-xs text-gray-400">Este número será visible en tu perfil público</p>
+                        <label className="block text-xs font-bold text-gray-400 uppercase">WhatsApp / Teléfono</label>
+                        <div className="relative">
+                            <input
+                            type="tel"
+                            name="telefono_contacto"
+                            value={formData.telefono_contacto}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-white/10 bg-black/20 pl-12 pr-4 py-2 text-white focus:border-pink-500 outline-none"
+                            placeholder="+56 9 1234 5678"
+                            />
+                        </div>
                       </div>
 
-                      {/* Telegram */}
                       <div className="space-y-2">
-                        <label className="block font-semibold">Telegram</label>
-                        <input
-                          type="text"
-                          name="telegram_contacto"
-                          value={formData.telegram_contacto}
-                          onChange={handleChange}
-                          className="w-full rounded-md border px-4 py-2 bg-transparent text-white"
-                          placeholder="@tu_usuario_telegram"
-                        />
-                        <p className="text-xs text-gray-400">Este usuario será visible en tu perfil público</p>
+                        <label className="block text-xs font-bold text-gray-400 uppercase">Telegram</label>
+                        <div className="relative">
+                            <input
+                            type="text"
+                            name="telegram_contacto"
+                            value={formData.telegram_contacto}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-white/10 bg-black/20 pl-12 pr-4 py-2 text-white focus:border-pink-500 outline-none"
+                            placeholder="usuario_telegram"
+                            />
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Tags */}
-                  <div className="border-t border-gray-700 pt-6 space-y-2 opacity-60">
-                    <label className="block font-semibold">Etiquetas</label>
-                    <p className="text-sm text-gray-600">
-                      La edición de etiquetas se hará en una sección dedicada más adelante.
-                    </p>
-                  </div>
-
-                  {error && <p className="text-sm text-red-600">{error}</p>}
-                  {success && <p className="text-sm text-green-600">{success}</p>}
-
-                  <div className="flex gap-3 pt-4">
+                  {/* Botones Acción */}
+                  <div className="flex gap-4 pt-6 mt-6 border-t border-white/10">
                     <button
                       type="button"
                       onClick={() => router.back()}
-                      className="flex-1 rounded-lg border border-pink-600 px-4 py-2 hover:bg-white/5"
+                      className="flex-1 rounded-xl border border-white/20 px-4 py-3 text-gray-300 hover:bg-white/5 transition-colors font-semibold"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="flex-1 rounded-lg bg-[#ff007f] px-4 py-2 text-white font-semibold hover:bg-pink-500 disabled:opacity-60"
+                      className="flex-1 rounded-xl bg-gradient-to-r from-[#ff007f] to-[#ff0055] px-4 py-3 text-white font-bold hover:shadow-lg hover:shadow-pink-600/20 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100"
                     >
                       {submitting ? "Guardando..." : "Guardar Cambios"}
                     </button>
@@ -357,17 +378,18 @@ export default function EditarPerfilPage() {
               </div>
             </div>
 
-            {/* Foto de perfil + City Widget */}
-            <div className="lg:col-span-1 space-y-6">
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
+            {/* Columna Lateral: Foto y Ciudad */}
+            <div className="lg:col-span-1 space-y-8">
+              {/* Foto de Perfil */}
+              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-xl border border-white/5">
+                <h3 className="text-lg font-bold text-white mb-4">Foto de Perfil</h3>
                 <FormularioFotoPerfil
                   initialFotoUrl={fotoPerfilUrl}
                   onSuccess={(url) => setFotoPerfilUrl(url)}
                 />
-              </div>
-
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
-                <WidgetCiudad ciudadActual={ciudadActual} />
+                <p className="text-xs text-gray-500 mt-3 text-center">
+                    Esta foto aparecerá en las búsquedas y en la portada de tu perfil.
+                </p>
               </div>
             </div>
           </div>

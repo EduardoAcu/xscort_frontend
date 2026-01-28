@@ -1,4 +1,5 @@
 "use client";
+
 import { Suspense, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/store/auth";
@@ -6,13 +7,16 @@ import Link from "next/link";
 import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
+// Íconos nativos (sin dependencias externas)
+import { Lock, Mail, User, CheckCircle2, ChevronRight, ArrowLeft } from "lucide-react";
 
 function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("cliente"); // solo para UX, no decide el destino real
+  const [role, setRole] = useState("cliente"); 
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState("");
+  
   const login = useAuthStore((s) => s.login);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -23,27 +27,25 @@ function LoginForm() {
       try {
         await login({ username, password });
         setErrorMsg("");
-        // Asegurar que el estado local esté sincronizado con el backend
-        // (evita condiciones de carrera donde el redirect se decide antes de que
-        // la store reciba los flags actualizados desde el servidor)
-        try {
-          await useAuthStore.getState().checkAuth();
-        } catch (e) {
-          // Si falla la verificación no interrumpimos el flujo de login
-          console.warn("checkAuth tras login falló:", e);
-        }
+        
+        // Sincronización extra de seguridad
+        try { await useAuthStore.getState().checkAuth(); } catch (e) {}
+
         const { toast } = await import("sonner");
-        toast.success(`Bienvenido${username ? `, ${username}` : ""}`);
+        toast.success(`Bienvenido de nuevo, ${username}`);
+
+        // Redirección inteligente
         const rawNext = searchParams.get("next");
-        // Usar el rol real devuelto por el backend (estado global ya sincronizado)
         const isModelo = useAuthStore.getState().isModelo;
         const defaultNext = isModelo ? "/panel/dashboard" : "/panel/cliente";
-        const nextPath = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") && rawNext !== "/"
-          ? rawNext
+        
+        const nextPath = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") 
+          ? rawNext 
           : defaultNext;
+          
         router.replace(nextPath);
       } catch (err) {
-        const apiError = err?.response?.data?.error || "Usuario o contraseña incorrectos";
+        const apiError = err?.response?.data?.error || "Credenciales incorrectas. Inténtalo de nuevo.";
         setErrorMsg(apiError);
         const { toast } = await import("sonner");
         toast.error(apiError);
@@ -52,81 +54,108 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full flex items-center justify-center p-6 sm:p-8 md:p-12">
-      <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 text-white font-montserrat">Iniciar Sesión</h1>
-          <p className="text-base text-white text-slate-700 mt-2 font-montserrat">Accede a tu cuenta o regístrate para empezar.</p>
+    <div className="w-full flex items-center justify-center p-6 sm:p-8 md:p-12 relative z-10">
+      <div className="w-full max-w-md space-y-8">
+        
+        {/* Encabezado Mobile: Volver */}
+        <div className="lg:hidden mb-6">
+            <Link href="/" className="flex items-center gap-2 text-gray-400 text-sm">
+                <ArrowLeft className="w-4 h-4" /> Volver al inicio
+            </Link>
         </div>
 
-        {/* Selector de tipo de cuenta */}
-        <div className="flex px-4 pb-4">
-          <div className="flex h-10 flex-1 items-center justify-center rounded-lg bg-[#482336] p-1">
+        <div className="text-center">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white font-fancy mb-2">
+            Iniciar Sesión
+          </h1>
+          <p className="text-gray-400 font-light">
+            Bienvenido a la comunidad exclusiva de xscort.
+          </p>
+        </div>
+
+        {/* Selector de Rol (Estético) */}
+        <div className="bg-[#1a1018] p-1 rounded-xl border border-white/5 flex">
             <button
               type="button"
-              className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-sm font-medium leading-normal ${role === "cliente" ? "bg-[#22111a] text-white" : "text-[#c992ad] hover:text-white"}`}
               onClick={() => setRole("cliente")}
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                role === "cliente" 
+                ? "bg-zinc-800 text-white shadow-lg" 
+                : "text-gray-500 hover:text-gray-300"
+              }`}
             >
-              <span className="truncate font-montserrat font-bold">Soy Cliente</span>
+              Soy Cliente
             </button>
             <button
               type="button"
-              className={`flex h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-sm font-medium leading-normal ${role === "modelo" ? "bg-[#22111a] text-white" : "text-[#c992ad] hover:text-white"}`}
               onClick={() => setRole("modelo")}
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                role === "modelo" 
+                ? "bg-pink-600 text-white shadow-lg shadow-pink-900/20" 
+                : "text-gray-500 hover:text-gray-300"
+              }`}
             >
-              <span className="truncate font-montserrat font-bold">Soy Escort</span>
+              Soy Escort
             </button>
-          </div>
         </div>
 
-        {/* Formulario de login */}
-        <form onSubmit={onSubmit} className="space-y-3 sm:space-y-4 px-3 sm:px-4">
-          <label className="flex flex-col min-w-40 flex-1">
-            <p className="text-slate-800 text-white text-xs sm:text-sm md:text-base font-medium leading-normal pb-1 sm:pb-2 font-montserrat">Correo o usuario</p>
-            <input
-              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-12 sm:h-14 placeholder:text-[#c992ad] px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base font-normal leading-normal font-montserrat"
-              placeholder="usuario o email"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </label>
-
-          <label className="flex flex-col min-w-40 flex-1">
-            <p className="text-slate-800 text-white text-xs sm:text-sm md:text-base font-medium leading-normal pb-1 sm:pb-2 font-montserrat">Contraseña</p>
-            <div className="relative">
+        {/* Formulario */}
+        <form onSubmit={onSubmit} className="space-y-5">
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-300 ml-1">Usuario o Email</label>
+            <div className="relative group">
+              <User className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
               <input
-                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-12 sm:h-14 placeholder:text-[#c992ad] px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm md:text-base font-normal leading-normal pr-10 sm:pr-12"
+                className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
+                placeholder="Ej: usuario123"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center ml-1">
+                <label className="text-sm font-medium text-gray-300">Contraseña</label>
+                <Link href="/forgot-password" className="text-xs text-pink-500 hover:text-pink-400 hover:underline">
+                    ¿Olvidaste tu clave?
+                </Link>
+            </div>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
+              <input
+                className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
                 placeholder="••••••••"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#c992ad] select-none">lock</span>
             </div>
-          </label>
+          </div>
+
+          {errorMsg && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-200 text-sm text-center animate-shake">
+              {errorMsg}
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={isPending}
-            className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mt-2 disabled:opacity-60 font-montserrat"
+            className="w-full py-4 bg-white hover:bg-gray-200 text-black font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-95"
           >
-            {isPending ? "Ingresando..." : "Entrar"}
+            {isPending ? "Validando..." : "Ingresar a mi cuenta"}
           </button>
 
-          {errorMsg && (
-            <p className="px-1 text-sm text-red-200 bg-red-500/20 border border-red-500/40 rounded-md py-2 text-center">
-              {errorMsg}
-            </p>
-          )}
-
-          <div className="flex flex-col gap-2 font-montserrat mt-4">
-            <p className="px-1 text-sm text-[#c992ad] text-center">
-              <a href="/forgot-password" className="font-medium text-primary hover:underline">¿Olvidaste tu contraseña?</a>
-            </p>
-            <p className="px-1 text-sm text-[#c992ad] text-center">
-              ¿No tienes cuenta? <a href="/register" className="font-medium text-primary hover:underline">Regístrate</a>
+          <div className="text-center pt-2">
+            <p className="text-gray-500 text-sm">
+              ¿Aún no tienes cuenta?{" "}
+              <Link href="/register" className="text-white hover:text-pink-500 font-bold transition-colors">
+                Regístrate Gratis
+              </Link>
             </p>
           </div>
         </form>
@@ -135,81 +164,66 @@ function LoginForm() {
   );
 }
 
-const HERO_IMG =
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80";
+// Imagen Hero (Local o Externa optimizada)
+const HERO_IMG = "https://images.unsplash.com/photo-1616004655123-818cad908146?q=80&w=1287&auto=format&fit=crop";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#120912] text-white flex flex-col lg:flex-row">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-gray-800">
-        <div className="flex justify-between items-center h-16 sm:h-20">
-          <Link href="/" className="flex-shrink-0">
-            <Image src="/logo.png" alt="xscort.cl" width={100} height={100} />
-          </Link>
-          <div className="hidden sm:flex gap-6 lg:gap-8 text-sm items-center ml-auto">
-            <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-              Inicio
-            </Link>
-            <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-              Modelos
-            </Link>
-            <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-              Servicios
-            </Link>
-            <div className="h-6 w-px bg-gray-700"></div>
-            <NavAuthCta />
-          </div>
-          <MobileMenu />
+    <div className="min-h-screen bg-[#050205] text-white flex flex-col lg:flex-row">
+      
+      {/* Navbar simplificado integrado */}
+      <nav className="fixed top-0 w-full lg:w-1/2 bg-[#050205]/90 backdrop-blur-md px-6 z-50 border-b border-white/5 lg:border-none h-16 sm:h-20 flex items-center justify-between lg:justify-start">
+        <Link href="/" className="w-24 opacity-80 hover:opacity-100 transition-opacity">
+            <Image src="/logo.png" alt="xscort.cl" width={100} height={35} className="w-full h-auto" />
+        </Link>
+        {/* Solo mostrar menú móvil en pantallas pequeñas */}
+        <div className="lg:hidden">
+            <MobileMenu />
         </div>
       </nav>
 
-      {/* Columna izquierda: formulario */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 md:px-8 lg:px-12 py-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32">
-        <div className="w-full max-w-md">
-          <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Cargando…</div>}>
-            <LoginForm />
-          </Suspense>
-        </div>
+      {/* Columna Izquierda: Formulario */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen pt-16 lg:pt-0 bg-[#050205]">
+        <Suspense fallback={<div className="text-pink-500 animate-pulse">Cargando acceso...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
 
-      {/* Columna derecha: hero */}
-      <div
-        className="hidden lg:block w-full lg:w-1/2 relative"
-        style={{
-          backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.7)), url(${HERO_IMG})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 flex items-center justify-center px-10">
-          <div className="max-w-lg text-left space-y-5">
-            <p className="text-pink-300 uppercase tracking-wide text-sm font-semibold font-montserrat">
-              xscort.cl
-            </p>
-            <h2 className="text-4xl font-extrabold leading-tight font-fancy">
-              Únete a la comunidad de modelos verificadas más exclusiva de Chile.
-            </h2>
-            <p className="text-pink-100 text-sm font-montserrat">
-              Accede a una plataforma segura y profesional para gestionar tu perfil.
-            </p>
-            <div className="space-y-3 text-pink-100 text-sm font-montserrat">
-              <Item text="Seguridad y Verificación" />
-              <Item text="Control Total de tu Perfil" />
-              <Item text="Plataforma Confiable" />
+      {/* Columna Derecha: Hero Image */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-zinc-900 overflow-hidden">
+        <Image 
+            src={HERO_IMG}
+            alt="xscort login background"
+            fill
+            className="object-cover opacity-60"
+            priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050205] via-transparent to-transparent"></div>
+        
+        <div className="absolute bottom-0 left-0 p-16 z-10 max-w-xl">
+            <div className="inline-block px-3 py-1 bg-pink-600 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
+                Portal Verificado
             </div>
-          </div>
+            <h2 className="text-5xl font-bold font-fancy leading-tight mb-6">
+                Eleva tu experiencia <br/> <span className="text-pink-500">sin intermediarios.</span>
+            </h2>
+            <ul className="space-y-4 text-gray-300 font-light">
+                <li className="flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span>Perfiles 100% validados manualmente.</span>
+                </li>
+                <li className="flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span>Contacto directo a WhatsApp.</span>
+                </li>
+                <li className="flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span>Privacidad absoluta garantizada.</span>
+                </li>
+            </ul>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Item({ text }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-pink-400">●</span>
-      <span>{text}</span>
     </div>
   );
 }

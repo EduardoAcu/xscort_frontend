@@ -1,93 +1,115 @@
 "use client";
+
 import { Suspense, useState, useTransition } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import api from "@/lib/api";
+// Íconos Nativos
+import { Lock, Eye, EyeOff, CheckCircle2, ShieldCheck, KeyRound, ArrowLeft } from "lucide-react";
 
 function ResetPasswordForm() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  
   const router = useRouter();
   const params = useParams();
   const token = params.token;
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg("");
     
     if (newPassword !== confirmPassword) {
-      const { toast } = await import("sonner");
-      toast.error("Las contraseñas no coinciden");
+      setErrorMsg("Las contraseñas no coinciden.");
       return;
     }
     
     if (newPassword.length < 8) {
-      const { toast } = await import("sonner");
-      toast.error("La contraseña debe tener al menos 8 caracteres");
+      setErrorMsg("La contraseña es muy corta (mínimo 8 caracteres).");
       return;
     }
 
     startTransition(async () => {
       try {
-        const res = await api.post("/api/auth/reset-password/", {
+        await api.post("/api/auth/reset-password/", {
           token,
           new_password: newPassword,
           confirm_password: confirmPassword
         });
+        
         const { toast } = await import("sonner");
-        toast.success(res.data.message || "Contraseña cambiada exitosamente");
+        toast.success("¡Contraseña actualizada!");
         setSuccess(true);
       } catch (err) {
-        const apiError = err?.response?.data?.error || err?.message || "Error al cambiar contraseña";
+        const apiError = err?.response?.data?.error || "El enlace ha expirado o es inválido.";
+        setErrorMsg(apiError);
         const { toast } = await import("sonner");
         toast.error(apiError);
       }
     });
   };
 
+  // ESTADO DE ÉXITO
   if (success) {
     return (
-      <div className="relative flex min-h-screen w-full items-center justify-center">
-        <div className="w-full max-w-md p-6 sm:p-8">
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 text-primary mx-auto">
-              <span className="material-symbols-outlined text-4xl">check_circle</span>
+      <div className="flex min-h-screen w-full items-center justify-center bg-[#050205] p-4">
+        <div className="w-full max-w-md p-8 bg-[#1a1018] border border-white/10 rounded-2xl text-center shadow-2xl">
+            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-green-500/10 text-green-500 mx-auto mb-6 animate-bounce">
+              <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">¡Contraseña cambiada!</h1>
-            <p className="text-base text-[#c992ad]">
-              Tu contraseña ha sido actualizada exitosamente. Ya puedes iniciar sesión con tu nueva contraseña.
+            <h1 className="text-3xl font-bold text-white font-fancy mb-4">¡Todo listo!</h1>
+            <p className="text-gray-400 mb-8 leading-relaxed">
+              Tu contraseña ha sido blindada correctamente. Ya puedes acceder a tu cuenta con tus nuevas credenciales.
             </p>
             <button
               onClick={() => router.push("/login")}
-              className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mt-6"
+              className="w-full py-4 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-pink-900/20"
             >
-              Iniciar Sesión
+              Ir a Iniciar Sesión
             </button>
-          </div>
         </div>
       </div>
     );
   }
 
+  // ESTADO FORMULARIO
   return (
-    <div className="relative flex min-h-screen w-full">
-      {/* Columna izquierda: formulario */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-8 md:p-12">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Nueva Contraseña</h1>
-            <p className="text-xs sm:text-sm md:text-base text-[#c992ad] mt-2">Ingresa tu nueva contraseña para tu cuenta.</p>
+    <div className="flex min-h-screen w-full bg-[#050205] text-white">
+      
+      {/* LADO IZQUIERDO */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 relative z-10">
+        
+        <div className="absolute top-6 left-6 lg:hidden">
+             <Link href="/login" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+                <ArrowLeft className="w-4 h-4" /> Cancelar
+             </Link>
+        </div>
+
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <div className="inline-block p-3 rounded-full bg-pink-600/10 mb-4">
+                <KeyRound className="w-8 h-8 text-pink-500" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold font-fancy mb-2">Nueva Contraseña</h1>
+            <p className="text-gray-400 text-sm">Crea una clave segura para proteger tu perfil.</p>
           </div>
 
-          {/* Formulario */}
-          <form onSubmit={onSubmit} className="space-y-3 sm:space-y-4 px-3 sm:px-4">
-            <label className="flex flex-col min-w-40 flex-1">
-              <p className="text-white text-base font-medium leading-normal pb-2">Nueva Contraseña</p>
-              <div className="relative">
+          <form onSubmit={onSubmit} className="space-y-6">
+            
+            {/* Input 1 */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300 ml-1">Contraseña Nueva</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                 <input
-                  className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal pr-12"
+                  className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
                   placeholder="Mínimo 8 caracteres"
                   type={showPassword ? "text" : "password"}
                   value={newPassword}
@@ -97,21 +119,21 @@ function ResetPasswordForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#c992ad] hover:text-white transition-colors"
+                  className="absolute right-4 top-3.5 text-gray-500 hover:text-white transition-colors"
                 >
-                  <span className="material-symbols-outlined select-none">
-                    {showPassword ? "visibility_off" : "visibility"}
-                  </span>
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-            </label>
+            </div>
 
-            <label className="flex flex-col min-w-40 flex-1">
-              <p className="text-white text-base font-medium leading-normal pb-2">Confirmar Contraseña</p>
-              <div className="relative">
+            {/* Input 2 */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300 ml-1">Confirmar Contraseña</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                 <input
-                  className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#67324d] bg-[#331926] focus:border-[#67324d] h-14 placeholder:text-[#c992ad] p-[15px] text-base font-normal leading-normal pr-12"
-                  placeholder="Repite tu contraseña"
+                  className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
+                  placeholder="Repite la contraseña"
                   type={showConfirm ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -120,86 +142,68 @@ function ResetPasswordForm() {
                 <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#c992ad] hover:text-white transition-colors"
+                  className="absolute right-4 top-3.5 text-gray-500 hover:text-white transition-colors"
                 >
-                  <span className="material-symbols-outlined select-none">
-                    {showConfirm ? "visibility_off" : "visibility"}
-                  </span>
+                  {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-            </label>
+            </div>
 
-            {newPassword && confirmPassword && newPassword !== confirmPassword && (
-              <p className="text-sm text-red-400 px-1">Las contraseñas no coinciden</p>
-            )}
-
-            {newPassword && newPassword.length > 0 && newPassword.length < 8 && (
-              <p className="text-sm text-yellow-400 px-1">La contraseña debe tener al menos 8 caracteres</p>
+            {/* Mensajes de Error / Validación */}
+            {errorMsg && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-sm text-center">
+                {errorMsg}
+              </div>
             )}
 
             <button
               type="submit"
-              disabled={isPending || newPassword !== confirmPassword || newPassword.length < 8}
-              className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={isPending}
+              className="w-full py-4 bg-white hover:bg-gray-200 text-black font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-95"
             >
-              {isPending ? "Cambiando..." : "Cambiar Contraseña"}
+              {isPending ? "Actualizando..." : "Cambiar Contraseña"}
             </button>
 
-            <p className="px-1 text-sm text-[#c992ad] text-center">
-              ¿Recordaste tu contraseña? <a href="/login" className="font-medium text-primary hover:underline">Volver a iniciar sesión</a>
-            </p>
           </form>
         </div>
       </div>
 
-      {/* Columna derecha: hero */}
-      <div
-        className="hidden lg:flex w-1/2 bg-center bg-no-repeat bg-cover relative items-center justify-center p-12"
-        style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCnP8wKO-C9IUvxLmwZLAJxZUMnxrLlfOoJy40TCD7QGeordn1zkNiqy6GqCTsjHdQFsdy9B4wHRjqpo67K8MtdNkGluaHXaJWVFnZdMeYCm-mYHvQtZpJkKcLKnrlR42NGAuydR1Nm9MkAU318NwxcjExZn30kgGx-l7RIgH8eZBK-hmULOD9Fcsqi0gaFQzXP33pPj0STEsAaQx5XnBSY7VFlAHEFN8FgQNGLyu1dqgA42-_D7JDJsw6Xx8O2Hxg__nXWbysIpqRu")' }}
-        data-alt="Fotografía profesional y elegante de una modelo en un ambiente de clase y exclusividad."
-      >
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-        <div className="relative z-10 max-w-lg text-left text-white">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] xl:text-5xl">
-                Crea una contraseña segura
-              </h1>
-              <h2 className="text-gray-200 text-base font-normal leading-normal xl:text-lg">
-                Asegura tu cuenta con una contraseña fuerte y única.
-              </h2>
+      {/* LADO DERECHO: Hero */}
+      <div className="hidden lg:flex w-1/2 relative bg-zinc-900 overflow-hidden items-center justify-center">
+        {/* Imagen de fondo de seguridad */}
+        <Image 
+            src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=1470&auto=format&fit=crop"
+            alt="Security Background"
+            fill
+            className="object-cover opacity-40"
+            priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050205] to-transparent"></div>
+        
+        <div className="relative z-10 max-w-lg p-12 text-left">
+          <h2 className="text-5xl font-bold font-fancy leading-tight mb-6">
+            Seguridad de <br/> <span className="text-pink-500">Alto Nivel.</span>
+          </h2>
+          
+          <div className="space-y-6 mt-8">
+            <div className="flex gap-4 items-start">
+               <div className="mt-1 bg-pink-600/20 p-2 rounded-lg text-pink-500">
+                  <Lock className="w-5 h-5" />
+               </div>
+               <div>
+                  <h3 className="font-bold text-lg">Encriptación Total</h3>
+                  <p className="text-gray-400 text-sm">Tus datos viajan seguros y encriptados.</p>
+               </div>
             </div>
 
-            <div className="flex flex-col gap-4 mt-4">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary">
-                  <span className="material-symbols-outlined">lock</span>
-                </div>
-                <div>
-                  <h3 className="font-bold">Mínimo 8 Caracteres</h3>
-                  <p className="text-sm text-gray-300">Usa una combinación de letras, números y símbolos.</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary">
-                  <span className="material-symbols-outlined">shield_lock</span>
-                </div>
-                <div>
-                  <h3 className="font-bold">Token de Un Solo Uso</h3>
-                  <p className="text-sm text-gray-300">Este enlace expirará después de cambiar tu contraseña.</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary">
-                  <span className="material-symbols-outlined">verified_user</span>
-                </div>
-                <div>
-                  <h3 className="font-bold">Cuenta Protegida</h3>
-                  <p className="text-sm text-gray-300">Tu nueva contraseña se guardará de forma segura.</p>
-                </div>
-              </div>
+            <div className="flex gap-4 items-start">
+               <div className="mt-1 bg-pink-600/20 p-2 rounded-lg text-pink-500">
+                  <ShieldCheck className="w-5 h-5" />
+               </div>
+               <div>
+                  <h3 className="font-bold text-lg">Protección de Cuenta</h3>
+                  <p className="text-gray-400 text-sm">Nadie más tiene acceso a tu nueva clave.</p>
+               </div>
             </div>
           </div>
         </div>
@@ -210,7 +214,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Cargando…</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center bg-black text-white">Cargando...</div>}>
       <ResetPasswordForm />
     </Suspense>
   );

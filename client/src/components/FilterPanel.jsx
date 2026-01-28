@@ -9,152 +9,170 @@ export default function FilterPanel() {
 
   const [ciudad, setCiudad] = useState("");
   const [ciudades, setCiudades] = useState([]);
+  
   const [servicio, setServicio] = useState("");
   const [serviciosCatalogo, setServiciosCatalogo] = useState([]);
+  
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  // 1. Cargar estado inicial desde URL
   useEffect(() => {
-    // hidratar desde query
     setCiudad(searchParams.get("ciudad") || "");
     setServicio(searchParams.get("servicio") || "");
   }, [searchParams]);
 
+  // 2. Cargar datos API (Blindado contra formatos de lista/paginación)
   useEffect(() => {
-    const cargarCiudades = async () => {
+    const cargarDatos = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/profiles/ciudades/`, { next: { revalidate: 300 } });
-        if (!res.ok) throw new Error("error ciudades");
-        const data = await res.json();
-        setCiudades(data);
-      } catch {
-        // fallback a choices del backend
-        setCiudades([
-          { value: "Rancagua", label: "Rancagua" },
-          { value: "Curico", label: "Curicó" },
-          { value: "Talca", label: "Talca" },
-          { value: "Linares", label: "Linares" },
-          { value: "Chillan", label: "Chillán" },
-          { value: "Los Angeles", label: "Los Ángeles" },
-          { value: "Concepcion", label: "Concepción" },
-          { value: "Temuco", label: "Temuco" },
-          { value: "Pucon", label: "Pucón" },
-          { value: "Valdivia", label: "Valdivia" },
-          { value: "Osorno", label: "Osorno" },
-          { value: "Puerto Montt", label: "Puerto Montt" },
-        ]);
-      }
-    };
-    cargarCiudades();
-    const cargarServicios = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/profiles/servicios-catalogo/`, { next: { revalidate: 300 } });
-        if (!res.ok) throw new Error("error servicios");
-        const data = await res.json();
-        setServiciosCatalogo(data);
-      } catch {
+        // --- CIUDADES ---
+        // Usamos 'no-store' para evitar cachés fantasmas de Next.js
+        const resC = await fetch(`${API_URL}/api/profiles/ciudades/`, { next: { revalidate: 300 }});
+        if (resC.ok) {
+            const data = await resC.json();
+            // Detectamos si viene como array puro [..] o objeto paginado { results: [..] }
+            setCiudades(Array.isArray(data) ? data : (data.results || []));
+        }
+
+        // --- SERVICIOS ---
+        const resS = await fetch(`${API_URL}/api/profiles/servicios-catalogo/`, { next: { revalidate: 300 }});
+        if (resS.ok) {
+            const data = await resS.json();
+            setServiciosCatalogo(Array.isArray(data) ? data : (data.results || []));
+        }
+      } catch (err) {
+        console.error("Error cargando filtros:", err);
+        setCiudades([]);
         setServiciosCatalogo([]);
       }
     };
-    cargarServicios();
+    cargarDatos();
   }, [API_URL]);
+
+  useEffect(() => {
+    if (ciudades.length > 0 && ciudad) {
+        // Buscamos coincidencia por ID (convirtiendo ambos a string para seguridad)
+        const match = ciudades.find(c => String(c.id) === String(ciudad));
+        
+        // Si encontramos el objeto y tiene slug, pero nosotros tenemos el ID... ¡Cambiamos!
+        if (match && match.slug && match.slug !== ciudad) {
+            console.log(`🔧 Auto-corrigiendo URL: ${ciudad} -> ${match.slug}`);
+            setCiudad(match.slug);
+        }
+    }
+  }, [ciudades, ciudad]);
+
 
   const applyFilters = () => {
     const params = new URLSearchParams();
     if (ciudad) params.set("ciudad", ciudad);
     if (servicio) params.set("servicio", servicio);
-
+    
+    // Empujamos la nueva URL
     router.push(`/busqueda${params.toString() ? `?${params.toString()}` : ""}`);
+    setIsMobileOpen(false); 
   };
 
   const clearFilters = () => {
     setCiudad("");
     setServicio("");
     router.push("/busqueda");
+    setIsMobileOpen(false);
   };
 
+  const filtrosActivos = (ciudad ? 1 : 0) + (servicio ? 1 : 0);
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#1b101a] p-4 text-white shadow-lg">
-      <h3 className="text-lg font-bold font-montserrat mb-2">Filtros</h3>
-      <p className="text-xs text-pink-200 font-montserrat mb-4">Refina tu búsqueda</p>
-
-      <div className="space-y-4 text-sm font-montserrat">
-        <Select
-          label="Ubicación"
-          value={ciudad}
-          onChange={setCiudad}
-          options={ciudades}
-        />
-
-        <div className="space-y-2">
-          <p className="font-semibold text-pink-100">Tipo de Servicio</p>
-          <div className="space-y-1 text-pink-50">
-            {serviciosCatalogo.map((s) => (
-              <label key={s.id} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="servicio"
-                  value={s.id}
-                  checked={servicio === String(s.id)}
-                  onChange={(e) => setServicio(e.target.value)}
-                  className="accent-pink-500"
-                />
-                {s.nombre}
-              </label>
-            ))}
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="servicio"
-                value=""
-                checked={servicio === ""}
-                onChange={() => setServicio("")}
-                className="accent-pink-500"
-              />
-              Todos
-            </label>
-          </div>
+    <div className="rounded-2xl border border-white/10 bg-[#1b101a] text-white shadow-xl font-montserrat w-full overflow-hidden transition-all duration-300">
+      
+      {/* HEADER MÓVIL */}
+      <div 
+        className="lg:hidden p-4 flex items-center justify-between cursor-pointer active:bg-white/5 select-none"
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+      >
+        <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-pink-500">tune</span>
+            <span className="font-bold text-sm">Filtrar Resultados</span>
+            {filtrosActivos > 0 && (
+                <span className="bg-pink-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    {filtrosActivos}
+                </span>
+            )}
         </div>
-
-        <div className="flex flex-col gap-2 pt-2">
-          <button
-            onClick={applyFilters}
-            className="w-full rounded-full bg-pink-600 py-2 font-semibold text-white hover:bg-pink-700 transition"
-          >
-            Aplicar filtros
-          </button>
-          <button
-            onClick={clearFilters}
-            className="w-full rounded-full border border-white/20 py-2 font-semibold text-pink-50 hover:bg-[color:var(--color-card)/0.05] transition"
-          >
-            Limpiar
-          </button>
-        </div>
+        <span className={`material-symbols-outlined text-gray-400 transition-transform duration-300 ${isMobileOpen ? 'rotate-180' : ''}`}>
+            expand_more
+        </span>
       </div>
-    </div>
-  );
-}
 
-function Select({ label, value, onChange, options }) {
-  return (
-    <div className="space-y-2">
-      <p className="font-semibold text-pink-100">{label}</p>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none rounded-lg bg-[#2a1827] border border-white/10 px-3 py-2 pr-8 text-white focus:outline-none"
-        >
-          <option value="">Todas</option>
-          {options.map((opt) => {
-            const val = typeof opt === "string" ? opt : opt.value;
-            const label = typeof opt === "string" ? opt : opt.label;
-            return (
-              <option key={val} value={val}>
-                {label}
-              </option>
-            );
-          })}
-        </select>
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-pink-200">▾</span>
+      {/* CONTENIDO DESPLEGABLE */}
+      <div className={`
+          px-4 pb-4 sm:p-5 
+          ${isMobileOpen ? 'block border-t border-white/5 pt-4' : 'hidden'} 
+          lg:block lg:border-none lg:pt-5
+      `}>
+        <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-1 gap-4 w-full">
+            
+            {/* SELECT CIUDAD */}
+            <div className="flex-1 min-w-[200px]">
+               <label className="block text-xs font-bold text-pink-200 uppercase mb-1.5 ml-1">Ubicación</label>
+               <div className="relative">
+                  <select
+                    value={ciudad}
+                    onChange={(e) => setCiudad(e.target.value)}
+                    className="w-full appearance-none rounded-xl bg-black/40 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition cursor-pointer text-sm"
+                  >
+                    <option value="">Todas las ciudades</option>
+                    {ciudades.map((c, idx) => {
+                       // 🔥 CAMBIO CRÍTICO: Priorizamos SLUG
+                       const val = c.slug || c.id || idx;
+                       return <option key={val} value={val} className="text-black">{c.nombre}</option>;
+                    })}
+                  </select>
+                  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-pink-500 font-bold">▾</span>
+               </div>
+            </div>
+
+            {/* SELECT SERVICIO */}
+            <div className="flex-1 min-w-[200px]">
+               <label className="block text-xs font-bold text-pink-200 uppercase mb-1.5 ml-1">Servicio</label>
+               <div className="relative">
+                  <select
+                    value={servicio}
+                    onChange={(e) => setServicio(e.target.value)}
+                    className="w-full appearance-none rounded-xl bg-black/40 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition cursor-pointer text-sm"
+                  >
+                    <option value="">Todos los servicios</option>
+                    {serviciosCatalogo.map((s, idx) => {
+                       // 🔥 CAMBIO CRÍTICO: Priorizamos SLUG
+                       const val = s.slug || s.id || idx;
+                       return <option key={val} value={val} className="text-black">{s.nombre}</option>;
+                    })}
+                  </select>
+                  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-pink-500 font-bold">▾</span>
+               </div>
+            </div>
+          </div>
+
+          {/* BOTONES */}
+          <div className="flex items-center gap-3 mt-2 lg:mt-0 lg:w-auto w-full">
+            <button
+              onClick={clearFilters}
+              className="flex-1 lg:flex-none px-6 py-3 rounded-xl border border-white/10 text-sm font-semibold text-gray-300 hover:bg-white/5 transition"
+            >
+              Limpiar
+            </button>
+            <button
+              onClick={applyFilters}
+              className="flex-1 lg:flex-none px-8 py-3 rounded-xl bg-pink-600 text-sm font-bold text-white hover:bg-pink-500 shadow-lg shadow-pink-600/20 transition flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">search</span>
+              Buscar
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
   );

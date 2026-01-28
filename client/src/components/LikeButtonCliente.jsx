@@ -40,13 +40,12 @@ export default function LikeButtonCliente({ perfilId, initialLiked = false, init
       <button
         onClick={toggle}
         disabled={loading}
-        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-          liked ? "bg-pink-600 text-white" : "bg-[color:var(--color-card)/0.1] text-pink-100 hover:bg-[color:var(--color-card)/0.2]"
+        className={`rounded-full px-4 py-2 text-sm font-semibold transition border ${
+          liked ? "bg-pink-600 text-white border-pink-600" : "bg-[color:var(--color-card)/0.1] text-pink-100 hover:bg-[color:var(--color-card)/0.2] border-pink-500"
         } disabled:opacity-60`}
       >
         {liked ? "Quitar like" : "Dar like"}
       </button>
-      <span className="text-pink-100 text-sm">❤️ {count}</span>
       {error && <span className="text-xs text-red-300">{error}</span>}
     </div>
   );

@@ -7,25 +7,70 @@ export default function WidgetSuscripcion({ onUpdate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  
+  // 1. Estado para guardar la hora actual y que sea reactiva
+  const [now, setNow] = useState(new Date());
+
+  // 2. Efecto para actualizar el reloj interno cada 1 minuto
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     fetchSuscripcion();
-  }, []); // Solo cargar una vez al montar
-  const diasRestantes = useMemo(() => {
-    if (!suscripcion) return 0;
-    const now = new Date();
-    // Preferir fecha_expiracion si viene del backend
+  }, []); 
+
+  const estadoSuscripcion = useMemo(() => {
+    if (!suscripcion) return { texto: "0", etiqueta: "días", color: "text-white" };
+
+    // Si está pausada, ignorar tiempo
+    if (suscripcion.esta_pausada) {
+      return { texto: "PAUSADA", etiqueta: "", color: "text-yellow-400" };
+    }
+
+    // Si tenemos fecha exacta, calculamos con precisión
     if (suscripcion.fecha_expiracion) {
       const exp = new Date(suscripcion.fecha_expiracion);
-      const diff = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
-      return Math.max(diff, 0);
+      const diffMs = exp - now; // Diferencia en milisegundos
+
+      // Ya expiró
+      if (diffMs <= 0) {
+        return { texto: "0", etiqueta: "días (Vencida)", color: "text-red-400" };
+      }
+
+      const horasRestantes = diffMs / (1000 * 60 * 60);
+
+      // CASO CRÍTICO: Menos de 24 horas
+      if (horasRestantes < 24) {
+        return { 
+          texto: Math.ceil(horasRestantes), 
+          etiqueta: "horas restantes", 
+          color: "text-orange-400" // Alerta visual
+        };
+      }
+
+      // Más de 1 día
+      const dias = Math.ceil(horasRestantes / 24);
+      return { 
+        texto: dias, 
+        etiqueta: "días restantes", 
+        color: dias <= 3 ? "text-orange-300" : "text-white" // Naranja si quedan 3 días o menos
+      };
     }
-    // Si no, usar calculado; fallback a dias_restantes almacenado
-    if (typeof suscripcion.dias_restantes_calculado === "number") {
-      return Math.max(suscripcion.dias_restantes_calculado, 0);
-    }
-    return Math.max(suscripcion.dias_restantes || 0, 0);
-  }, [suscripcion]);
+
+    // Fallback si el backend no manda fecha
+    const diasBackend = suscripcion.dias_restantes_calculado ?? suscripcion.dias_restantes ?? 0;
+    return { 
+      texto: Math.max(diasBackend, 0), 
+      etiqueta: "días restantes", 
+      color: "text-white" 
+    };
+
+  }, [suscripcion, now]);
+
   const estaPausada = suscripcion?.esta_pausada || false;
 
   const fetchSuscripcion = async () => {
@@ -36,7 +81,6 @@ export default function WidgetSuscripcion({ onUpdate }) {
       setError(null);
     } catch (err) {
       if (err.response?.status === 404) {
-        // No hay suscripción activa, esto es un caso esperado
         setSuscripcion(null);
         setError("");
       } else {
@@ -46,7 +90,6 @@ export default function WidgetSuscripcion({ onUpdate }) {
           "Error al cargar suscripción";
         setError(apiError);
       }
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -60,7 +103,6 @@ export default function WidgetSuscripcion({ onUpdate }) {
       if (onUpdate) onUpdate();
     } catch (err) {
       setError("Error al pausar suscripción");
-      console.error(err);
     } finally {
       setActionLoading(false);
     }
@@ -74,103 +116,113 @@ export default function WidgetSuscripcion({ onUpdate }) {
       if (onUpdate) onUpdate();
     } catch (err) {
       setError("Error al reanudar suscripción");
-      console.error(err);
     } finally {
       setActionLoading(false);
     }
   };
 
+  // --- RENDERIZADO ---
+
   if (loading) {
     return (
-      <div className="rounded-3xl bg-gradient-to-br from-[#7a0b4d] to-[#3b0322] p-6 shadow-lg">
-        <h2 className="text-sm font-medium text-pink-100 uppercase tracking-wide">
+      <div className="rounded-2xl bg-gradient-to-br from-[#7a0b4d] to-[#3b0322] p-6 shadow-xl border border-white/5 animate-pulse">
+        <h2 className="text-sm font-bold text-pink-200 uppercase tracking-widest font-montserrat">
           Estado de Suscripción
         </h2>
-        <p className="mt-6 text-sm text-pink-100/80 text-center">Cargando suscripción...</p>
+        <div className="mt-6 h-8 bg-white/10 rounded w-1/2 mx-auto"></div>
       </div>
     );
   }
 
   if (!suscripcion) {
     return (
-      <div className="rounded-3xl bg-gradient-to-br from-[#7a0b4d] to-[#3b0322] p-6 shadow-lg space-y-4">
-        <h2 className="text-sm font-medium text-pink-100 uppercase tracking-wide">
+      <div className="rounded-2xl bg-gradient-to-br from-[#7a0b4d] to-[#3b0322] p-6 shadow-xl border border-white/5 space-y-4">
+        <h2 className="text-sm font-bold text-pink-200 uppercase tracking-widest font-montserrat">
           Estado de Suscripción
         </h2>
         <div className="mt-4">
-          <p className="text-3xl font-extrabold">Sin suscripción activa</p>
-          <p className="mt-2 text-sm text-pink-100/80 max-w-md">
-            Elige un plan y envía tu comprobante de pago para habilitar tu perfil y aparecer en los resultados públicos.
+          <p className="text-3xl font-black text-white font-montserrat">Inactiva</p>
+          <p className="mt-2 text-sm text-pink-100/90 font-montserrat leading-relaxed">
+            Activa tu cuenta para aparecer en los resultados y que los clientes puedan contactarte.
           </p>
         </div>
         <div className="mt-6 flex gap-3">
           <a
             href="/panel/suscripcion"
-            className="flex-1 rounded-full bg-[#ff007f] px-4 py-2 text-sm font-semibold text-white text-center hover:bg-[#ff2b94]"
+            className="flex-1 rounded-xl bg-[#ff007f] px-4 py-3 text-sm font-bold text-white text-center hover:bg-[#d6006b] transition shadow-lg shadow-pink-900/40 font-montserrat"
           >
-            Ver planes y enviar comprobante
+            Activar Plan Ahora
           </a>
         </div>
       </div>
     );
   }
 
-
   return (
-    <div className="rounded-3xl bg-gradient-to-br from-[#7a0b4d] to-[#3b0322] p-6 shadow-lg space-y-4">
-      <h2 className="text-sm font-medium text-pink-100 uppercase tracking-wide">
-        Estado de Suscripción
+    <div className="rounded-2xl bg-gradient-to-br from-[#7a0b4d] to-[#3b0322] p-6 shadow-xl border border-white/5 space-y-4 font-montserrat">
+      <h2 className="text-xs font-bold text-pink-200 uppercase tracking-widest border-b border-white/10 pb-2">
+        Tu Plan Actual
       </h2>
 
-      <div className="mt-4 flex flex-col gap-1">
+      <div className="mt-2 flex flex-col gap-1">
         {estaPausada ? (
           <>
-            <p className="text-4xl font-extrabold">Pausada</p>
-            <p className="text-sm text-pink-100/80 max-w-md">
-              Tu perfil no es visible para nuevos clientes mientras la suscripción esté pausada.
+            <p className="text-4xl font-black text-yellow-400 tracking-tight">PAUSADA</p>
+            <p className="text-sm text-pink-100/80">
+              Tu perfil está oculto temporalmente.
             </p>
           </>
         ) : (
           <>
-            <div className="flex items-baseline gap-3">
-              <p className="text-5xl font-extrabold leading-none">{diasRestantes}</p>
-              <span className="text-sm font-medium text-pink-100/80 uppercase tracking-wide">
-                días restantes
+            <div className="flex items-baseline gap-2">
+              <p className={`text-6xl font-black leading-none ${estadoSuscripcion.color}`}>
+                {estadoSuscripcion.texto}
+              </p>
+              <span className="text-sm font-bold text-pink-200 uppercase tracking-wide">
+                {estadoSuscripcion.etiqueta}
               </span>
             </div>
-            <p className="text-sm text-pink-100/80 max-w-md">
-              Tu perfil está activo y visible para nuevos clientes mientras tu suscripción tenga días disponibles.
+            
+            <p className="text-sm text-pink-100/80 mt-2 font-medium">
+              {estadoSuscripcion.etiqueta.includes("horas") 
+                ? "¡Tu plan vence muy pronto!"
+                : "Tu perfil está visible y activo."
+              }
             </p>
           </>
         )}
       </div>
 
-      {error && <p className="text-sm text-[color:var(--color-destructive-foreground)] bg-[color:var(--color-destructive)/0.3] rounded-md px-3 py-1 mt-2 inline-block">{error}</p>}
+      {error && (
+        <p className="text-sm text-red-200 bg-red-900/40 border border-red-500/30 rounded-lg px-3 py-2 mt-2">
+          {error}
+        </p>
+      )}
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-6 flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/10">
         {!estaPausada ? (
           <button
             onClick={handlePausar}
             disabled={actionLoading}
-            className="flex-1 rounded-full bg-[#5b2946] px-4 py-2 text-sm font-semibold text-pink-100 hover:bg-[#7b3460] disabled:opacity-60"
+            className="flex-1 rounded-xl bg-[#5b2946] border border-white/10 px-4 py-2 text-sm font-semibold text-pink-100 hover:bg-[#7b3460] disabled:opacity-60 transition"
           >
-            {actionLoading ? "Pausando..." : "Pausar Suscripción"}
+            {actionLoading ? "Procesando..." : "⏸ Pausar"}
           </button>
         ) : (
           <button
             onClick={handleReanudar}
             disabled={actionLoading}
-            className="flex-1 rounded-full bg-[#ff007f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ff2b94] disabled:opacity-60"
+            className="flex-1 rounded-xl bg-[#ff007f] px-4 py-2 text-sm font-bold text-white hover:bg-[#d6006b] disabled:opacity-60 transition shadow-lg shadow-pink-900/40"
           >
-            {actionLoading ? "Reanudando..." : "Reanudar Suscripción"}
+            {actionLoading ? "Procesando..." : "▶ Reanudar"}
           </button>
         )}
 
         <a
           href="/panel/suscripcion"
-          className="flex-1 rounded-full bg-[color:var(--color-card)/0.1] px-4 py-2 text-sm font-semibold text-pink-100 text-center hover:bg-[color:var(--color-card)/0.2]"
+          className="flex-1 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white text-center hover:bg-white/20 transition border border-white/5"
         >
-          Ver / cambiar plan
+          Gestionar Plan
         </a>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { toast } from "sonner"; // Feedback visual
 import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/lib/api";
 
@@ -7,10 +8,10 @@ export default function SuscripcionPage() {
   const [planes, setPlanes] = useState([]);
   const [selectedPlanId, setSelectedPlanId] = useState("");
   const [comprobanteFile, setComprobanteFile] = useState(null);
+  
   const [loadingPlanes, setLoadingPlanes] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  
   const [solicitudes, setSolicitudes] = useState([]);
   const [loadingSolicitudes, setLoadingSolicitudes] = useState(true);
 
@@ -26,7 +27,7 @@ export default function SuscripcionPage() {
       setPlanes(res.data || []);
     } catch (err) {
       console.error("Error al cargar planes", err);
-      setError("No se pudieron cargar los planes");
+      toast.error("No se pudieron cargar los planes disponibles.");
     } finally {
       setLoadingPlanes(false);
     }
@@ -38,7 +39,7 @@ export default function SuscripcionPage() {
       const res = await api.get("/api/subscriptions/solicitudes/mias/");
       setSolicitudes(res.data || []);
     } catch (err) {
-      console.error("Error al cargar solicitudes de suscripción", err);
+      console.error("Error al cargar historial", err);
     } finally {
       setLoadingSolicitudes(false);
     }
@@ -46,15 +47,13 @@ export default function SuscripcionPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     if (!selectedPlanId) {
-      setError("Debes seleccionar un plan");
+      toast.warning("Por favor selecciona un plan.");
       return;
     }
     if (!comprobanteFile) {
-      setError("Debes adjuntar el comprobante de pago");
+      toast.warning("Debes adjuntar el comprobante de la transferencia.");
       return;
     }
 
@@ -69,170 +68,236 @@ export default function SuscripcionPage() {
           "Content-Type": "multipart/form-data",
         },
       });
-      setSuccess("Solicitud enviada correctamente. Nuestro equipo revisará tu comprobante.");
+      
+      toast.success("Solicitud enviada con éxito. Un administrador la revisará pronto.");
+      
+      // Resetear formulario
       setSelectedPlanId("");
       setComprobanteFile(null);
+      // Resetear input file visualmente (truco para limpiar el value del input)
+      document.getElementById("fileInput").value = ""; 
+
       await fetchSolicitudes();
     } catch (err) {
-      console.error("Error al enviar solicitud de suscripción", err);
-      const apiError =
-        err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        (typeof err?.response?.data === "object"
-          ? Object.values(err?.response?.data)[0]?.[0]
-          : null) ||
-        "Error al enviar la solicitud";
-      setError(apiError);
+      console.error("Error al enviar solicitud", err);
+      const errorMsg = err?.response?.data?.detail || "Error al enviar la solicitud.";
+      toast.error(errorMsg);
     } finally {
       setSubmitting(false);
     }
   };
 
   const renderEstado = (estado) => {
-    switch (estado) {
-      case "pendiente":
-        return <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">Pendiente</span>;
-      case "aprobada":
-        return <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Aprobada</span>;
-      case "rechazada":
-        return <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">Rechazada</span>;
-      default:
-        return <span className="text-xs text-pink-200">{estado}</span>;
-    }
+    const estilos = {
+      pendiente: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+      aprobada: "bg-green-500/10 text-green-500 border-green-500/20",
+      rechazada: "bg-red-500/10 text-red-500 border-red-500/20",
+    };
+    
+    const clase = estilos[estado] || "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    
+    return (
+      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${clase}`}>
+        {estado}
+      </span>
+    );
   };
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-[#120912] text-white">
+    <ProtectedRoute requireModel>
+      <div className="min-h-screen bg-[#120912] text-white font-montserrat">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-10 py-10">
-          <div>
-            <p className="text-sm uppercase text-pink-200 font-semibold">xscort.cl</p>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Mi Suscripción</h1>
-            <p className="text-pink-100 mt-1 text-sm sm:text-base">Elige un plan, realiza la transferencia y sube tu comprobante para activarlo.</p>
+          
+          {/* Header */}
+          <div className="mb-8">
+            <p className="text-sm uppercase text-pink-200 font-semibold tracking-wider">xscort.cl</p>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight mt-2">Mi Suscripción</h1>
+            <p className="text-pink-100 mt-2 text-sm sm:text-base opacity-80">
+              Gestiona tu membresía para mantener tu perfil visible.
+            </p>
           </div>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            {/* Columna izquierda: datos de transferencia + formulario */}
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Columna Izquierda: Datos + Formulario */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
-                <h2 className="text-xl font-bold mb-2 text-white">Datos de transferencia</h2>
-                <p className="text-pink-100 mb-4">
-                  Realiza la transferencia a la siguiente cuenta y luego adjunta el comprobante en el formulario.
-                </p>
-                {/* TODO: Ajusta estos datos bancarios a los reales de tu negocio */}
-                <dl className="space-y-2 text-sm text-pink-100">
-                  <div>
-                    <dt className="font-semibold">Banco</dt>
-                    <dd>Banco de Chile</dd>
+              
+              {/* Tarjeta Bancaria */}
+              <div className="rounded-2xl bg-gradient-to-br from-[#2a1225] to-[#1b0d18] p-6 shadow-xl border border-white/5 relative overflow-hidden">
+                {/* Decoración de fondo */}
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-pink-500/10 rounded-full blur-2xl"></div>
+                
+                <h2 className="text-lg font-bold mb-4 text-white flex items-center gap-2">
+                  <span className="material-symbols-outlined text-pink-500">account_balance</span>
+                  Datos de Transferencia
+                </h2>
+                
+                <div className="space-y-3 text-sm text-pink-100/90 relative z-10">
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="opacity-60">Banco</span>
+                    <span className="font-semibold text-white">Banco de Chile</span>
                   </div>
-                  <div>
-                    <dt className="font-semibold">Tipo de cuenta</dt>
-                    <dd>Cuenta Corriente</dd>
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="opacity-60">Tipo</span>
+                    <span className="font-semibold text-white">Cuenta Corriente</span>
                   </div>
-                  <div>
-                    <dt className="font-semibold">Número de cuenta</dt>
-                    <dd>123456789</dd>
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="opacity-60">N° Cuenta</span>
+                    <span className="font-semibold text-white font-mono tracking-wider">123456789</span>
                   </div>
-                  <div>
-                    <dt className="font-semibold">RUT</dt>
-                    <dd>11.111.111-1</dd>
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="opacity-60">RUT</span>
+                    <span className="font-semibold text-white">11.111.111-1</span>
                   </div>
-                  <div>
-                    <dt className="font-semibold">Titular</dt>
-                    <dd>Xscort SpA</dd>
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="opacity-60">Titular</span>
+                    <span className="font-semibold text-white">Xscort SpA</span>
                   </div>
-                  <div>
-                    <dt className="font-semibold">Correo para avisos</dt>
-                    <dd>pagos@xscort.cl</dd>
+                  <div className="flex justify-between pt-1">
+                    <span className="opacity-60">Email</span>
+                    <span className="font-semibold text-pink-400">pagos@xscort.cl</span>
                   </div>
-                </dl>
+                </div>
               </div>
 
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
-                <h2 className="text-lg font-bold mb-4 text-white">Enviar comprobante</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Formulario de Envío */}
+              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-xl border border-white/5">
+                <h2 className="text-lg font-bold mb-4 text-white flex items-center gap-2">
+                  <span className="material-symbols-outlined text-pink-500">send_money</span>
+                  Reportar Pago
+                </h2>
+                
+                <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium">Plan</label>
-                    {loadingPlanes ? (
-                      <p className="text-sm text-pink-200">Cargando planes...</p>
-                    ) : (
-                      <select
-                        value={selectedPlanId}
-                        onChange={(e) => setSelectedPlanId(e.target.value)}
-                        className="w-full rounded-md border px-3 py-2 text-sm bg-transparent text-white"
-                        required
-                      >
-                        <option value="">Selecciona un plan</option>
-                        {planes.map((plan) => (
-                          <option key={plan.id} value={plan.id}>
-                            {plan.nombre} - {plan.dias_contratados} días - ${plan.precio}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+                    <label className="block text-sm font-bold text-gray-300">Seleccionar Plan</label>
+                    <div className="relative">
+                        <select
+                            value={selectedPlanId}
+                            onChange={(e) => setSelectedPlanId(e.target.value)}
+                            disabled={loadingPlanes}
+                            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white appearance-none hover:border-pink-500/50 focus:border-pink-500 focus:outline-none transition cursor-pointer"
+                        >
+                            <option value="">-- Elige un plan --</option>
+                            {planes.map((plan) => (
+                            <option key={plan.id} value={plan.id} className="text-black">
+                                {plan.nombre} ({plan.dias_contratados} días) — ${plan.precio.toLocaleString("es-CL")}
+                            </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-3 top-3.5 pointer-events-none text-pink-500">
+                            <span className="material-symbols-outlined text-xl">expand_more</span>
+                        </div>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium">Comprobante de pago</label>
-                    <input
-                      type="file"
-                      accept="image/*,application/pdf"
-                      onChange={(e) => setComprobanteFile(e.target.files?.[0] || null)}
-                      className="w-full rounded-md border px-3 py-2 text-sm bg-transparent text-white"
-                      required
-                    />
-                    <p className="text-xs text-pink-200">Formatos aceptados: imagen o PDF.</p>
+                    <label className="block text-sm font-bold text-gray-300">Comprobante (Imagen/PDF)</label>
+                    <div className="relative">
+                        <input
+                            id="fileInput"
+                            type="file"
+                            accept="image/*,application/pdf"
+                            onChange={(e) => setComprobanteFile(e.target.files?.[0] || null)}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                        />
+                        <div className={`
+                            w-full rounded-xl border-2 border-dashed px-4 py-6 text-center transition-all
+                            ${comprobanteFile 
+                                ? "border-green-500/50 bg-green-500/10" 
+                                : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-pink-500/30"
+                            }
+                        `}>
+                            {comprobanteFile ? (
+                                <div className="flex flex-col items-center text-green-400">
+                                    <span className="material-symbols-outlined mb-1">check_circle</span>
+                                    <span className="text-xs font-medium truncate max-w-full px-2">
+                                        {comprobanteFile.name}
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center text-gray-400">
+                                    <span className="material-symbols-outlined mb-1">cloud_upload</span>
+                                    <span className="text-xs">Click para subir comprobante</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                   </div>
-
-                  {error && <p className="text-sm text-red-600">{error}</p>}
-                  {success && <p className="text-sm text-green-600">{success}</p>}
 
                   <button
                     type="submit"
-                    disabled={submitting}
-                    className="w-full rounded-md bg-[#ff007f] px-4 py-2 text-sm font-semibold text-white hover:bg-pink-500 disabled:opacity-60"
+                    disabled={submitting || loadingPlanes}
+                    className="w-full rounded-xl bg-[#ff007f] px-4 py-3 text-white font-bold hover:bg-pink-600 disabled:opacity-50 transition shadow-lg shadow-pink-600/20 flex justify-center items-center gap-2"
                   >
-                    {submitting ? "Enviando..." : "Enviar solicitud"}
+                    {submitting ? (
+                        <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            Enviando...
+                        </>
+                    ) : (
+                        "Enviar Solicitud"
+                    )}
                   </button>
                 </form>
               </div>
             </div>
 
-            {/* Columna derecha: historial de solicitudes */}
+            {/* Columna Derecha: Historial */}
             <div className="lg:col-span-2">
-              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-md">
-                <h2 className="text-lg font-bold mb-4 text-white">Historial de solicitudes</h2>
+              <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-xl border border-white/5 h-full">
+                <h2 className="text-lg font-bold mb-6 text-white flex items-center gap-2 border-b border-white/10 pb-4">
+                  <span className="material-symbols-outlined text-pink-500">history</span>
+                  Historial de Solicitudes
+                </h2>
+
                 {loadingSolicitudes ? (
-                  <p className="text-sm text-pink-200">Cargando solicitudes...</p>
+                   <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+                      <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                      <p>Cargando historial...</p>
+                   </div>
                 ) : solicitudes.length === 0 ? (
-                  <p className="text-sm text-pink-200">Aún no has enviado ninguna solicitud de suscripción.</p>
+                  <div className="text-center py-20 bg-white/5 rounded-xl border border-dashed border-white/10">
+                    <span className="material-symbols-outlined text-4xl text-gray-600 mb-2">receipt_long</span>
+                    <p className="text-pink-200 font-medium">No tienes solicitudes registradas.</p>
+                    <p className="text-gray-500 text-sm">Cuando envíes un comprobante, aparecerá aquí.</p>
+                  </div>
                 ) : (
-                  <div className="space-y-3 text-sm text-pink-100">
+                  <div className="space-y-4">
                     {solicitudes.map((sol) => (
                       <div
                         key={sol.id}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-md border px-3 py-2 gap-2"
+                        className="group flex flex-col md:flex-row md:items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] p-4 transition-all"
                       >
-                        <div>
-                          <p className="font-semibold text-white">
-                            {sol.plan?.nombre} ({sol.plan?.dias_contratados} días)
-                          </p>
-                          <p className="text-pink-200">
-                            Enviada el {new Date(sol.fecha_creacion).toLocaleString()}
+                        <div className="mb-3 md:mb-0">
+                          <div className="flex items-center gap-2">
+                             <span className="font-bold text-white text-lg">
+                                {sol.plan?.nombre || "Plan Desconocido"}
+                             </span>
+                             <span className="text-xs bg-white/10 px-2 py-0.5 rounded text-gray-300">
+                                {sol.plan?.dias_contratados} días
+                             </span>
+                          </div>
+                          <p className="text-sm text-gray-400 mt-1 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                            {new Date(sol.fecha_creacion).toLocaleDateString("es-CL", {
+                                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                            })}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {renderEstado(sol.estado)}
+                        
+                        <div className="flex items-center gap-4">
                           {sol.comprobante_pago && (
                             <a
                               href={sol.comprobante_pago}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-pink-200 hover:underline"
+                              className="text-xs flex items-center gap-1 text-pink-400 hover:text-pink-300 transition border border-pink-500/30 px-3 py-1.5 rounded-lg hover:bg-pink-500/10"
                             >
-                              Ver comprobante
+                              <span className="material-symbols-outlined text-[16px]">visibility</span>
+                              Ver Comprobante
                             </a>
                           )}
+                          
+                          {renderEstado(sol.estado)}
                         </div>
                       </div>
                     ))}

@@ -27,21 +27,22 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
-          // HSTS solo en producción (se activa con HTTPS)
+          // HSTS solo en producción
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains',
           },
-          // CSP básico pero funcional
+          // CSP básico
           {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: https: http:",
+              // AGREGADO: images.unsplash.com a la CSP para permitir la carga
+              "img-src 'self' data: https: http: https://images.unsplash.com", 
               "font-src 'self' https://fonts.gstatic.com data:",
-              "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 http://192.168.1.26:8000 https:",
+              "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https:",
               "frame-ancestors 'none'",
             ].join('; '),
           },
@@ -50,7 +51,7 @@ const nextConfig = {
     ];
   },
 
-  // Configuración de Next/Image para dominios permitidos
+  // Configuración de Next/Image
   images: {
     remotePatterns: [
       {
@@ -76,12 +77,23 @@ const nextConfig = {
         hostname: '*.googleusercontent.com',
         pathname: '/**',
       },
-      // Agregar aquí el dominio de producción cuando esté disponible
-      // {
-      //   protocol: 'https',
-      //   hostname: 'api.xscort.cl',
-      //   pathname: '/media/**',
-      // },
+      {
+       protocol: 'https',
+       hostname: 'api.xscort.cl',
+       pathname: '/media/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.xscort.cl',
+        port: '',
+        pathname: '/**',
+      },
+      // --- NUEVO: Permitir Unsplash (Soluciona el Error 400) ---
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**', 
+      },
     ],
   },
 };

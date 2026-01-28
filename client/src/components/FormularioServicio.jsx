@@ -66,7 +66,7 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg sm:rounded-xl border bg-[var(--color-card)] p-4 sm:p-5 md:p-6 shadow-sm space-y-4 sm:space-y-5 bg-transparent font-montserrat">
+    <form onSubmit={handleSubmit} className="rounded-lg sm:rounded-xl bg-[var(--color-card)] p-4 sm:p-5 md:p-6 shadow-sm space-y-4 sm:space-y-5 bg-transparent font-montserrat">
       <h3 className="text-lg sm:text-xl md:text-2xl font-bold">
         {servicio ? "Editar Servicio" : "Nuevo Servicio"}
       </h3>
@@ -79,7 +79,7 @@ export default function FormularioServicio({ servicio, onSuccess, onCancel }) {
         <select
           value={catalogoId}
           onChange={(e) => setCatalogoId(e.target.value)}
-          className="w-full rounded-md border px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base bg-transparent"
+          className="w-full rounded-md border px-4 py-2 bg-transparent text-white [&>option]:text-black [&>option]:bg-white"
         >
           <option value="">-- Selecciona --</option>
           {catalogo.map((c) => (

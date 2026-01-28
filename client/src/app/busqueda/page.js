@@ -1,60 +1,118 @@
-"use client";
-import FilterPanel from "@/components/FilterPanel";
-import SearchResultsWrapper from "@/components/SearchResultsWrapper";
-import Link from "next/link";
-import Image from "next/image";
-import NavAuthCta from "@/components/NavAuthCta";
-import MobileMenu from "@/components/MobileMenu";
+import BusquedaContent from "@/components/BusquedaContent";
+import NavBar from "@/components/NavBar";
 
+// Forzar renderizado dinámico porque depende de searchParams
 export const dynamic = 'force-dynamic';
 
-export default function BusquedaPage() {
+// ============================================================
+// 1. METADATA (SEO PARA EL BUSCADOR)
+// ============================================================
+export async function generateMetadata({ searchParams }) {
+  // Resolvemos los params (Next.js 15)
+  const params = await searchParams;
+  
+  // Título base
+  let title = "Buscador de Escorts y Modelos en Chile | xscort";
+  let description = "Utiliza nuestros filtros avanzados para encontrar modelos por edad, servicios, tarifas y características. El directorio más completo de Chile.";
+
+  // Si hay filtros activos, personalizamos un poco (Opcional, pero ayuda al UX en la pestaña)
+  if (params.edad) title = `Escorts de ${params.edad} años - Búsqueda | xscort`;
+  if (params.servicios) title = `Escorts con servicio de ${params.servicios} | xscort`;
+
+  return {
+    title: title,
+    description: description,
+    // CANONICAL: Vital para que Google no indexe 1000 versiones de filtros (?edad=18, ?edad=19...)
+    // Le decimos: "Todas estas variantes son en realidad la página /busqueda"
+    alternates: {
+      canonical: 'https://xscort.cl/busqueda',
+    },
+    robots: {
+      index: true, // Queremos indexar la raíz del buscador
+      follow: true,
+    },
+    openGraph: {
+      title: "Catálogo de Modelos VIP - xscort Chile",
+      description: "Encuentra tu compañía ideal usando nuestros filtros verificados.",
+      url: "https://xscort.cl/busqueda",
+    }
+  };
+}
+
+// ============================================================
+// 2. DATA FETCHING
+// ============================================================
+async function getPerfiles(params) {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  
+  const cleanParams = new URLSearchParams();
+  if (params) {
+    Object.keys(params).forEach(key => {
+      // Filtramos parámetros vacíos
+      if (params[key] && params[key] !== 'undefined') {
+        cleanParams.append(key, String(params[key]));
+      }
+    });
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/api/profiles/?${cleanParams.toString()}`, { 
+      cache: 'no-store' // Datos frescos siempre
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.results || data || [];
+  } catch (error) {
+    console.error("Error backend:", error);
+    return [];
+  }
+}
+
+// ============================================================
+// 3. PÁGINA PRINCIPAL
+// ============================================================
+export default async function BusquedaPage(props) {
+  const searchParams = await props.searchParams; 
+  const perfilesIniciales = await getPerfiles(searchParams);
+
+  // SCHEMA.ORG: CollectionPage (Para catálogos)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Catálogo de Escorts xscort",
+    "description": "Buscador avanzado de modelos y acompañantes en Chile.",
+    "url": "https://xscort.cl/busqueda",
+    "hasPart": perfilesIniciales.slice(0, 10).map(p => ({
+        "@type": "Person",
+        "name": p.nombre_fantasia,
+        "url": `https://xscort.cl/perfil/${p.slug || p.id}`
+    }))
+  };
+
   return (
-    <div className="min-h-screen bg-[#120912] text-white">
-      <nav className="fixed top-0 w-full bg-black bg-opacity-95 backdrop-blur px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-gray-800">
-        <div className="flex justify-between items-center h-16 sm:h-20">
-          <Link href="/" className="flex-shrink-0">
-            <Image src="/logo.png" alt="xscort.cl" width={100} height={100} />
-          </Link>
-          <div className="hidden sm:flex gap-6 lg:gap-8 text-sm items-center ml-auto">
-            <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-              Inicio
-            </Link>
-            <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-              Modelos
-            </Link>
-            <Link href="#servicios" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold">
-              Servicios
-            </Link>
-            <div className="h-6 w-px bg-gray-700"></div>
-            <NavAuthCta />
-          </div>
-          <MobileMenu />
+    <div className="min-h-screen bg-[#120912] text-white font-montserrat">
+      {/* Schema Injection */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <NavBar/>
+      
+      <main className="pt-24 px-4 max-w-7xl mx-auto pb-12">
+        {/* Encabezado SEO H1 */}
+        <div className="mb-8 border-b border-white/10 pb-6">
+          <h1 className="text-3xl md:text-4xl font-black mb-2 font-fancy">
+            Catálogo de <span className="text-pink-500">Modelos</span>
+          </h1>
+          <p className="text-gray-400 text-sm md:text-base max-w-2xl">
+            Explora todas las opciones disponibles. Usa los filtros para afinar tu búsqueda por ciudad, servicios, edad o características físicas.
+          </p>
         </div>
-      </nav>
 
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 md:px-8 lg:px-10 py-8 sm:py-10 md:py-14 pt-20 sm:pt-24 md:pt-28 lg:pt-32">
-        <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start">
-          {/* Sidebar filters */}
-          <div className="w-full lg:w-72 shrink-0">
-            <div className="sticky top-6 sm:top-8">
-              <FilterPanel />
-            </div>
-          </div>
-
-          {/* Main content */}
-          <div className="flex-1 space-y-4 sm:space-y-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black font-fancy tracking-tight">Modelos Verificadas</h1>
-              <p className="text-pink-100 mt-1 sm:mt-2 text-xs sm:text-sm md:text-base font-montserrat">
-                Descubre perfiles exclusivos y verificados en tu zona.
-              </p>
-            </div>
-
-            <SearchResultsWrapper />
-          </div>
-        </div>
-      </div>
+        {/* Pasamos los perfiles ya cargados al cliente */}
+        <BusquedaContent perfiles={perfilesIniciales} />
+      </main>
     </div>
   );
 }

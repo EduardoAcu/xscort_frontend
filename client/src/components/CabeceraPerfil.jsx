@@ -4,89 +4,91 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function CabeceraPerfil({ perfil }) {
   const rating = perfil?.rating || 0;
-  const edad = perfil?.edad || "N/A";
-
+  const edad = perfil?.edad ? `${perfil.edad} Años` : "";
   const nombrePublico = perfil?.nombre_artistico || "Modelo";
   const descripcion = perfil?.biografia;
+  const ciudadNombre = perfil?.ciudad?.nombre || perfil?.ciudad || "Ubicación no especificada";
+
   const fotoPerfil = perfil?.foto_perfil
     ? perfil.foto_perfil.startsWith("http")
       ? perfil.foto_perfil
       : `${API_BASE_URL}${perfil.foto_perfil}`
     : null;
 
-  const renderStars = (rating) => {
-    return (
-      <div className="flex items-center gap-1">
-        {[...Array(5)].map((_, i) => (
-          <span
-            key={i}
-            className={`text-xl ${
-              i < Math.round(rating) ? "text-yellow-400" : "text-gray-300"
-            }`}
-          >
-            ★
-          </span>
-        ))}
-        <span className="ml-2 text-sm text-[color:var(--color-muted-foreground)]">({rating.toFixed(1)})</span>
-      </div>
-    );
-  };
-
   return (
-    <div className="rounded-lg sm:rounded-xl border bg-[var(--color-card)] p-4 sm:p-5 md:p-6 shadow-md">
-      <div className="grid gap-4 sm:gap-5 md:gap-6 grid-cols-1 md:grid-cols-3">
-        {/* Foto */}
-        <div className="md:col-span-1">
-          {fotoPerfil ? (
-            <img
-              src={fotoPerfil}
-              alt={nombrePublico}
-              className="h-56 sm:h-72 md:h-96 w-full rounded-lg sm:rounded-xl object-cover"
-            />
-          ) : (
-            <div className="h-56 sm:h-72 md:h-96 w-full rounded-lg sm:rounded-xl bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500 text-sm sm:text-base">Sin foto</span>
-            </div>
-          )}
-        </div>
-
-        {/* Información */}
-        <div className="md:col-span-2 space-y-3 sm:space-y-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{nombrePublico}</h1>
-            <p className="text-base sm:text-lg md:text-xl text-[color:var(--color-muted-foreground)]">{edad} años</p>
+    // Fondo con gradiente suave
+    <div className="w-full bg-gradient-to-b from-[#1b101a] to-[#120912] border-b border-white/5 py-10 md:py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        
+        {/* Layout: Centrado en Móvil, Fila en Desktop */}
+        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 text-center md:text-left">
+          
+          {/* --- FOTO REDONDA (Avatar Premium) --- */}
+          <div className="relative flex-shrink-0 group">
+             {/* Aro de brillo decorativo detrás */}
+             <div className="absolute -inset-0.5 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
+             
+             {/* Contenedor de la imagen */}
+             <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl bg-black">
+                {fotoPerfil ? (
+                  <img
+                    src={fotoPerfil}
+                    alt={nombrePublico}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-white/5 text-xs text-gray-500 uppercase">
+                    Sin Foto
+                  </div>
+                )}
+             </div>
           </div>
 
-          <div className="space-y-2 sm:space-y-3 border-b pb-3 sm:pb-4">
-            <p className="text-sm sm:text-base md:text-lg">
-              <span className="font-semibold">Ciudad:</span> {perfil?.ciudad}
-            </p>
-            <p className="text-sm sm:text-base md:text-lg font-semibold">Calificación:</p>
-            {renderStars(rating)}
-          </div>
-
-          {descripcion && (
-            <div className="space-y-2">
-              <p className="text-sm sm:text-base md:text-lg font-semibold">Acerca de:</p>
-              <p className="text-xs sm:text-sm md:text-base text-gray-700">{descripcion}</p>
+          {/* --- INFORMACIÓN --- */}
+          <div className="flex-1 flex flex-col justify-center">
+            
+            {/* Meta-datos (Ubicación • Edad) */}
+            <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-pink-400 uppercase tracking-widest mb-2">
+               <span>{ciudadNombre}</span>
+               {edad && <span className="text-gray-700">•</span>}
+               <span>{edad}</span>
             </div>
-          )}
+            
+            {/* Nombre: Elegante y legible */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl text-white font-medium tracking-tight mb-3">
+              {nombrePublico}
+            </h1>
 
-          {perfil?.tags && perfil.tags.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-sm sm:text-base md:text-lg font-semibold">Características:</p>
-              <div className="flex flex-wrap gap-1 sm:gap-2">
+            {/* Rating Estrellas */}
+            <div className="flex items-center justify-center md:justify-start gap-1 mb-5">
+               {[...Array(5)].map((_, i) => (
+                  <span key={i} className={`text-sm ${i < Math.round(rating) ? "text-pink-500" : "text-gray-800"}`}>★</span>
+               ))}
+               {rating > 0 && <span className="ml-2 text-xs text-gray-500 font-mono">({rating.toFixed(1)})</span>}
+            </div>
+
+            {/* Biografía Corta */}
+            {descripcion && (
+              <p className="text-gray-400 text-sm leading-relaxed max-w-xl mx-auto md:mx-0 font-light mb-6">
+                {descripcion}
+              </p>
+            )}
+
+            {/* Tags (Versión Píldora Minimalista) */}
+            {perfil?.tags && perfil.tags.length > 0 && (
+              <div className="flex flex-wrap justify-center md:justify-start gap-2">
                 {perfil.tags.map((tag, idx) => {
-                  const tagName = typeof tag === 'object' ? tag.nombre || tag.name || JSON.stringify(tag) : tag;
+                  const tagName = typeof tag === 'object' ? tag.nombre : tag;
                   return (
-                    <span key={idx} className="inline-block bg-blue-100 px-3 py-1 text-blue-700 rounded-full text-sm">
+                    <span key={idx} className="text-[10px] uppercase tracking-wide text-gray-400 border border-white/10 rounded-full px-3 py-1 bg-white/[0.02]">
                       {tagName}
                     </span>
                   );
                 })}
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
         </div>
       </div>
     </div>

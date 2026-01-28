@@ -2,31 +2,27 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { 
-  MapPin, Calendar, Phone, MessageCircle, 
-  CheckCircle2, ChevronRight, Star, Share2, 
-  ArrowLeft, Camera, Heart 
+  MapPin, Calendar, Phone, Share2, 
+  CheckCircle2, Star, ArrowLeft, Camera, Heart, 
+  Ruler, Weight, User, Globe
 } from "lucide-react";
 
-// URL Base (Asegura que no tenga slash final extra)
+// URL Base
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
-// Función auxiliar para URLs de imágenes
+// Helper de Imágenes
 const getImageUrl = (path) => {
   if (!path) return null;
   return path.startsWith("http") ? path : `${API_URL}${path}`;
 };
 
 // ============================================================
-// 1. DATA FETCHING (Servidor)
+// 1. DATA FETCHING
 // ============================================================
 async function getPerfilData(slug) {
   try {
-    // Importante: El slash final es vital para Django
-    const url = `${API_URL}/api/profiles/public/${slug}/`;
-    console.log("📡 Fetching Perfil:", url); // Esto aparecerá en la terminal de tu servidor (Coolify/Local)
-
-    const res = await fetch(url, { 
-      next: { revalidate: 0 }, // 0 para datos siempre frescos
+    const res = await fetch(`${API_URL}/api/profiles/public/${slug}/`, { 
+      next: { revalidate: 0 }, 
       headers: { "Content-Type": "application/json" }
     });
 
@@ -41,22 +37,17 @@ async function getPerfilData(slug) {
 }
 
 // ============================================================
-// 2. METADATA SEO
+// 2. METADATA
 // ============================================================
 export async function generateMetadata({ params }) {
-  // En Next.js 15, params es una promesa
   const resolvedParams = await params;
-  const slug = resolvedParams.slug;
-  const perfil = await getPerfilData(slug);
+  const perfil = await getPerfilData(resolvedParams.slug);
 
-  if (!perfil) return { title: "Perfil no encontrado | xscort.cl" };
+  if (!perfil) return { title: "Perfil no encontrado" };
 
-  const nombre = perfil.nombre_artistico || "Modelo";
-  const ciudad = perfil.ciudad?.nombre || "Chile";
-  
   return {
-    title: `${nombre} - Escort en ${ciudad} | xscort.cl`,
-    description: perfil.biografia?.substring(0, 160) || `Contacta a ${nombre}. Fotos reales y trato directo.`,
+    title: `${perfil.nombre_artistico} - Escort en ${perfil.ciudad?.nombre || "Chile"}`,
+    description: perfil.biografia?.substring(0, 160),
     openGraph: {
       images: [getImageUrl(perfil.foto_perfil) || "/banner-social.jpg"],
     },
@@ -64,30 +55,43 @@ export async function generateMetadata({ params }) {
 }
 
 // ============================================================
-// 3. COMPONENTE DE PÁGINA (UI)
+// 3. COMPONENTE UI
 // ============================================================
 export default async function PerfilPage({ params }) {
   const resolvedParams = await params;
-  const slug = resolvedParams.slug;
-  const perfil = await getPerfilData(slug);
+  const perfil = await getPerfilData(resolvedParams.slug);
 
-  // Si la API devuelve null (404), mostramos la página de error de Next.js
-  if (!perfil) {
-    notFound();
-  }
+  if (!perfil) notFound();
 
   // --- PREPARACIÓN DE DATOS ---
   const fotoPrincipal = getImageUrl(perfil.foto_perfil);
-  const galeria = perfil.galeria || []; // Ajusta según tu API (puede ser perfil.images)
+  const galeria = perfil.galeria || []; 
   const isVerified = perfil.verificacion_estado === "aprobado";
   const ciudadNombre = perfil.ciudad?.nombre || "Chile";
   const ciudadSlug = perfil.ciudad?.slug || "busqueda";
   const whatsappLimpio = perfil.telefono_contacto?.replace(/[^0-9]/g, "");
 
+  // --- LÓGICA DE DETALLES (Mejorada con Iconos) ---
+  // Creamos objetos para poder renderizar iconos junto al texto
+  const rawStats = [
+    { icon: Globe, label: perfil.nacionalidad, show: !!perfil.nacionalidad },
+    { icon: Ruler, label: perfil.altura ? `${perfil.altura} cm` : null, show: !!perfil.altura },
+    { icon: Weight, label: perfil.peso ? `${perfil.peso} kg` : null, show: !!perfil.peso },
+    { icon: User, label: perfil.medidas, show: !!perfil.medidas },
+    { 
+        icon: User, 
+        label: perfil.genero === "M" ? "Hombre" : perfil.genero === "F" ? "Mujer" : "Trans", 
+        show: true 
+    }
+  ];
+  
+  // Filtramos solo los que tienen datos válidos
+  const stats = rawStats.filter(s => s.show && s.label && s.label !== "0 cm" && s.label !== "0 kg");
+
   return (
     <div className="min-h-screen bg-[#050205] text-gray-200 font-montserrat pb-20 selection:bg-pink-500 selection:text-white">
       
-      {/* 1. NAVBAR FLOTANTE */}
+      {/* NAVBAR */}
       <nav className="fixed top-0 w-full bg-[#050205]/80 backdrop-blur-xl z-50 border-b border-white/5 h-16 flex items-center justify-between px-4 sm:px-8">
         <Link href={`/${ciudadSlug}`} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
@@ -96,10 +100,10 @@ export default async function PerfilPage({ params }) {
         <Link href="/" className="font-bold text-xl tracking-widest text-pink-500 font-fancy">
             XSCORT
         </Link>
-        <div className="w-8"></div> {/* Espaciador para centrar logo */}
+        <div className="w-8"></div>
       </nav>
 
-      {/* 2. PORTADA HERO */}
+      {/* PORTADA HERO */}
       <div className="pt-16 w-full max-w-4xl mx-auto">
         <div className="relative aspect-[3/4] md:aspect-[16/9] w-full bg-zinc-900 overflow-hidden md:rounded-b-3xl shadow-2xl">
             {fotoPrincipal ? (
@@ -116,98 +120,103 @@ export default async function PerfilPage({ params }) {
                 </div>
             )}
             
-            {/* Gradiente Oscuro Inferior */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-transparent to-transparent opacity-90"></div>
+            {/* Gradiente más alto para asegurar legibilidad */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-[#050205]/60 to-transparent opacity-100"></div>
 
-            {/* Información sobre la foto */}
-            <div className="absolute bottom-0 left-0 w-full p-6 sm:p-10 z-10">
+            {/* INFO SUPERPUESTA */}
+            <div className="absolute bottom-0 left-0 w-full p-5 sm:p-10 z-10">
                 <div className="flex flex-col gap-2">
+                    
+                    {/* Badges */}
                     <div className="flex gap-2 mb-1">
                         {isVerified && (
-                            <span className="inline-flex items-center gap-1 bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide backdrop-blur-md">
+                            <span className="inline-flex items-center gap-1 bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide backdrop-blur-md">
                                 <CheckCircle2 className="w-3 h-3" /> Verificada
                             </span>
                         )}
-                        <span className="inline-flex items-center gap-1 bg-pink-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-pink-900/40">
+                        <span className="inline-flex items-center gap-1 bg-pink-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-pink-900/40">
                             <Star className="w-3 h-3 fill-current" /> Premium
                         </span>
                     </div>
 
+                    {/* Nombre */}
                     <h1 className="text-4xl sm:text-6xl font-black text-white font-fancy drop-shadow-lg leading-none">
                         {perfil.nombre_artistico}
                     </h1>
                     
-                    <div className="flex flex-wrap items-center gap-4 text-gray-200 text-sm sm:text-base font-light mt-2">
-                        <div className="flex items-center gap-1.5">
+                    {/* Línea 1: Ubicación y Edad */}
+                    <div className="flex flex-wrap items-center gap-4 text-gray-200 text-sm font-medium mt-1">
+                        <div className="flex items-center gap-1.5 bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm">
                             <MapPin className="w-4 h-4 text-pink-500" />
                             {ciudadNombre}
                         </div>
                         {perfil.edad && (
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm">
                                 <Calendar className="w-4 h-4 text-pink-500" />
                                 {perfil.edad} años
                             </div>
                         )}
                     </div>
+
+                    {/* Línea 2: DETALLES (Formato Pequeño "Pills") */}
+                    {stats.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {stats.map((stat, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-semibold text-gray-200 uppercase tracking-wide shadow-sm"
+                                >
+                                    <stat.icon className="w-3 h-3 text-pink-400" />
+                                    <span>{stat.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
                 </div>
             </div>
         </div>
       </div>
 
-      {/* 3. CONTENIDO PRINCIPAL */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-8 mt-8 space-y-12">
+      {/* CONTENIDO */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 mt-6 space-y-10">
         
-        {/* Botones de Acción */}
+        {/* BOTONES (Justo debajo de la foto) */}
         <div className="grid grid-cols-2 gap-4">
             {whatsappLimpio ? (
                 <a 
                     href={`https://wa.me/${whatsappLimpio}?text=Hola ${perfil.nombre_artistico}, te vi en xscort.cl`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebc57] text-black py-4 rounded-xl font-bold transition-transform active:scale-95 shadow-lg shadow-green-900/20"
+                    className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebc57] text-black py-3.5 rounded-xl font-bold transition-transform active:scale-95 shadow-lg shadow-green-900/20 text-sm sm:text-base"
                 >
                     <Phone className="w-5 h-5" /> WhatsApp
                 </a>
             ) : (
-                <button disabled className="flex items-center justify-center gap-2 bg-gray-800 text-gray-500 py-4 rounded-xl font-bold cursor-not-allowed">
+                <button disabled className="flex items-center justify-center gap-2 bg-gray-800 text-gray-500 py-3.5 rounded-xl font-bold cursor-not-allowed text-sm sm:text-base">
                     <Phone className="w-5 h-5" /> No disponible
                 </button>
             )}
             
-            <button className="flex items-center justify-center gap-2 bg-[#1a1018] border border-white/10 hover:bg-white/5 text-white py-4 rounded-xl font-bold transition-transform active:scale-95">
+            <button className="flex items-center justify-center gap-2 bg-[#1a1018] border border-white/10 hover:bg-white/5 text-white py-3.5 rounded-xl font-bold transition-transform active:scale-95 text-sm sm:text-base">
                 <Share2 className="w-5 h-5 text-pink-500" /> Compartir
             </button>
         </div>
 
         {/* Sobre Mí */}
         <section>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
                 <Heart className="w-4 h-4" /> Sobre Mí
             </h3>
-            <div className="bg-[#120912] p-6 rounded-2xl border border-white/5 text-gray-300 leading-relaxed font-light whitespace-pre-wrap shadow-lg">
+            <div className="bg-[#120912] p-5 rounded-2xl border border-white/5 text-gray-300 leading-relaxed font-light whitespace-pre-wrap shadow-lg text-sm sm:text-base">
                 {perfil.biografia || "Esta modelo aún no ha agregado una descripción detallada."}
             </div>
         </section>
 
-        {/* Detalles Físicos (Grid) */}
-        <section>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 mb-4 flex items-center gap-2">
-                 <CheckCircle2 className="w-4 h-4" /> Detalles
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <DetailCard label="Altura" value={perfil.altura ? `${perfil.altura} cm` : "--"} />
-                <DetailCard label="Peso" value={perfil.peso ? `${perfil.peso} kg` : "--"} />
-                <DetailCard label="Medidas" value={perfil.medidas || "--"} />
-                <DetailCard label="Nacionalidad" value={perfil.nacionalidad || "--"} />
-                <DetailCard label="Género" value={perfil.genero === "M" ? "Hombre" : perfil.genero === "F" ? "Mujer" : "Trans"} />
-                <DetailCard label="Atención" value="Consultar" />
-            </div>
-        </section>
-
-        {/* Galería (Si existe) */}
+        {/* Galería */}
         {galeria.length > 0 && (
             <section>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-2">
                      <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 flex items-center gap-2">
                         <Camera className="w-4 h-4" /> Galería
                     </h3>
@@ -236,14 +245,4 @@ export default async function PerfilPage({ params }) {
       </div>
     </div>
   );
-}
-
-// Subcomponente pequeño para tarjetas de detalles
-function DetailCard({ label, value }) {
-    return (
-        <div className="bg-[#120912] border border-white/5 p-4 rounded-xl text-center hover:border-pink-500/30 transition-colors">
-            <span className="block text-[10px] text-gray-500 uppercase tracking-widest mb-1">{label}</span>
-            <span className="block text-white font-bold text-sm">{value}</span>
-        </div>
-    );
 }

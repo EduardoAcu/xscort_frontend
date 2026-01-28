@@ -5,12 +5,30 @@ import MobileMenu from "@/components/MobileMenu";
 import { Heart, Flame, Feather, MapPin, Search } from "lucide-react";
 
 // ============================================================
-// CONSTANTES GLOBALES (Datos de Respaldo)
+// 1. CONFIGURACIÓN NEXT.JS (ESTO SOLUCIONA EL ERROR DE BUILD)
+// ============================================================
+// Le decimos a Next.js: "Esta página cambia siempre, no la congeles".
+export const dynamic = 'force-dynamic'; 
+
+// ============================================================
+// 2. CONSTANTES DE RESPALDO (ESTO SOLUCIONA EL REFERENCE ERROR)
 // ============================================================
 const CURRENT_YEAR = new Date().getFullYear();
 
+const CIUDADES_DEFAULT = [
+  { id: 1, nombre: "Santiago", slug: "santiago" },
+  { id: 2, nombre: "Viña del Mar", slug: "vina-del-mar" },
+  { id: 3, nombre: "Concepción", slug: "concepcion" },
+  { id: 4, nombre: "Antofagasta", slug: "antofagasta" },
+  { id: 5, nombre: "Iquique", slug: "iquique" },
+  { id: 6, nombre: "Temuco", slug: "temuco" },
+  { id: 7, nombre: "La Serena", slug: "la-serena" },
+  { id: 8, nombre: "Valparaíso", slug: "valparaiso" },
+  { id: 9, nombre: "Puerto Montt", slug: "puerto-montt" },
+];
+
 // ============================================================
-// METADATA (SEO PRINCIPAL)
+// 3. METADATA SEO
 // ============================================================
 export const metadata = {
   title: "Escorts en Chile - Directorio Premium y Seguro | xscort",
@@ -31,43 +49,39 @@ export const metadata = {
 };
 
 // ============================================================
-// API DATA FETCHING (Lógica Blindada)
+// 4. API FETCHING
 // ============================================================
 async function getCiudades() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
   
   try {
-    console.log(`📡 [Server] Conectando a ciudades en: ${apiUrl}/api/profiles/ciudades/`);
+    // console.log para debug en servidor (opcional)
+    // console.log(`📡 [Server] Conectando a ciudades en: ${apiUrl}/api/profiles/ciudades/`);
 
     const res = await fetch(`${apiUrl}/api/profiles/ciudades/`, {
-      cache: 'no-store', 
-      next: { revalidate: 0 },
+      cache: 'no-store', // Datos frescos siempre
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Next.js Build)",
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Referer": "https://xscort.cl",
       }
     });
     
     if (res.ok) {
         const data = await res.json();
         const lista = Array.isArray(data) ? data : (data.results || []);
-        console.log(`✅ [Server] Ciudades encontradas: ${lista.length}`);
         if (lista.length > 0) return lista;
-    } else {
-        const errorText = await res.text();
-        console.error(`❌ [Server] Error API ${res.status}: ${errorText}`);
-    }
+    } 
   } catch (error) {
-    console.error("🔥 [Server] Error de conexión:", error.message);
+    console.error("🔥 [Server] Error de conexión (Usando Backup):", error.message);
   }
 
+  // Si falla, devolvemos la constante definida arriba
   return CIUDADES_DEFAULT;
 }
 
 // ============================================================
-// COMPONENTES UI
+// 5. COMPONENTES UI
 // ============================================================
 
 function Navigation() {
@@ -135,12 +149,10 @@ function HeroSection() {
 }
 
 function CiudadesSection({ ciudades }) {
-
-
-  // 2. SELECCIÓN DE DATOS
+  // Aseguramos que siempre haya datos
   const displayCities = (ciudades && Array.isArray(ciudades) && ciudades.length > 0) 
-    ? ciudades.slice(0, 12) 
-    : CIUDADES_DEFAULT.slice(0, 12);
+    ? ciudades 
+    : CIUDADES_DEFAULT;
 
   return (
     <section className="px-4 py-20 bg-black/20 border-b border-white/5">
@@ -154,7 +166,7 @@ function CiudadesSection({ ciudades }) {
           </p>
         </div>
 
-        {/* --- DISEÑO PIRAMIDAL / CENTRADO --- */}
+        {/* DISEÑO PIRAMIDAL / CENTRADO */}
         <div className="flex flex-wrap justify-center gap-4">
             {displayCities.map((c, index) => (
               <Link
@@ -179,7 +191,6 @@ function CiudadesSection({ ciudades }) {
                   {c.nombre}
                 </span>
                 
-                {/* Efecto de brillo interior */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500/0 via-pink-500/5 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               </Link>
             ))}
@@ -268,7 +279,7 @@ function CTASection() {
       
       <div className="relative z-10 max-w-4xl mx-auto text-center bg-[#120912]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-12">
         <h2 className="text-3xl md:text-5xl font-bold font-fancy text-white mb-6">
-            ¿Eres Modelo?
+            ¿Eres Modelo Independiente?
         </h2>
         <p className="text-gray-300 mb-10 font-light text-lg font-montserrat leading-relaxed">
           Únete a la plataforma más exclusiva de Chile. Sin comisiones por cita, tú controlas tus tarifas y horarios.

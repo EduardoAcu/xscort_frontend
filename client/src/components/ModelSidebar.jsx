@@ -6,6 +6,19 @@ import { toast } from "sonner";
 import api from "@/lib/api";
 import LogoutButton from "@/components/LogoutButton";
 
+// 1. IMPORTAMOS LOS ÍCONOS (Incluyendo LogOut)
+import { 
+  LayoutDashboard, 
+  UserCog, 
+  Sparkles, 
+  Image as ImageIcon, 
+  Crown, 
+  ShieldCheck, 
+  Menu, 
+  X,
+  LogOut // <--- NUEVO
+} from "lucide-react";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function ModelSidebar() {
@@ -36,17 +49,14 @@ export default function ModelSidebar() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. Cargar Perfil
         const resPerfil = await api.get("/api/profiles/mi-perfil/");
         const data = resPerfil.data;
         
         setDisplayName(data.nombre_artistico || "Mi Perfil");
         
-        // Lógica de URL pública (Slug o ID)
         const slug = data.slug || data.id; 
         if (slug) setPublicProfileUrl(`/perfil/${slug}`);
         
-        // Avatar
         if (data.foto_perfil) {
           const url = data.foto_perfil.startsWith("http")
             ? data.foto_perfil
@@ -54,7 +64,6 @@ export default function ModelSidebar() {
           setAvatar(url);
         }
 
-        // 2. Cargar Suscripción
         try {
           const resSub = await api.get("/api/subscriptions/mi-suscripcion/");
           const sub = resSub.data;
@@ -88,31 +97,31 @@ export default function ModelSidebar() {
   };
 
   const navItems = [
-    { href: "/panel/dashboard", icon: "apps", label: "Dashboard" },
-    { href: "/panel/editar-perfil", icon: "account_circle", label: "Editar Perfil" },
-    { href: "/panel/servicios", icon: "room_service", label: "Servicios" },
-    { href: "/panel/galeria", icon: "photo_library", label: "Galería" },
-    { href: "/panel/suscripcion", icon: "workspace_premium", label: "Suscripción" },
-    { href: "/panel/verificacion", icon: "fact_check", label: "Verificación" },
+    { href: "/panel/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/panel/editar-perfil", icon: UserCog, label: "Editar Perfil" },
+    { href: "/panel/servicios", icon: Sparkles, label: "Servicios" },
+    { href: "/panel/galeria", icon: ImageIcon, label: "Galería" },
+    { href: "/panel/suscripcion", icon: Crown, label: "Suscripción" },
+    { href: "/panel/verificacion", icon: ShieldCheck, label: "Verificación" },
   ];
 
   return (
     <>
-      {/* 1. HEADER MÓVIL (Solo visible en LG hidden) */}
+      {/* HEADER MÓVIL */}
       <div className="lg:hidden fixed top-0 left-0 w-full h-16 bg-[#180417] border-b border-[#3b1027] z-40 flex items-center px-4 justify-between select-none font-montserrat">
         <div className="flex items-center gap-2">
             <span className="font-bold text-pink-500">XSCORT</span>
         </div>
         <button 
             onClick={() => setIsOpen(true)}
-            className="text-white p-2 rounded-md active:bg-pink-900/50"
+            className="text-white p-2 rounded-md active:bg-pink-900/50 hover:bg-pink-900/30 transition-colors"
             aria-label="Abrir menú"
         >
-            <span className="material-symbols-outlined text-3xl">menu</span>
+            <Menu className="w-8 h-8" />
         </button>
       </div>
 
-      {/* 2. BACKDROP OSCURO */}
+      {/* BACKDROP OSCURO */}
       <div 
         className={`fixed inset-0 bg-black/80 z-40 lg:hidden backdrop-blur-sm transition-opacity duration-300 ${
             isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -120,16 +129,13 @@ export default function ModelSidebar() {
         onClick={() => setIsOpen(false)}
       />
 
-      {/* 3. SIDEBAR DESLIZANTE */}
+      {/* SIDEBAR DESLIZANTE */}
       <aside className={`
         fixed lg:sticky top-0 left-0 z-50
         flex flex-col text-white font-montserrat bg-[#180417] border-r border-[#3b1027]
         transition-transform duration-300 ease-out
         
-        /* DIMENSIONES PARA ESCRITORIO */
         lg:translate-x-0 lg:h-screen lg:w-64
-        
-        /* DIMENSIONES PARA MÓVIL (iPhone Fixes) */
         h-[100dvh] w-[85vw] sm:w-80
         ${isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:shadow-none"}
       `}>
@@ -138,13 +144,13 @@ export default function ModelSidebar() {
         <div className="lg:hidden absolute top-4 right-4 z-50">
             <button 
                 onClick={() => setIsOpen(false)} 
-                className="p-2 text-gray-400 hover:text-white bg-[#180417]/50 rounded-full"
+                className="p-2 text-gray-400 hover:text-white bg-[#180417]/50 rounded-full hover:bg-pink-900/30 transition-colors"
             >
-                <span className="material-symbols-outlined text-2xl">close</span>
+                <X className="w-6 h-6" />
             </button>
         </div>
 
-        {/* --- CABECERA PERFIL --- */}
+        {/* CABECERA PERFIL */}
         <div className="px-6 py-8 lg:py-6 flex items-center gap-3 border-b border-[#3b1027] mt-2 lg:mt-0">
           {avatar ? (
             <img src={avatar} alt={displayName} className="h-14 w-14 lg:h-12 lg:w-12 rounded-full object-cover ring-2 ring-[#3b1027]" />
@@ -171,10 +177,12 @@ export default function ModelSidebar() {
           </div>
         </div>
 
-        {/* --- NAVEGACIÓN (Scrollable) --- */}
+        {/* NAVEGACIÓN */}
         <nav className="flex-1 px-4 py-6 space-y-2 text-sm overflow-y-auto">
           {navItems.map((item) => {
             const active = pathname?.startsWith(item.href);
+            const IconComponent = item.icon; 
+            
             return (
               <Link
                 key={item.href}
@@ -185,16 +193,20 @@ export default function ModelSidebar() {
                     : "text-gray-300 hover:bg-[#2a0c21] hover:text-white"
                 }`}
               >
-                <span className="material-symbols-outlined text-[22px] lg:text-base">{item.icon}</span>
+                <IconComponent className="w-5 h-5 lg:w-4 lg:h-4" />
                 <span className="text-base lg:text-sm">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* --- FOOTER / LOGOUT --- */}
+        {/* 2. FOOTER CORREGIDO CON ÍCONO */}
         <div className="px-4 py-4 lg:py-4 border-t border-[#3b1027] bg-[#180417] pb-10 lg:pb-4">
-          <LogoutButton className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#ff007f] px-4 py-3 lg:py-2 text-sm text-gray-100 hover:bg-[#ff007f] hover:text-white transition-all font-semibold" />
+          <LogoutButton className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#ff007f] px-4 py-3 lg:py-2 text-sm text-gray-100 hover:bg-[#ff007f] hover:text-white transition-all font-semibold">
+            <LogOut className="w-5 h-5 lg:w-4 lg:h-4" />
+            <span>Cerraaaar Sesión</span>
+          </LogoutButton>
+
         </div>
       </aside>
     </>

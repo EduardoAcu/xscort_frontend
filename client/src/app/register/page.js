@@ -5,11 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/store/auth";
 import dynamic from "next/dynamic";
 import { becomeModel } from "@/lib/api-model";
-import Link from "next/link";
+import Link from "next/link"; 
 import Image from "next/image";
-import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
-// Íconos Nativos (Lucide)
+// Íconos
 import { 
   User, Mail, Lock, Calendar, MapPin, Check, 
   AlertCircle, ArrowLeft, CheckCircle2, Loader2 
@@ -24,7 +23,7 @@ const FormularioVerificacion = dynamic(() => import("@/components/FormularioVeri
 });
 
 function RegisterForm() {
-  // --- ESTADOS (Tu lógica original intacta) ---
+  // --- ESTADOS ---
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +44,7 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // --- EFECTOS (Tu lógica original intacta) ---
+  // --- EFECTOS ---
   useEffect(() => {
     const fetchCiudades = async () => {
       try {
@@ -91,12 +90,6 @@ function RegisterForm() {
   }, [username]);
 
   useEffect(() => {
-    if (usernameError) {
-        // Opcional: Toast repetitivo puede molestar, lo mostramos visualmente en el input mejor
-    }
-  }, [usernameError]);
-
-  useEffect(() => {
     if (role === "cliente" && step !== 1) {
       setStep(1);
       setModelVerificationError("");
@@ -123,7 +116,7 @@ function RegisterForm() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!accepted) return;
-    if (usernameError) return; // UI feedback is enough
+    if (usernameError) return;
     if (checkingUsername) return;
     
     setModelVerificationError("");
@@ -179,10 +172,8 @@ function RegisterForm() {
 
   const progress = role === "modelo" ? (step === 1 ? "50%" : "100%") : "100%";
 
-  // --- RENDERIZADO ---
   return (
-    <div className="w-full flex items-center justify-center p-6 sm:p-8 md:p-12 relative z-10">
-      <div className="w-full max-w-md space-y-6">
+    <div className="w-full max-w-md space-y-6">
         
         {/* Header Mobile Volver */}
         <div className="lg:hidden mb-2">
@@ -226,7 +217,7 @@ function RegisterForm() {
             </button>
         </div>
 
-        {/* BARRA DE PROGRESO (Solo si es modelo o para decorar) */}
+        {/* BARRA DE PROGRESO */}
         <div className="space-y-2">
             <div className="flex justify-between text-xs text-gray-400 font-montserrat uppercase tracking-wider">
                 <span>{step === 1 ? "Datos Personales" : "Verificación"}</span>
@@ -416,12 +407,11 @@ function RegisterForm() {
             </div>
         )}
 
-      </div>
     </div>
   );
 }
 
-// Subcomponente para items de contraseña
+// Subcomponente
 function Requirement({ met, text }) {
     return (
         <span className={`text-[10px] flex items-center gap-1 ${met ? "text-green-400" : "text-gray-600"}`}>
@@ -431,30 +421,41 @@ function Requirement({ met, text }) {
     );
 }
 
-// Componente Principal
+// Componente Principal de Página
 export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-[#050205] text-white flex flex-col lg:flex-row">
       
-      {/* Navbar simplificado integrado */}
-      <nav className="fixed top-0 w-full lg:w-1/2 bg-[#050205]/90 backdrop-blur-md px-6 z-50 border-b border-white/5 lg:border-none h-16 sm:h-20 flex items-center justify-between lg:justify-start">
+      {/* NAVBAR CORREGIDO DEFINITIVAMENTE:
+          - width: w-full (Ancho completo, no se corta nada)
+          - bg: bg-[#050205] en Móvil (Sólido) | lg:bg-transparent en PC (Transparente)
+          - align: Se superpone a todo (z-50) para que la imagen se vea debajo sin cortes.
+      */}
+      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 h-16 sm:h-20 bg-[#050205] lg:bg-transparent border-b border-white/5 lg:border-none">
         <Link href="/" className="w-24 opacity-80 hover:opacity-100 transition-opacity">
             <Image src="/logo.png" alt="xscort.cl" width={100} height={35} className="w-full h-auto" />
         </Link>
+        
+        {/* Menú Mobile */}
         <div className="lg:hidden">
             <MobileMenu />
+        </div>
+
+        {/* CTA Desktop */}
+        <div className="hidden lg:block text-sm font-bold text-gray-400 hover:text-white transition-colors">
+            <Link href="/login">¿Ya tienes cuenta? Ingresa aquí</Link>
         </div>
       </nav>
 
       {/* Columna Izquierda: Formulario */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen pt-16 lg:pt-0 bg-[#050205]">
+      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen pt-24 pb-10 lg:py-0 bg-[#050205] relative z-10">
         <Suspense fallback={<div className="text-pink-500 animate-pulse">Cargando registro...</div>}>
           <RegisterForm />
         </Suspense>
       </div>
 
       {/* Columna Derecha: Hero Image */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-zinc-900 overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-zinc-900 overflow-hidden fixed right-0 top-0 h-full border-l border-white/10">
         <Image 
             src={HERO_IMG}
             alt="xscort registro background"
@@ -480,10 +481,6 @@ export default function RegisterPage() {
                 <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                     <span>Visibilidad en las mejores ciudades.</span>
-                </li>
-                <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    <span>Soporte dedicado 24/7.</span>
                 </li>
             </ul>
         </div>

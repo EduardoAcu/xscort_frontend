@@ -127,19 +127,7 @@ function HeroSection() {
 }
 
 function CiudadesSection({ ciudades }) {
-  // 1. DATOS DE RESPALDO (Para que la sección nunca desaparezca)
-  const datosPorDefecto = [
-    { id: 1, nombre: "Santiago", slug: "santiago" },
-    { id: 2, nombre: "Viña del Mar", slug: "vina-del-mar" },
-    { id: 3, nombre: "Concepción", slug: "concepcion" },
-    { id: 4, nombre: "Antofagasta", slug: "antofagasta" },
-    { id: 5, nombre: "Iquique", slug: "iquique" },
-    { id: 6, nombre: "Temuco", slug: "temuco" },
-  ];
 
-  // 2. SELECCIÓN INTELIGENTE:
-  // Si 'ciudades' (de la API) tiene datos, los usamos.
-  // Si no, usamos 'datosPorDefecto'.
   const listaAUsar = (ciudades && ciudades.length > 0) ? ciudades : datosPorDefecto;
 
   // Separamos las ciudades principales

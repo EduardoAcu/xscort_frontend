@@ -147,16 +147,33 @@ function HeroSection() {
 }
 
 function CiudadesSection({ ciudades }) {
-  // LÓGICA DE VISUALIZACIÓN:
-  // Si la API devolvió datos (y no es la lista default), usamos esos.
-  // Si ciudades es null o vacío, usamos CIUDADES_DEFAULT.
-  const listaAUsar = (ciudades && ciudades.length > 0) ? ciudades : CIUDADES_DEFAULT;
+  // 1. DATOS FIJOS DE EMERGENCIA (Hardcoded dentro del componente)
+  // Esto asegura que SIEMPRE haya datos, sin importar qué pase afuera.
+  const backupData = [
+    { id: 101, nombre: "Santiago", slug: "santiago" },
+    { id: 102, nombre: "Viña del Mar", slug: "vina-del-mar" },
+    { id: 103, nombre: "Concepción", slug: "concepcion" },
+    { id: 104, nombre: "Antofagasta", slug: "antofagasta" },
+  ];
 
-  const topCiudades = listaAUsar.slice(0, 4);
-  const restoCiudades = listaAUsar.slice(4);
+  // 2. LÓGICA SIMPLIFICADA
+  // Si 'ciudades' existe y tiene algo, úsalo. Si no, usa el backup.
+  const displayCities = (ciudades && Array.isArray(ciudades) && ciudades.length > 0) 
+    ? ciudades 
+    : backupData;
+
+  // Separamos (Top 4 vs Resto)
+  const topCiudades = displayCities.slice(0, 4);
+  const restoCiudades = displayCities.slice(4);
+
+  // --- ELIMINADA LA LÍNEA QUE OCULTABA LA SECCIÓN ---
+  // Ahora el componente siempre retornará HTML
 
   return (
-    <section className="px-4 py-20 max-w-7xl mx-auto border-b border-white/5">
+    <section className="px-4 py-20 max-w-7xl mx-auto border-b border-white/5 bg-zinc-900/20">
+      {/* Debug visual: Si ves esto, el componente carga */}
+      {/* <div className="text-xs text-red-500 text-center mb-2">DEBUG: Cargando {displayCities.length} ciudades</div> */}
+
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold font-fancy text-white mb-4">
             Destinos Populares
@@ -166,10 +183,11 @@ function CiudadesSection({ ciudades }) {
         </p>
       </div>
 
+      {/* Grid Principal */}
       <div className="flex flex-wrap justify-center gap-4 mb-8">
-          {topCiudades.map((c) => (
+          {topCiudades.map((c, index) => (
             <Link
-              key={c.slug || c.id}
+              key={c.slug || c.id || index}
               href={`/${c.slug || c.id}`}
               className="
                 group relative px-8 py-4 rounded-2xl
@@ -187,11 +205,12 @@ function CiudadesSection({ ciudades }) {
           ))}
       </div>
 
+      {/* Resto de ciudades (Tags) */}
       {restoCiudades.length > 0 && (
           <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
-             {restoCiudades.map((c) => (
+             {restoCiudades.map((c, index) => (
                 <Link
-                    key={c.slug || c.id}
+                    key={c.slug || c.id || index}
                     href={`/${c.slug || c.id}`}
                     className="px-4 py-2 rounded-full border border-white/5 bg-white/[0.02] text-xs text-gray-400 hover:text-white hover:bg-pink-600 hover:border-pink-500 transition-all uppercase tracking-wider"
                 >

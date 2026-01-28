@@ -77,7 +77,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 // Reemplaza la función completa (líneas 81-90) por esta:
 async function getPerfilesPorCiudad(slug) {
   try {
-    const url = `${API_URL}/api/profiles/public/?ciudad__slug=${slug}`;
+    const url = `${API_URL}/api/profiles/?ciudad__slug=${slug}`;
     console.log("📡 Buscando en:", url);
 
     const res = await fetch(url, { 

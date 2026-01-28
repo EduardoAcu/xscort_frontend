@@ -74,15 +74,25 @@ function ProfileCard({ profile }) {
 // ============================================================
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+// Reemplaza la función completa (líneas 81-90) por esta:
 async function getPerfilesPorCiudad(slug) {
   try {
-    const res = await fetch(`${API_URL}/api/profiles/public/?ciudad=${slug}`, { cache: 'no-store' });
+    const url = `${API_URL}/api/profiles/public/?ciudad__slug=${slug}`;
+    console.log("📡 Buscando en:", url);
+
+    const res = await fetch(url, { 
+      cache: 'no-store',
+      headers: { "Content-Type": "application/json" }
+    });
+    
     if (!res.ok) return [];
+    
     const data = await res.json();
-    if (Array.isArray(data)) return data;
-    if (data.results) return data.results;
-    return [];
-  } catch (error) { return []; }
+    return Array.isArray(data) ? data : (data.results || []);
+  } catch (error) { 
+    console.error("🔥 Error API:", error);
+    return []; 
+  }
 }
 
 async function getCiudadesInterno() {

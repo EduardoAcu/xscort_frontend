@@ -87,7 +87,7 @@ function ProfileCard({ profile }) {
 
 async function getPerfilesPorCiudad(slug) {
   try {
-    const url = `${API_URL}/api/profiles/?ciudad__slug=${slug}`;
+    const url = `${API_URL}/api/profiles/?ciudad=${slug}`;
     console.log("📡 Buscando en:", url); 
     const res = await fetch(url, { cache: 'no-store', headers: { "Content-Type": "application/json" } });
     if (!res.ok) return [];

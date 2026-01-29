@@ -1,5 +1,5 @@
 "use client";
-
+import { House, RefreshCcw } from "lucide-react";
 import { useEffect } from "react";
 
 export default function Error({ error, reset }) {
@@ -47,7 +47,7 @@ export default function Error({ error, reset }) {
             onClick={() => reset()}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-3 font-semibold text-white hover:from-pink-600 hover:to-pink-700 transition-all transform hover:scale-105"
           >
-            <span className="material-symbols-outlined text-base">refresh</span>
+            <RefreshCcw className="w-4 h-4" />
             <span>Reintentar</span>
           </button>
 
@@ -55,7 +55,7 @@ export default function Error({ error, reset }) {
             href="/"
             className="inline-flex items-center justify-center gap-2 rounded-full border border-pink-500 px-6 py-3 font-semibold text-pink-500 hover:bg-pink-500 hover:text-white transition-all"
           >
-            <span className="material-symbols-outlined text-base">home</span>
+            <House className="w-4 h-4" />
             <span>Ir al Inicio</span>
           </a>
         </div>

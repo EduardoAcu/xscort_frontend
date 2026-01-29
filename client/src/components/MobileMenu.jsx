@@ -2,9 +2,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import useAuthStore from "@/store/auth";
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, isModelo } = useAuthStore();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -14,7 +16,7 @@ export default function MobileMenu() {
       {/* Hamburger Button */}
       <button
         onClick={toggleMenu}
-        className="p-2 text-gray-300 hover:text-pink-500 transition"
+        className="p-2 text-gray-300 hover:text-pink-500 active:text-pink-600 transition"
         aria-label="Toggle menu"
       >
         {isOpen ? (
@@ -32,7 +34,7 @@ export default function MobileMenu() {
             <Link
               href="/"
               onClick={closeMenu}
-              className="block w-full px-6 py-4 text-base font-montserrat font-semibold text-gray-300 hover:text-pink-500 hover:bg-gray-900/50 transition border-b border-gray-800"
+              className="block w-full px-6 py-4 text-base font-montserrat font-semibold text-gray-300 hover:text-pink-500 hover:bg-gray-900/50 active:bg-gray-900 transition border-b border-gray-800"
             >
               Inicio
             </Link>
@@ -40,36 +42,39 @@ export default function MobileMenu() {
             <Link
               href="/busqueda"
               onClick={closeMenu}
-              className="block w-full px-6 py-4 text-base font-montserrat font-semibold text-gray-300 hover:text-pink-500 hover:bg-gray-900/50 transition border-b border-gray-800"
+              className="block w-full px-6 py-4 text-base font-montserrat font-semibold text-gray-300 hover:text-pink-500 hover:bg-gray-900/50 active:bg-gray-900 transition border-b border-gray-800"
             >
               Modelos
             </Link>
 
-            <Link
-              href="/#servicios"
-              onClick={closeMenu}
-              className="block w-full px-6 py-4 text-base font-montserrat font-semibold text-gray-300 hover:text-pink-500 hover:bg-gray-900/50 transition border-b border-gray-800"
-            >
-              Servicios
-            </Link>
-
-            {/* Auth Buttons */}
-            <div className="flex flex-col gap-0 pt-0 border-t border-gray-700">
-              <Link
-                href="/login"
-                onClick={closeMenu}
-                className="block w-full px-6 py-4 text-base font-montserrat font-semibold text-gray-300 hover:text-pink-500 hover:bg-gray-900/50 transition border-b border-gray-800"
-              >
-                Iniciar Sesión
-              </Link>
-
-              <Link
-                href="/register"
-                onClick={closeMenu}
-                className="block w-full px-6 py-4 text-base font-montserrat font-semibold bg-pink-500 hover:bg-pink-600 text-white transition"
-              >
-                Registrarse
-              </Link>
+            {/* Auth Buttons Section */}
+            <div className="px-6 py-6 space-y-3 border-t border-gray-800 mt-4">
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={closeMenu}
+                    className="block w-full px-4 py-3 text-center text-base font-montserrat font-semibold text-gray-300 hover:text-pink-500 hover:bg-gray-900/50 active:bg-gray-900 transition border border-gray-700 rounded-lg"
+                  >
+                    Acceso
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={closeMenu}
+                    className="block w-full px-4 py-3 text-center text-base font-montserrat font-semibold bg-pink-500 text-white hover:bg-pink-600 active:bg-pink-700 transition rounded-lg shadow-md"
+                  >
+                    Regístrate
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  href={isModelo ? "/panel/dashboard" : "/panel/cliente"}
+                  onClick={closeMenu}
+                  className="block w-full px-4 py-3 text-center text-base font-montserrat font-semibold bg-pink-500 text-white hover:bg-pink-600 active:bg-pink-700 transition rounded-lg shadow-md"
+                >
+                  Mi Panel
+                </Link>
+              )}
             </div>
           </nav>
         </div>

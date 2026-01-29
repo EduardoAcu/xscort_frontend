@@ -16,7 +16,6 @@ import {
   ShieldCheck, 
   Menu, 
   X,
-  LogOut // <--- NUEVO
 } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -203,7 +202,6 @@ export default function ModelSidebar() {
         {/* 2. FOOTER CORREGIDO CON ÍCONO */}
         <div className="px-4 py-4 lg:py-4 border-t border-[#3b1027] bg-[#180417] pb-10 lg:pb-4">
           <LogoutButton className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#ff007f] px-4 py-3 lg:py-2 text-sm text-gray-100 hover:bg-[#ff007f] hover:text-white transition-all font-semibold">
-            <LogOut className="w-5 h-5 lg:w-4 lg:h-4" />
             <span>Cerrar Sesión</span>
           </LogoutButton>
 

@@ -1,7 +1,8 @@
 "use client";
 import { Suspense } from "react";
 import Link from "next/link";
-import BarraFiltros from "./BarraFiltros"; 
+import BarraFiltros from "./BarraFiltros";
+import { UserRoundSearch, MapPin } from "lucide-react"
 
 export default function BusquedaContent({ perfiles }) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -68,7 +69,7 @@ export default function BusquedaContent({ perfiles }) {
 
                               {perfil.ciudad && (
                                   <div className="flex items-center gap-1 mt-1 text-gray-400">
-                                      <span className="material-symbols-outlined text-[10px] sm:text-[12px]">location_on</span>
+                                      <MapPin className="w-3 h-3" />
                                       <span className="text-[10px] sm:text-xs font-medium uppercase tracking-wide truncate">{perfil.ciudad.nombre}</span>
                                   </div>
                               )}
@@ -81,7 +82,7 @@ export default function BusquedaContent({ perfiles }) {
             ) : (
               // Empty State (También recto)
               <div className="col-span-full py-20 flex flex-col items-center justify-center text-center border border-dashed border-white/10 bg-white/[0.02]">
-                <span className="material-symbols-outlined text-4xl text-gray-600 mb-2">person_search</span>
+                <UserRoundSearch className="w-12 h-12 text-gray-600 mb-2" />
                 <p className="text-lg font-bold text-white">Sin resultados</p>
                 <p className="text-sm text-gray-500">Prueba otros filtros.</p>
               </div>

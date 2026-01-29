@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import { BadgeCheck, Clock, X, AlertTriangle } from "lucide-react";
 
 export default function WidgetEstadoVerificacion() {
   const [estado, setEstado] = useState(null);
@@ -32,15 +33,16 @@ export default function WidgetEstadoVerificacion() {
   }
 
   const getStatusIcon = (status) => {
+    const iconClass = "w-8 h-8";
     switch (status) {
       case "verificada":
-        return "✓";
+        return <BadgeCheck className={iconClass} />;
       case "pendiente":
-        return "⏳";
+        return <Clock className={iconClass} />;
       case "rechazada":
-        return "✕";
+        return <X className={iconClass} />;
       default:
-        return "?";
+        return <AlertTriangle className={iconClass} />;
     }
   };
 
@@ -75,7 +77,7 @@ export default function WidgetEstadoVerificacion() {
   return (
     <div className={`rounded-lg border-2 p-6 shadow-sm ${getStatusColor(status)}`}>
       <div className="flex items-center gap-4">
-        <div className="text-4xl font-bold">{getStatusIcon(status)}</div>
+        <div>{getStatusIcon(status)}</div>
         <div>
           <h3 className="text-xl font-bold">Estado de Verificación</h3>
           <p className="text-sm font-semibold">{getStatusLabel(status)}</p>
@@ -91,15 +93,15 @@ export default function WidgetEstadoVerificacion() {
 
       {!estado?.esta_verificada && !estado?.tiene_documentos && (
         <div className="mt-4 rounded bg-blue-50 p-3">
-          <p className="text-xs font-semibold">💡 Tip:</p>
+          <p className="text-xs font-semibold">Tip:</p>
           <p className="text-sm">Sube tus documentos para que podamos verificar tu identidad y habilitar tu perfil.</p>
         </div>
       )}
 
       {estado?.tiene_documentos && !estado?.esta_verificada && !estado?.motivo_rechazo && (
         <div className="mt-4 rounded bg-blue-50 p-3">
-          <p className="text-xs font-semibold">⏳ Espera:</p>
-          <p className="text-sm">Tu solicitud está siendo revisada. Esto puede tomar de 1 a 3 días hábiles.</p>
+          <p className="text-xs font-semibold">Espera:</p>
+          <p className="text-sm">Tu solicitud está siendo revisada. Esto puede tomar un tiempo.</p>
         </div>
       )}
     </div>

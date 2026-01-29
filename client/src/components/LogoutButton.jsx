@@ -20,7 +20,6 @@ export default function LogoutButton({ className = "" }) {
         "inline-flex items-center gap-1 rounded-lg border px-3 py-1 text-sm text-[color:var(--color-muted-foreground)] hover:bg-[color:var(--color-card)/0.06]"
       }
     >
-      <span className="material-symbols-outlined text-base">logout</span>
       <span>Cerrar sesión</span>
     </button>
   );

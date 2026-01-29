@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import FormularioSubirFoto from "@/components/FormularioSubirFoto";
 import GridFotos from "@/components/GridFotos";
+import { Images, ImagePlus } from "lucide-react";
 
 export default function GaleriaPage() {
   const [fotos, setFotos] = useState([]);
@@ -51,7 +52,6 @@ export default function GaleriaPage() {
             <div className="w-full lg:col-span-1">
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-xl border border-white/5 sticky top-24">
                 <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-pink-500">cloud_upload</span>
                   Subir Foto
                 </h2>
                 {/* Pasamos fetchFotos para que recargue la grilla al subir */}
@@ -64,7 +64,7 @@ export default function GaleriaPage() {
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-xl border border-white/5 min-h-[400px]">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined text-pink-500">photo_library</span>
+                    <Images className="w-5 h-5" />
                     Tus Fotos
                   </h2>
                   <span className="text-xs bg-pink-900/30 text-pink-200 px-3 py-1 rounded-full border border-pink-500/20">
@@ -80,11 +80,8 @@ export default function GaleriaPage() {
                     </div>
                   ) : fotos.length === 0 ? (
                     <div className="text-center py-20 px-6 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
-                      <span className="material-symbols-outlined text-4xl text-gray-600 mb-3">add_a_photo</span>
+                      <ImagePlus className="w-12 h-12 text-pink-500 mx-auto mb-3" />
                       <p className="text-pink-100 font-semibold">Tu galería está vacía</p>
-                      <p className="text-gray-500 text-sm mt-1">
-                        Sube tu primera foto usando el formulario de la izquierda.
-                      </p>
                     </div>
                   ) : (
                     // Aquí pasamos las fotos y la función para recargar al borrar

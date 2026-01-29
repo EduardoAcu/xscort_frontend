@@ -206,7 +206,7 @@ export default function WidgetSuscripcion({ onUpdate }) {
             disabled={actionLoading}
             className="flex-1 rounded-xl bg-[#5b2946] border border-white/10 px-4 py-2 text-sm font-semibold text-pink-100 hover:bg-[#7b3460] disabled:opacity-60 transition"
           >
-            {actionLoading ? "Procesando..." : "⏸ Pausar"}
+            {actionLoading ? "Procesando..." : "Pausar"}
           </button>
         ) : (
           <button
@@ -214,7 +214,7 @@ export default function WidgetSuscripcion({ onUpdate }) {
             disabled={actionLoading}
             className="flex-1 rounded-xl bg-[#ff007f] px-4 py-2 text-sm font-bold text-white hover:bg-[#d6006b] disabled:opacity-60 transition shadow-lg shadow-pink-900/40"
           >
-            {actionLoading ? "Procesando..." : "▶ Reanudar"}
+            {actionLoading ? "Procesando..." : "Reanudar"}
           </button>
         )}
 

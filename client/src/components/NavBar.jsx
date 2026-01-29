@@ -12,8 +12,8 @@ export default function Navbar() {
             <Image src="/logo.png" alt="xscort.cl" width={120} height={120} className="w-full h-auto" />
         </Link>
         <div className="hidden sm:flex gap-6 lg:gap-8 text-xs sm:text-sm md:text-base items-center ml-auto">
-          <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-semibold tracking-wide">Inicio</Link>
-          <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-semibold tracking-wide">Modelos</Link>
+          <Link href="/" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold tracking-wide">Inicio</Link>
+          <Link href="/busqueda" className="hover:text-pink-500 transition text-gray-300 font-montserrat font-semibold tracking-wide">Modelos</Link>
           <div className="h-6 w-px  bg-white/10"></div>
           <NavAuthCta />
         </div>

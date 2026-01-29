@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner"; // Feedback visual
 import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/lib/api";
+import { ChevronDown, Landmark, BanknoteArrowUp, CloudUpload, CircleCheckBig, History, Receipt, Eye, Calendar } from "lucide-react";
 
 export default function SuscripcionPage() {
   const [planes, setPlanes] = useState([]);
@@ -127,7 +128,7 @@ export default function SuscripcionPage() {
                 <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-pink-500/10 rounded-full blur-2xl"></div>
                 
                 <h2 className="text-lg font-bold mb-4 text-white flex items-center gap-2">
-                  <span className="material-symbols-outlined text-pink-500">account_balance</span>
+                  <Landmark className="w-5 h-5 text-pink-500" />
                   Datos de Transferencia
                 </h2>
                 
@@ -162,7 +163,7 @@ export default function SuscripcionPage() {
               {/* Formulario de Envío */}
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-xl border border-white/5">
                 <h2 className="text-lg font-bold mb-4 text-white flex items-center gap-2">
-                  <span className="material-symbols-outlined text-pink-500">send_money</span>
+                  <BanknoteArrowUp className="w-5 h-5" />
                   Reportar Pago
                 </h2>
                 
@@ -184,7 +185,7 @@ export default function SuscripcionPage() {
                             ))}
                         </select>
                         <div className="absolute right-3 top-3.5 pointer-events-none text-pink-500">
-                            <span className="material-symbols-outlined text-xl">expand_more</span>
+                            <ChevronDown className="w-5 h-5"/>
                         </div>
                     </div>
                   </div>
@@ -208,14 +209,14 @@ export default function SuscripcionPage() {
                         `}>
                             {comprobanteFile ? (
                                 <div className="flex flex-col items-center text-green-400">
-                                    <span className="material-symbols-outlined mb-1">check_circle</span>
+                                    <CircleCheckBig className="w-6 h-6" />
                                     <span className="text-xs font-medium truncate max-w-full px-2">
                                         {comprobanteFile.name}
                                     </span>
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center text-gray-400">
-                                    <span className="material-symbols-outlined mb-1">cloud_upload</span>
+                                    <CloudUpload className="w-6 h-6" />
                                     <span className="text-xs">Click para subir comprobante</span>
                                 </div>
                             )}
@@ -245,7 +246,7 @@ export default function SuscripcionPage() {
             <div className="lg:col-span-2">
               <div className="rounded-2xl bg-[#1b0d18] p-6 shadow-xl border border-white/5 h-full">
                 <h2 className="text-lg font-bold mb-6 text-white flex items-center gap-2 border-b border-white/10 pb-4">
-                  <span className="material-symbols-outlined text-pink-500">history</span>
+                  <History className="w-5 h-5" />
                   Historial de Solicitudes
                 </h2>
 
@@ -256,7 +257,7 @@ export default function SuscripcionPage() {
                    </div>
                 ) : solicitudes.length === 0 ? (
                   <div className="text-center py-20 bg-white/5 rounded-xl border border-dashed border-white/10">
-                    <span className="material-symbols-outlined text-4xl text-gray-600 mb-2">receipt_long</span>
+                    <Receipt className="w-12 h-12 text-pink-500 mx-auto mb-3" />
                     <p className="text-pink-200 font-medium">No tienes solicitudes registradas.</p>
                     <p className="text-gray-500 text-sm">Cuando envíes un comprobante, aparecerá aquí.</p>
                   </div>
@@ -277,7 +278,7 @@ export default function SuscripcionPage() {
                              </span>
                           </div>
                           <p className="text-sm text-gray-400 mt-1 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                            <Calendar className="w-4 h-4" />
                             {new Date(sol.fecha_creacion).toLocaleDateString("es-CL", {
                                 year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
                             })}
@@ -292,7 +293,7 @@ export default function SuscripcionPage() {
                               rel="noopener noreferrer"
                               className="text-xs flex items-center gap-1 text-pink-400 hover:text-pink-300 transition border border-pink-500/30 px-3 py-1.5 rounded-lg hover:bg-pink-500/10"
                             >
-                              <span className="material-symbols-outlined text-[16px]">visibility</span>
+                              <Eye className="w-4 h-4" />
                               Ver Comprobante
                             </a>
                           )}

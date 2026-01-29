@@ -1,8 +1,9 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import {ListFilter,ChevronDown } from "lucide-react";
 
-// ✅ NOMBRE CORRECTO Y EXPORT DEFAULT
+// NOMBRE CORRECTO Y EXPORT DEFAULT
 export default function BarraFiltros() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -81,11 +82,11 @@ export default function BarraFiltros() {
         onClick={() => setIsMobileOpen(!isMobileOpen)}
       >
         <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-pink-500">tune</span>
+            <ListFilter className="w-5 h-5 text-pink-500" />
             <span className="font-bold text-sm">Filtrar</span>
             {filtrosActivos > 0 && <span className="bg-pink-600 text-[10px] px-2 py-0.5 rounded-full">{filtrosActivos}</span>}
         </div>
-        <span className="material-symbols-outlined text-gray-400">expand_more</span>
+        <ChevronDown className="w-5 h-5 text-gray-400" />
       </div>
 
       {/* Contenido */}

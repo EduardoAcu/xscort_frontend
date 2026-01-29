@@ -6,19 +6,14 @@ import MobileMenu from "@/components/MobileMenu";
 // ============================================================
 // 0. CONFIGURACIÓN
 // ============================================================
-// Eliminamos el slash final para evitar dobles slashes //
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
-// Helper para Imágenes (Soporte R2 / S3 / Local)
+// Helper para Imágenes
 const getImageUrl = (path) => {
   if (!path) return "/placeholder.jpg";
-  
-  // 1. Si ya es una URL completa (Cloudflare R2, S3, Google Photos), la usamos directo
   if (path.startsWith("http") || path.startsWith("https")) {
     return path;
   }
-  
-  // 2. Si es relativa (ej: /media/...), le pegamos el dominio de la API
   return `${API_URL}${path}`;
 };
 
@@ -44,33 +39,26 @@ const NavIcon = ({ className }) => (
 function ProfileCard({ profile }) {
   if (!profile) return null;
 
-  // Lógica de Imagen Robusta para R2
-  // Intentamos obtener foto_principal, si no existe, foto_perfil
   const rawImage = profile.foto_principal || profile.foto_perfil;
   const finalImage = getImageUrl(rawImage);
 
   return (
     <Link href={`/perfil/${profile.slug || profile.id}`} className="group relative block h-full">
       <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#120912] border border-white/5 transition-all duration-500 group-hover:border-pink-500/50 group-hover:shadow-[0_0_30px_-5px_rgba(236,72,153,0.3)] group-hover:-translate-y-2">
-        
         <Image
           src={finalImage} 
-          alt={`Escort ${profile.nombre_fantasia} en ${profile.ciudad_nombre || "Chile"}`}
+          alt={`Escort ${profile.nombre_fantasia} en ${profile.ciudad_nombre || "Chile"} - xscort`}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 768px) 50vw, 25vw"
-          // unoptimized={true} // DESCOMENTAR SI NEXT.JS FALLA AL OPTIMIZAR IMÁGENES EXTERNAS DE R2
         />
-        
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#050205] via-[#050205]/80 to-transparent opacity-90" />
-        
         <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 group-hover:border-pink-500/30 transition-colors">
             <MapPin className="w-3 h-3 text-pink-500" />
             <span className="text-[10px] font-bold uppercase text-white tracking-wider">
                 {profile.ciudad_nombre || "Chile"}
             </span>
         </div>
-
         <div className="absolute inset-x-0 bottom-0 p-5">
           <div className="flex items-end justify-between">
             <div className="space-y-1">
@@ -99,22 +87,14 @@ function ProfileCard({ profile }) {
 
 async function getPerfilesPorCiudad(slug) {
   try {
-    // Usamos el filtro corregido ?ciudad__slug=
-    // Quitamos 'public/' porque la lista suele estar en la raíz del endpoint
     const url = `${API_URL}/api/profiles/?ciudad__slug=${slug}`;
     console.log("📡 Buscando en:", url); 
-
-    const res = await fetch(url, { 
-      cache: 'no-store',
-      headers: { "Content-Type": "application/json" }
-    });
-    
+    const res = await fetch(url, { cache: 'no-store', headers: { "Content-Type": "application/json" } });
     if (!res.ok) return [];
-    
     const data = await res.json();
     return Array.isArray(data) ? data : (data.results || []);
   } catch (error) { 
-    console.error("🔥 Error API:", error);
+    console.error("Error API:", error);
     return []; 
   }
 }
@@ -156,17 +136,26 @@ export async function generateMetadata({ params }) {
 export default async function CiudadPage({ params }) {
   const resolvedParams = await params;
   const ciudadSlug = resolvedParams.ciudad;
-  const ciudadNombre = capitalizeCity(ciudadSlug);
   
   let perfiles = [];
   let ciudades = [];
+  let ciudadActual = null;
 
   try {
       [ciudades, perfiles] = await Promise.all([
         getCiudadesInterno(),
         getPerfilesPorCiudad(ciudadSlug)
       ]);
+      
+      // Buscamos los datos completos de la ciudad actual para sacar la descripción
+      ciudadActual = ciudades.find(c => String(c.slug) === String(ciudadSlug) || String(c.id) === String(ciudadSlug));
   } catch (error) { console.error("Error cargando datos:", error); }
+
+  const ciudadNombre = ciudadActual ? ciudadActual.nombre : capitalizeCity(ciudadSlug);
+  
+  // Descripción con Fallback
+  const descripcionTexto = ciudadActual?.descripcion || 
+    `Selección exclusiva de modelos verificadas en ${ciudadNombre}. Fotos reales, trato de pareja y contacto directo por WhatsApp.`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -188,7 +177,6 @@ export default async function CiudadPage({ params }) {
     <div className="min-h-screen bg-[#050205] text-white selection:bg-pink-500 selection:text-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* FONDO SPOTLIGHT */}
       <div className="fixed top-0 left-0 right-0 h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-900/20 via-[#050205] to-[#050205] -z-10 pointer-events-none" />
 
       {/* NAVBAR */}
@@ -208,7 +196,7 @@ export default async function CiudadPage({ params }) {
 
       <div className="pt-32 pb-24 px-4 max-w-7xl mx-auto">
         
-        {/* HEADER */}
+        {/* HEADER (Título Limpio) */}
         <div className="relative mb-16">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-4 font-montserrat">
             <Link href="/" className="hover:text-pink-500 transition-colors">Chile</Link>
@@ -224,16 +212,7 @@ export default async function CiudadPage({ params }) {
                   {ciudadNombre}
                 </span>
               </h1>
-              
-              <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm max-w-2xl mt-6">
-                 <div className="flex items-start gap-3">
-                    <Sparkles className="w-5 h-5 text-yellow-500 mt-1 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm md:text-base leading-relaxed font-light font-montserrat">
-                       Selección exclusiva de <strong>modelos verificadas en {ciudadNombre}</strong>. 
-                       Fotos reales, trato de pareja y contacto directo por WhatsApp.
-                    </p>
-                 </div>
-              </div>
+              {/* Aquí borramos la descripción que estaba antes */}
             </div>
 
             <div className="flex-shrink-0 mb-2">
@@ -268,7 +247,7 @@ export default async function CiudadPage({ params }) {
         )}
 
         {/* NAVEGACIÓN OTRAS CIUDADES */}
-        <div className="bg-[#0a060a] border border-white/5 rounded-3xl p-8 md:p-12">
+        <div className="bg-[#0a060a] border border-white/5 rounded-3xl p-8 md:p-12 mb-16">
              <div className="flex items-center gap-3 mb-8">
                 <div className="p-2 bg-pink-600 rounded-lg">
                     <NavIcon className="w-5 h-5 text-white" />
@@ -299,6 +278,23 @@ export default async function CiudadPage({ params }) {
                  )
                })}
              </div>
+        </div>
+
+        {/* NUEVA SECCIÓN: DESCRIPCIÓN SEO (AL FINAL) */}
+        <div className="border-t border-white/5 pt-12 pb-8">
+            <div className="flex items-start gap-4 max-w-4xl">
+                 <div className="p-2 bg-yellow-500/10 rounded-lg flex-shrink-0">
+                    <Sparkles className="w-5 h-5 text-yellow-500" />
+                 </div>
+                 <div className="space-y-4">
+                     <h2 className="text-xl font-bold text-white font-fancy">
+                        Sobre las acompañantes en {ciudadNombre}
+                     </h2>
+                     <p className="text-gray-400 text-sm leading-relaxed font-light font-montserrat whitespace-pre-line">
+                        {descripcionTexto}
+                     </p>
+                 </div>
+            </div>
         </div>
 
       </div>

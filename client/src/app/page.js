@@ -3,6 +3,7 @@ import Image from "next/image";
 import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
 import { Heart, Flame, Feather, MapPin, Search } from "lucide-react";
+import NavBar from "@/components/NavBar";
 
 // ============================================================
 // 1. CONFIGURACIÓN NEXT.JS (ESTO SOLUCIONA EL ERROR DE BUILD)
@@ -86,24 +87,9 @@ async function getCiudades() {
 
 function Navigation() {
   return (
-    <nav className="fixed top-0 w-full bg-[#050205]/90 backdrop-blur-md px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 z-50 border-b border-white/5">
       <div className="flex justify-between items-center h-16 sm:h-20">
-        <Link href="/" className="flex-shrink-0 w-24 sm:w-28 opacity-90 hover:opacity-100 transition-opacity">
-          <Image src="/logo.png" alt="xscort.cl" width={120} height={40} className="w-full h-auto object-contain" />
-        </Link>
-        <div className="hidden sm:flex gap-8 text-sm font-medium items-center ml-auto">
-          <Link href="/" className="text-gray-300 hover:text-white transition-colors uppercase tracking-wide font-montserrat text-xs">
-            Inicio
-          </Link>
-          <Link href="/busqueda" className="text-gray-300 hover:text-white transition-colors uppercase tracking-wide font-montserrat text-xs">
-            Modelos
-          </Link>
-          <div className="h-4 w-px bg-white/10"></div>
-          <NavAuthCta />
-        </div>
-        <MobileMenu />
+        <NavBar/>
       </div>
-    </nav>
   );
 }
 

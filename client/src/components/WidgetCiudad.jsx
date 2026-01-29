@@ -111,7 +111,7 @@ export default function WidgetCiudad({ ciudadActual }) {
               </div>
 
               <p className="text-xs text-gray-400 bg-white/5 p-3 rounded-lg font-montserrat border border-white/5">
-                ℹ️ Tu solicitud será revisada por un administrador. Mientras se aprueba, tu perfil seguirá mostrándose en <strong>{nombreCiudadMostrar}</strong>.
+                Tu solicitud será revisada por un administrador. Mientras se aprueba, tu perfil seguirá mostrándose en <strong>{nombreCiudadMostrar}</strong>.
               </p>
 
               {error && <p className="text-sm text-red-400 bg-red-900/20 p-2 rounded border border-red-500/30 font-montserrat">{error}</p>}

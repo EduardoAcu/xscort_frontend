@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { House, UserRoundSearch } from "lucide-react";
 
 export default function NotFound() {
   return (
@@ -26,7 +27,7 @@ export default function NotFound() {
             href="/"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-3 font-semibold text-white hover:from-pink-600 hover:to-pink-700 transition-all transform hover:scale-105"
           >
-            <span className="material-symbols-outlined text-base">home</span>
+            <House className="w-5 h-5"/>
             <span>Ir al Inicio</span>
           </Link>
 
@@ -34,14 +35,14 @@ export default function NotFound() {
             href="/busqueda"
             className="inline-flex items-center justify-center gap-2 rounded-full border border-pink-500 px-6 py-3 font-semibold text-pink-500 hover:bg-pink-500 hover:text-white transition-all"
           >
-            <span className="material-symbols-outlined text-base">search</span>
+            <UserRoundSearch className="w-5 h-5"/>
             <span>Buscar Perfiles</span>
           </Link>
         </div>
 
         {/* Additional help */}
         <div className="pt-6 text-sm text-gray-400">
-          <p>¿Necesitas ayuda? <Link href="#" className="text-pink-400 hover:text-pink-300 underline">Contacta con soporte</Link></p>
+          <p>¿Necesitas ayuda? <Link href="https://wa.me/message/YINEPXQ2BJ2JL1" className="text-pink-400 hover:text-pink-300 underline">Contacta con soporte</Link></p>
         </div>
       </div>
     </div>

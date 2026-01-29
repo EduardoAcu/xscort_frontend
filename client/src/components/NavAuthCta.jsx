@@ -25,7 +25,7 @@ export default function NavAuthCta() {
   return (
     <Link
       href={panelUrl}
-      className="bg-pink-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-pink-600 transition whitespace-nowrap"
+      className="bg-pink-500 text-white px-5 py-2 rounded-full font-montserrat font-semibold hover:bg-pink-600 transition whitespace-nowrap"
     >
       Ir a mi panel
     </Link>

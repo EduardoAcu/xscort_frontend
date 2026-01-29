@@ -91,7 +91,6 @@ export default function FilterPanel() {
         onClick={() => setIsMobileOpen(!isMobileOpen)}
       >
         <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-pink-500">tune</span>
             <span className="font-bold text-sm">Filtrar Resultados</span>
             {filtrosActivos > 0 && (
                 <span className="bg-pink-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
@@ -100,7 +99,6 @@ export default function FilterPanel() {
             )}
         </div>
         <span className={`material-symbols-outlined text-gray-400 transition-transform duration-300 ${isMobileOpen ? 'rotate-180' : ''}`}>
-            expand_more
         </span>
       </div>
 
@@ -125,7 +123,7 @@ export default function FilterPanel() {
                   >
                     <option value="">Todas las ciudades</option>
                     {ciudades.map((c, idx) => {
-                       // 🔥 CAMBIO CRÍTICO: Priorizamos SLUG
+                       // Priorizamos SLUG
                        const val = c.slug || c.id || idx;
                        return <option key={val} value={val} className="text-black">{c.nombre}</option>;
                     })}
@@ -145,7 +143,7 @@ export default function FilterPanel() {
                   >
                     <option value="">Todos los servicios</option>
                     {serviciosCatalogo.map((s, idx) => {
-                       // 🔥 CAMBIO CRÍTICO: Priorizamos SLUG
+                       // Priorizamos SLUG
                        const val = s.slug || s.id || idx;
                        return <option key={val} value={val} className="text-black">{s.nombre}</option>;
                     })}

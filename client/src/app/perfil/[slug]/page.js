@@ -3,9 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { 
   MapPin, Calendar, Phone, Share2, 
-  CheckCircle2, Star, ArrowLeft, Camera, Heart, 
-  Ruler, Weight, User, Globe
+  CheckCircle2, Star, ArrowLeft, Heart, 
+  Ruler, Weight, User, Globe, Camera
 } from "lucide-react";
+
+import GaleriaPublica from "@/components/GaleriaPublica";
 
 // URL Base
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
@@ -65,14 +67,20 @@ export default async function PerfilPage({ params }) {
 
   // --- PREPARACIÓN DE DATOS ---
   const fotoPrincipal = getImageUrl(perfil.foto_perfil);
-  const galeria = perfil.galeria || []; 
+  
+  // Procesamos la galería para asegurarnos de que sean URLs completas antes de pasarlas al componente
+  const galeriaRaw = perfil.galeria || [];
+  const galeriaProcesada = galeriaRaw.map(img => {
+      const src = typeof img === 'string' ? img : img.imagen;
+      return getImageUrl(src);
+  }).filter(Boolean); // Eliminamos nulos
+
   const isVerified = perfil.verificacion_estado === "aprobado";
   const ciudadNombre = perfil.ciudad?.nombre || "Chile";
   const ciudadSlug = perfil.ciudad?.slug || "busqueda";
   const whatsappLimpio = perfil.telefono_contacto?.replace(/[^0-9]/g, "");
 
-  // --- LÓGICA DE DETALLES (Mejorada con Iconos) ---
-  // Creamos objetos para poder renderizar iconos junto al texto
+  // --- LÓGICA DE DETALLES ---
   const rawStats = [
     { icon: Globe, label: perfil.nacionalidad, show: !!perfil.nacionalidad },
     { icon: Ruler, label: perfil.altura ? `${perfil.altura} cm` : null, show: !!perfil.altura },
@@ -85,7 +93,6 @@ export default async function PerfilPage({ params }) {
     }
   ];
   
-  // Filtramos solo los que tienen datos válidos
   const stats = rawStats.filter(s => s.show && s.label && s.label !== "0 cm" && s.label !== "0 kg");
 
   return (
@@ -120,13 +127,10 @@ export default async function PerfilPage({ params }) {
                 </div>
             )}
             
-            {/* Gradiente más alto para asegurar legibilidad */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-[#050205]/60 to-transparent opacity-100"></div>
 
-            {/* INFO SUPERPUESTA */}
             <div className="absolute bottom-0 left-0 w-full p-5 sm:p-10 z-10">
                 <div className="flex flex-col gap-2">
-                    
                     {/* Badges */}
                     <div className="flex gap-2 mb-1">
                         {isVerified && (
@@ -146,25 +150,25 @@ export default async function PerfilPage({ params }) {
                     
                     {/* Línea 1: Ubicación y Edad */}
                     <div className="flex flex-wrap items-center gap-4 text-gray-200 text-sm font-medium mt-1">
-                        <div className="flex items-center gap-1.5 bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm">
+                        <div className="flex items-center gap-1.5 bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm border border-white/5">
                             <MapPin className="w-4 h-4 text-pink-500" />
                             {ciudadNombre}
                         </div>
                         {perfil.edad && (
-                            <div className="flex items-center gap-1.5 bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm">
+                            <div className="flex items-center gap-1.5 bg-black/30 px-2 py-1 rounded-lg backdrop-blur-sm border border-white/5">
                                 <Calendar className="w-4 h-4 text-pink-500" />
                                 {perfil.edad} años
                             </div>
                         )}
                     </div>
 
-                    {/* Línea 2: DETALLES (Formato Pequeño "Pills") */}
+                    {/* Línea 2: DETALLES */}
                     {stats.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">
                             {stats.map((stat, idx) => (
                                 <div 
                                     key={idx} 
-                                    className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-semibold text-gray-200 uppercase tracking-wide shadow-sm"
+                                    className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-semibold text-gray-200 uppercase tracking-wide shadow-sm hover:bg-white/20 transition-colors"
                                 >
                                     <stat.icon className="w-3 h-3 text-pink-400" />
                                     <span>{stat.label}</span>
@@ -172,7 +176,6 @@ export default async function PerfilPage({ params }) {
                             ))}
                         </div>
                     )}
-
                 </div>
             </div>
         </div>
@@ -181,7 +184,7 @@ export default async function PerfilPage({ params }) {
       {/* CONTENIDO */}
       <div className="max-w-4xl mx-auto px-4 sm:px-8 mt-6 space-y-10">
         
-        {/* BOTONES (Justo debajo de la foto) */}
+        {/* BOTONES */}
         <div className="grid grid-cols-2 gap-4">
             {whatsappLimpio ? (
                 <a 
@@ -213,32 +216,18 @@ export default async function PerfilPage({ params }) {
             </div>
         </section>
 
-        {/* Galería */}
-        {galeria.length > 0 && (
+        {/* Galería Pública con Lightbox */}
+        {galeriaProcesada.length > 0 && (
             <section>
                 <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-2">
                      <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 flex items-center gap-2">
                         <Camera className="w-4 h-4" /> Galería
                     </h3>
                     <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-400">
-                        {galeria.length} Fotos
+                        {galeriaProcesada.length} Fotos
                     </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {galeria.map((img, idx) => {
-                        const url = getImageUrl(typeof img === 'string' ? img : img.imagen);
-                        return (
-                            <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-white/5 group">
-                                <Image
-                                    src={url}
-                                    alt={`Foto ${idx + 1}`}
-                                    fill
-                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                />
-                            </div>
-                        );
-                    })}
-                </div>
+                <GaleriaPublica fotos={galeriaProcesada} />
             </section>
         )}
 

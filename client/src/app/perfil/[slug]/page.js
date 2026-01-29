@@ -34,7 +34,7 @@ async function getPerfilData(slug) {
     
     return await res.json();
   } catch (error) {
-    console.error(" Error fetching perfil:", error.message);
+    console.error("Error fetching perfil:", error.message);
     return null; 
   }
 }
@@ -69,7 +69,7 @@ export default async function PerfilPage({ params }) {
   // --- PREPARACIÓN DE DATOS ---
   const fotoPrincipal = getImageUrl(perfil.foto_perfil);
   
-  //CORRECCIÓN CLAVE: Buscamos la galería en múltiples propiedades
+
   // Esto arregla el error si la API la llama 'galeria_fotos' en vez de 'galeria'
   const galeriaRaw = perfil.galeria || perfil.galeria_fotos || perfil.images || [];
   

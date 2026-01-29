@@ -7,6 +7,7 @@ import {
   Ruler, Weight, User, Globe, Camera
 } from "lucide-react";
 
+// IMPORTAMOS EL COMPONENTE DE GALERÍA
 import GaleriaPublica from "@/components/GaleriaPublica";
 
 // URL Base
@@ -33,7 +34,7 @@ async function getPerfilData(slug) {
     
     return await res.json();
   } catch (error) {
-    console.error("❌ Error fetching perfil:", error.message);
+    console.error(" Error fetching perfil:", error.message);
     return null; 
   }
 }
@@ -68,12 +69,18 @@ export default async function PerfilPage({ params }) {
   // --- PREPARACIÓN DE DATOS ---
   const fotoPrincipal = getImageUrl(perfil.foto_perfil);
   
-  // Procesamos la galería para asegurarnos de que sean URLs completas antes de pasarlas al componente
-  const galeriaRaw = perfil.galeria || [];
+  //CORRECCIÓN CLAVE: Buscamos la galería en múltiples propiedades
+  // Esto arregla el error si la API la llama 'galeria_fotos' en vez de 'galeria'
+  const galeriaRaw = perfil.galeria || perfil.galeria_fotos || perfil.images || [];
+  
+  // Procesamos las URLs
   const galeriaProcesada = galeriaRaw.map(img => {
-      const src = typeof img === 'string' ? img : img.imagen;
+      // Si es un objeto, intentamos obtener 'imagen' o 'url'
+      const src = typeof img === 'string' ? img : (img.imagen || img.url);
       return getImageUrl(src);
   }).filter(Boolean); // Eliminamos nulos
+
+  console.log("Galería detectada:", galeriaProcesada.length, "fotos"); // Log para depurar en servidor
 
   const isVerified = perfil.verificacion_estado === "aprobado";
   const ciudadNombre = perfil.ciudad?.nombre || "Chile";
@@ -217,19 +224,26 @@ export default async function PerfilPage({ params }) {
         </section>
 
         {/* Galería Pública con Lightbox */}
-        {galeriaProcesada.length > 0 && (
-            <section>
-                <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-2">
-                     <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 flex items-center gap-2">
-                        <Camera className="w-4 h-4" /> Galería
-                    </h3>
-                    <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-400">
-                        {galeriaProcesada.length} Fotos
-                    </span>
-                </div>
+        {/* Mostramos la sección incluso si está vacía para debug visual, o solo si tiene fotos */}
+        <section>
+            <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-2">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 flex items-center gap-2">
+                    <Camera className="w-4 h-4" /> Galería
+                </h3>
+                <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-400">
+                    {galeriaProcesada.length} Fotos
+                </span>
+            </div>
+            
+            {/* Si no hay fotos, mostramos un mensaje, si hay, mostramos la galería */}
+            {galeriaProcesada.length > 0 ? (
                 <GaleriaPublica fotos={galeriaProcesada} />
-            </section>
-        )}
+            ) : (
+                <div className="text-center py-10 bg-white/5 rounded-xl border border-dashed border-white/10">
+                    <p className="text-xs text-gray-500">Este perfil aún no ha subido fotos a su galería.</p>
+                </div>
+            )}
+        </section>
 
       </div>
     </div>

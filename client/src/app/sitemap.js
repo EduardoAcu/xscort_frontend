@@ -60,9 +60,9 @@ export default async function sitemap() {
     const ciudades = await getCiudadesSitemap();
 
     cityRoutes = ciudades.map((c) => ({
-      // 🚀 CAMBIO CLAVE PARA SEO: URL LIMPIA
+      // CAMBIO CLAVE PARA SEO: URL LIMPIA
       // Antes: .../busqueda?ciudad=chillan
-      // Ahora: .../chillan (Google ama esto)
+      // Ahora: .../chillan
       url: `${baseUrl}/${c.slug || c.id}`,
       
       lastModified: new Date(),

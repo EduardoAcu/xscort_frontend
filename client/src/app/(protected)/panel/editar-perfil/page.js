@@ -19,7 +19,7 @@ export default function EditarPerfilPage() {
     altura: "",
     medidas: "",
     nacionalidad: "",
-    telefono_contacto: "",
+    whatsapp: "",
     telegram_contacto: "",
   });
 
@@ -50,7 +50,7 @@ export default function EditarPerfilPage() {
         altura: data.altura || "",
         medidas: data.medidas || "",
         nacionalidad: data.nacionalidad || "",
-        telefono_contacto: data.telefono_contacto || "",
+        whatsapp: data.whatsapp || "",
         telegram_contacto: data.telegram_contacto || "",
       });
 
@@ -99,7 +99,7 @@ export default function EditarPerfilPage() {
           altura: formData.altura ? parseInt(formData.altura, 10) : null,
           medidas: formData.medidas || null,
           nacionalidad: formData.nacionalidad || null,
-          telefono_contacto: formData.telefono_contacto || null,
+          whatsapp: formData.whatsapp || null,
           telegram_contacto: formData.telegram_contacto || null,
         }
       );
@@ -322,8 +322,8 @@ export default function EditarPerfilPage() {
                         <div className="relative">
                             <input
                             type="tel"
-                            name="telefono_contacto"
-                            value={formData.telefono_contacto}
+                            name="whatsapp"
+                            value={formData.whatsapp}
                             onChange={handleChange}
                             className="w-full rounded-lg border border-white/10 bg-black/20 pl-12 pr-4 py-2 text-white focus:border-pink-500 outline-none"
                             placeholder="+56 9 1234 5678"

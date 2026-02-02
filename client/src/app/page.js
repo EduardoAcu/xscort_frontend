@@ -56,9 +56,6 @@ async function getCiudades() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
   
   try {
-    // console.log para debug en servidor (opcional)
-    // console.log(`📡 [Server] Conectando a ciudades en: ${apiUrl}/api/profiles/ciudades/`);
-
     const res = await fetch(`${apiUrl}/api/profiles/ciudades/`, {
       cache: 'no-store', // Datos frescos siempre
       headers: {
@@ -74,7 +71,7 @@ async function getCiudades() {
         if (lista.length > 0) return lista;
     } 
   } catch (error) {
-    console.error("🔥 [Server] Error de conexión (Usando Backup):", error.message);
+    console.error("[Server] Error de conexión:", error.message);
   }
 
   // Si falla, devolvemos la constante definida arriba
@@ -118,13 +115,13 @@ function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link
                     href="/busqueda"
-                    className="group bg-pink-600 hover:bg-pink-500 text-white px-8 py-4 rounded-full font-bold uppercase tracking-widest transition-all shadow-lg shadow-pink-900/40 hover:scale-105 flex items-center gap-2"
+                    className="group bg-pink-600 hover:bg-pink-500 text-white px-8 py-4 rounded-full font-montserrat font-bold uppercase tracking-widest transition-all shadow-lg shadow-pink-900/40 hover:scale-105 flex items-center gap-2"
                 >
                     <Search className="w-4 h-4" /> Explorar Modelos
                 </Link>
                 <Link 
                     href="/register"
-                    className="text-white border border-white/30 hover:bg-white/10 px-8 py-4 rounded-full font-bold uppercase tracking-widest transition-all"
+                    className="text-white border border-white/30 hover:bg-white/10 px-8 py-4 rounded-full font-montserrat font-bold uppercase tracking-widest transition-all"
                 >
                     Publicar Aviso
                 </Link>
@@ -273,9 +270,9 @@ function CTASection() {
         </p>
         <Link
           href="/register"
-          className="inline-flex bg-white text-black px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-pink-500 hover:text-white transition-all transform hover:scale-105 shadow-xl"
+          className="inline-flex bg-white text-black px-10 py-4 rounded-full font-montserrat font-bold uppercase tracking-widest hover:bg-pink-500 hover:text-white transition-all transform hover:scale-105 shadow-xl"
         >
-          Crear Perfil Gratis
+          Crear Perfil
         </Link>
       </div>
     </section>

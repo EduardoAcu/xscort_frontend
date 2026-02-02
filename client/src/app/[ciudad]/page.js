@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import NavBar from "@/components/NavBar";
-import { MapPin, ChevronRight, Sparkles, Navigation } from "lucide-react";
+import { MapPin, ChevronRight, Sparkles, Navigation, UserRoundSearch } from "lucide-react";
 // ============================================================
 // 0. CONFIGURACIÓN
 // ============================================================
@@ -197,26 +197,52 @@ export default async function CiudadPage({ params }) {
         </div>
 
         {/* GRID DE PERFILES */}
-        {perfiles.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-24">
-                {perfiles.map(perfil => (
-                    <ProfileCard key={perfil.id} profile={perfil} />
-                ))}
-            </div>
-        ) : (
-            <div className="py-24 px-8 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.02] mb-24">
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-8 h-8 text-gray-500" />
-                </div>
-                <h3 className="text-xl font-bold text-white font-fancy mb-2">Sin resultados en esta zona</h3>
-                <p className="text-gray-400 mb-6 font-light">
-                    No encontramos modelos activas en {ciudadNombre} en este momento.
-                </p>
-                <Link href="/busqueda" className="inline-flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-6 py-3 rounded-full font-bold text-sm transition-colors">
-                    Explorar todo Chile <ChevronRight className="w-4 h-4" />
-                </Link>
-            </div>
-        )}
+        <div className="w-full min-h-[500px] mb-24">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            {perfiles && perfiles.length > 0 ? (
+              perfiles.map((perfil) => {
+                const rawImage = perfil.foto_principal || perfil.foto_portada || perfil.foto_perfil;
+                const imageUrl = getImageUrl(rawImage);
+
+                return (
+                  <Link key={perfil.id} href={`/perfil/${perfil.slug || perfil.id}`} className="group block h-full">
+                    <div className="relative h-full overflow-hidden bg-[#1b101a] border border-white/10 transition-all duration-300 hover:border-pink-500/50 hover:shadow-lg hover:shadow-pink-500/10">
+                      <div className="aspect-[3/4] w-full relative overflow-hidden">
+                        <img src={imageUrl} alt={perfil.nombre_fantasia || perfil.nombre_artistico} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-90" />
+                        <div className="absolute bottom-0 left-0 w-full p-3">
+                          <div className="flex items-end justify-between gap-2">
+                            <h3 className="text-sm sm:text-lg font-bold text-white leading-tight truncate group-hover:text-pink-500 transition-colors uppercase tracking-tight">
+                              {perfil.nombre_fantasia || perfil.nombre_artistico}
+                            </h3>
+                            {perfil.edad && (
+                              <span className="text-[10px] text-pink-400 font-mono border border-pink-500/30 px-1 bg-black/50">
+                                {perfil.edad}
+                              </span>
+                            )}
+                          </div>
+
+                          {perfil.ciudad && (
+                            <div className="flex items-center gap-1 mt-1 text-gray-400">
+                              <MapPin className="w-3 h-3" />
+                              <span className="text-[10px] sm:text-xs font-medium uppercase tracking-wide truncate">{perfil.ciudad.nombre || perfil.ciudad_nombre}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="col-span-full py-20 flex flex-col items-center justify-center text-center border border-dashed border-white/10 bg-white/[0.02]">
+                <UserRoundSearch className="w-12 h-12 text-gray-600 mb-2" />
+                <p className="text-lg font-bold text-white">Sin resultados</p>
+                <p className="text-sm text-gray-500">Prueba otros filtros o vuelve más tarde.</p>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* NAVEGACIÓN OTRAS CIUDADES */}
         <div className="bg-[#0a060a] border border-white/5 rounded-3xl p-8 md:p-12 mb-16">

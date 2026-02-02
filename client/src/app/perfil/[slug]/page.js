@@ -1,14 +1,17 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { 
-  MapPin, Calendar, Phone, Share2, 
-  CheckCircle2, Star, ArrowLeft, Heart, 
-  Ruler, Weight, User, Globe, Camera
+  MapPin, Calendar, 
+  CheckCircle2, Heart, 
+  Ruler, Weight, User, Globe, Camera, BadgeCheck
 } from "lucide-react";
 
 // IMPORTAMOS EL COMPONENTE DE GALERÍA
 import GaleriaPublica from "@/components/GaleriaPublica";
+import BotonesContacto from "@/components/BotonesContacto";
+import Navbar from "@/components/NavBar";
+
+export const dynamic = 'force-dynamic';
 
 // URL Base
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
@@ -25,7 +28,7 @@ const getImageUrl = (path) => {
 async function getPerfilData(slug) {
   try {
     const res = await fetch(`${API_URL}/api/profiles/public/${slug}/`, { 
-      next: { revalidate: 0 }, 
+      cache: 'no-store', 
       headers: { "Content-Type": "application/json" }
     });
 
@@ -106,16 +109,9 @@ export default async function PerfilPage({ params }) {
     <div className="min-h-screen bg-[#050205] text-gray-200 font-montserrat pb-20 selection:bg-pink-500 selection:text-white">
       
       {/* NAVBAR */}
-      <nav className="fixed top-0 w-full bg-[#050205]/80 backdrop-blur-xl z-50 border-b border-white/5 h-16 flex items-center justify-between px-4 sm:px-8">
-        <Link href={`/${ciudadSlug}`} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm font-bold uppercase hidden sm:inline">Volver</span>
-        </Link>
-        <Link href="/" className="font-bold text-xl tracking-widest text-pink-500 font-fancy">
-            XSCORT
-        </Link>
-        <div className="w-8"></div>
-      </nav>
+        <div className="fixed top-0 left-0 right-0 z-50 bg-[#0a060a]/90 backdrop-blur-md border-b border-white/5 shadow-sm">
+            <Navbar />
+        </div>
 
       {/* PORTADA HERO */}
       <div className="pt-16 w-full max-w-4xl mx-auto">
@@ -146,7 +142,7 @@ export default async function PerfilPage({ params }) {
                             </span>
                         )}
                         <span className="inline-flex items-center gap-1 bg-pink-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-pink-900/40">
-                            <Star className="w-3 h-3 fill-current" /> Premium
+                            <BadgeCheck className="w-3 h-3 fill-current" /> Verificada
                         </span>
                     </div>
 
@@ -193,24 +189,7 @@ export default async function PerfilPage({ params }) {
         
         {/* BOTONES */}
         <div className="grid grid-cols-2 gap-4">
-            {whatsappLimpio ? (
-                <a 
-                    href={`https://wa.me/${whatsappLimpio}?text=Hola ${perfil.nombre_artistico}, te vi en xscort.cl`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebc57] text-black py-3.5 rounded-xl font-bold transition-transform active:scale-95 shadow-lg shadow-green-900/20 text-sm sm:text-base"
-                >
-                    <Phone className="w-5 h-5" /> WhatsApp
-                </a>
-            ) : (
-                <button disabled className="flex items-center justify-center gap-2 bg-gray-800 text-gray-500 py-3.5 rounded-xl font-bold cursor-not-allowed text-sm sm:text-base">
-                    <Phone className="w-5 h-5" /> No disponible
-                </button>
-            )}
-            
-            <button className="flex items-center justify-center gap-2 bg-[#1a1018] border border-white/10 hover:bg-white/5 text-white py-3.5 rounded-xl font-bold transition-transform active:scale-95 text-sm sm:text-base">
-                <Share2 className="w-5 h-5 text-pink-500" /> Compartir
-            </button>
+         <BotonesContacto perfil={perfil} />
         </div>
 
         {/* Sobre Mí */}

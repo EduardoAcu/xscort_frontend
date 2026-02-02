@@ -4,7 +4,7 @@ export default function BotonesContacto({ perfil }) {
   if (!perfil) return null;
 
   const whatsappUrl = perfil.whatsapp
-    ? `https://wa.me/${perfil.whatsapp.replace(/\D/g, "")}?text=Hola%20${encodeURIComponent(perfil.nombre_artistico || "Modelo")}`
+    ? `https://wa.me/${perfil.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola ${perfil.nombre_artistico || 'Modelo'} te hablo de xscort.cl`)}`
     : null;
 
   const telegramUrl = perfil.telegram_contacto

@@ -1,5 +1,4 @@
 "use client";
-
 import { Suspense, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/store/auth";
@@ -177,7 +176,7 @@ function RegisterForm() {
         
         {/* Header Mobile Volver */}
         <div className="lg:hidden mb-2">
-            <Link href="/" className="flex items-center gap-2 text-gray-400 text-sm">
+            <Link href="/" className="flex items-center gap-2 font-montserrat font-medium text-gray-400 text-sm">
                 <ArrowLeft className="w-4 h-4" /> Volver al inicio
             </Link>
         </div>
@@ -186,13 +185,13 @@ function RegisterForm() {
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white font-fancy mb-2">
             Crear Cuenta
           </h1>
-          <p className="text-gray-400 font-light text-sm">
+          <p className="text-gray-400 font-montserrat font-light text-sm">
             Únete y gestiona tu experiencia en xscort.
           </p>
         </div>
 
         {/* SELECTOR DE ROL */}
-        <div className="bg-[#1a1018] p-1 rounded-xl border border-white/5 flex">
+        <div className="bg-[#1a1018] font-montserrat p-1 rounded-xl border border-white/5 flex">
             <button
               type="button"
               onClick={() => setRole("cliente")}
@@ -237,11 +236,11 @@ function RegisterForm() {
               
               {/* Usuario */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide ml-1">Usuario</label>
+                <label className="text-xs font-montserrat font-bold text-gray-400 uppercase tracking-wide ml-1">Usuario</label>
                 <div className="relative group">
                   <User className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                   <input
-                    className={`w-full bg-[#1a1018] border rounded-xl py-3 pl-12 pr-10 text-white placeholder:text-gray-600 focus:ring-1 outline-none transition-all ${usernameError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-pink-500'}`}
+                    className={`w-full bg-[#1a1018] border rounded-xl py-3 pl-12 pr-10 text-white placeholder:text-gray-600 focus:ring-1 outline-none transition-all font-montserrat font-medium ${usernameError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-pink-500'}`}
                     placeholder="Usuario único"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
@@ -256,12 +255,12 @@ function RegisterForm() {
 
               {/* Email */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide ml-1">Email</label>
+                <label className="text-xs font-montserrat font-bold text-gray-400 uppercase tracking-wide ml-1">Email</label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                   <input
                     type="email"
-                    className={`w-full bg-[#1a1018] border rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:ring-1 outline-none transition-all ${emailError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-pink-500'}`}
+                    className={`w-full bg-[#1a1018] border rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:ring-1 outline-none transition-all font-montserrat font-medium ${emailError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-pink-500'}`}
                     placeholder="correo@ejemplo.com"
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
@@ -273,32 +272,32 @@ function RegisterForm() {
 
               {/* Fecha Nacimiento */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide ml-1">Fecha de Nacimiento</label>
+                <label className="text-xs font-montserrat font-bold text-gray-400 uppercase tracking-wide ml-1">Fecha de Nacimiento</label>
                 <div className="relative group">
                   <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                   <input
                     type="date"
-                    className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
+                    className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all font-montserrat font-medium"
                     value={fechaNacimiento}
                     onChange={(e) => setFechaNacimiento(e.target.value)}
                     max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
                     required
                   />
                 </div>
-                <p className="text-[10px] text-gray-500 ml-1">Debes ser mayor de 18 años.</p>
+                <p className="text-[10px] font-montserrat text-gray-500 ml-1">Debes ser mayor de 18 años.</p>
               </div>
 
               {/* Ciudad (Solo Modelos) */}
               {role === "modelo" && (
                 <div className="space-y-1 animate-in fade-in slide-in-from-top-2">
-                  <label className="text-xs font-bold text-pink-500 uppercase tracking-wide ml-1">Ciudad de Atención</label>
+                  <label className="text-xs font-montserrat font-bold text-pink-500 uppercase tracking-wide ml-1">Ciudad de Atención</label>
                   <div className="relative group">
                     <MapPin className="absolute left-4 top-3.5 w-5 h-5 text-pink-500" />
                     <select
                       value={ciudadId}
                       onChange={(e) => setCiudadId(e.target.value)}
                       required={role === "modelo"}
-                      className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all appearance-none"
+                      className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all appearance-none font-montserrat font-medium"
                     >
                       <option value="">Selecciona tu ciudad...</option>
                       {ciudades.map((c) => (
@@ -311,12 +310,12 @@ function RegisterForm() {
 
               {/* Password */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wide ml-1">Contraseña</label>
+                <label className="text-xs font-montserrat font-bold text-gray-400 uppercase tracking-wide ml-1">Contraseña</label>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                   <input
                     type="password"
-                    className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
+                    className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all font-montserrat font-medium"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -332,7 +331,7 @@ function RegisterForm() {
                         }`} />
                     ))}
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2 font-montserrat">
                     <Requirement met={passwordChecks.lengthOK} text="8+ car." />
                     <Requirement met={passwordChecks.upperOK} text="Mayúscula" />
                     <Requirement met={passwordChecks.numberOK} text="Número" />
@@ -348,7 +347,7 @@ function RegisterForm() {
                     onChange={(e) => setAccepted(e.target.checked)} 
                     className="mt-1 h-4 w-4 rounded border-gray-600 bg-gray-800 text-pink-600 focus:ring-pink-500" 
                 />
-                <label htmlFor="terms" className="text-xs text-gray-400">
+                <label htmlFor="terms" className="font-montserrat text-xs text-gray-400">
                   Acepto los <Link className="text-pink-500 hover:underline" href="/terminos">Términos</Link> y <Link className="text-pink-500 hover:underline" href="/privacidad">Políticas</Link>.
                 </label>
               </div>
@@ -364,7 +363,7 @@ function RegisterForm() {
               <button
                 type="submit"
                 disabled={isPending || !accepted || (role === "modelo" && !ciudadId) || !!usernameError || checkingUsername}
-                className="w-full py-4 bg-white hover:bg-gray-200 text-black font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-95 mt-4"
+                className="w-full py-4 bg-white hover:bg-gray-200 text-black font-montserrat font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-95 mt-4"
               >
                 {isPending ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
@@ -425,12 +424,6 @@ function Requirement({ met, text }) {
 export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-[#050205] text-white flex flex-col lg:flex-row">
-      
-      {/* NAVBAR CORREGIDO DEFINITIVAMENTE:
-          - width: w-full (Ancho completo, no se corta nada)
-          - bg: bg-[#050205] en Móvil (Sólido) | lg:bg-transparent en PC (Transparente)
-          - align: Se superpone a todo (z-50) para que la imagen se vea debajo sin cortes.
-      */}
       <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 h-16 sm:h-20 bg-[#050205] lg:bg-transparent border-b border-white/5 lg:border-none">
         <Link href="/" className="w-24 opacity-80 hover:opacity-100 transition-opacity">
             <Image src="/logo.png" alt="xscort.cl" width={100} height={35} className="w-full h-auto" />
@@ -442,7 +435,7 @@ export default function RegisterPage() {
         </div>
 
         {/* CTA Desktop */}
-        <div className="hidden lg:block text-sm font-bold text-gray-400 hover:text-white transition-colors">
+        <div className="hidden lg:block text-sm font-montserrat font-bold text-gray-400 hover:text-white transition-colors">
             <Link href="/login">¿Ya tienes cuenta? Ingresa aquí</Link>
         </div>
       </nav>

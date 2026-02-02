@@ -5,10 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/store/auth";
 import Link from "next/link";
 import Image from "next/image";
-import NavAuthCta from "@/components/NavAuthCta";
 import MobileMenu from "@/components/MobileMenu";
 // Íconos nativos (sin dependencias externas)
-import { Lock, Mail, User, CheckCircle2, ChevronRight, ArrowLeft } from "lucide-react";
+import { Lock, User, CheckCircle2, ArrowLeft } from "lucide-react";
 
 function LoginForm() {
   const [username, setUsername] = useState("");
@@ -68,7 +67,7 @@ function LoginForm() {
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white font-fancy mb-2">
             Iniciar Sesión
           </h1>
-          <p className="text-gray-400 font-light">
+          <p className="text-gray-400 font-montserrat font-light">
             Bienvenido a la comunidad exclusiva de xscort.
           </p>
         </div>
@@ -78,7 +77,7 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => setRole("cliente")}
-              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+              className={`flex-1 py-2 text-sm font-montserrat font-bold rounded-lg transition-all ${
                 role === "cliente" 
                 ? "bg-zinc-800 text-white shadow-lg" 
                 : "text-gray-500 hover:text-gray-300"
@@ -89,7 +88,7 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => setRole("modelo")}
-              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+              className={`flex-1 py-2 text-sm font-montserrat font-bold rounded-lg transition-all ${
                 role === "modelo" 
                 ? "bg-pink-600 text-white shadow-lg shadow-pink-900/20" 
                 : "text-gray-500 hover:text-gray-300"
@@ -103,11 +102,11 @@ function LoginForm() {
         <form onSubmit={onSubmit} className="space-y-5">
           
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300 ml-1">Usuario o Email</label>
+            <label className="text-sm font-montserrat font-medium text-gray-300 ml-1">Usuario o Email</label>
             <div className="relative group">
               <User className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
               <input
-                className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
+                className="w-full bg-[#1a1018] font-montserrat font-medium border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
                 placeholder="Ej: usuario123"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -118,15 +117,15 @@ function LoginForm() {
 
           <div className="space-y-2">
             <div className="flex justify-between items-center ml-1">
-                <label className="text-sm font-medium text-gray-300">Contraseña</label>
-                <Link href="/forgot-password" className="text-xs text-pink-500 hover:text-pink-400 hover:underline">
+                <label className="text-sm font-montserrat font-medium text-gray-300">Contraseña</label>
+                <Link href="/forgot-password" className="text-xs font-montserrat text-pink-500 hover:text-pink-400 hover:underline">
                     ¿Olvidaste tu clave?
                 </Link>
             </div>
             <div className="relative group">
               <Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
               <input
-                className="w-full bg-[#1a1018] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
+                className="w-full bg-[#1a1018] font-montserrat font-medium border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all"
                 placeholder="••••••••"
                 type="password"
                 value={password}
@@ -145,15 +144,15 @@ function LoginForm() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-4 bg-white hover:bg-gray-200 text-black font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-95"
+            className="w-full py-4 bg-white hover:bg-gray-200 text-black font-montserrat font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-95"
           >
             {isPending ? "Validando..." : "Ingresar a mi cuenta"}
           </button>
 
           <div className="text-center pt-2">
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 font-montserrat text-sm">
               ¿Aún no tienes cuenta?{" "}
-              <Link href="/register" className="text-white hover:text-pink-500 font-bold transition-colors">
+              <Link href="/register" className="text-white hover:text-pink-500 font-montserrat font-bold transition-colors">
                 Regístrate Gratis
               </Link>
             </p>
@@ -202,13 +201,13 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#050205] via-transparent to-transparent"></div>
         
         <div className="absolute bottom-0 left-0 p-16 z-10 max-w-xl">
-            <div className="inline-block px-3 py-1 bg-pink-600 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
+            <div className="inline-block px-3 py-1 bg-pink-600 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-widest mb-4">
                 Portal Verificado
             </div>
             <h2 className="text-5xl font-bold font-fancy leading-tight mb-6">
                 Eleva tu experiencia <br/> <span className="text-pink-500">sin intermediarios.</span>
             </h2>
-            <ul className="space-y-4 text-gray-300 font-light">
+            <ul className="space-y-4 text-gray-300 font-montserrat font-light">
                 <li className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                     <span>Perfiles 100% validados manualmente.</span>

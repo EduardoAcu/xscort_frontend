@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 import api from "@/lib/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import WidgetSuscripcion from "@/components/WidgetSuscripcion";
-import WidgetCiudad from "@/components/WidgetCiudad"; // Importamos el widget corregido
+import WidgetCiudad from "@/components/WidgetCiudad";
+// 1. IMPORTAMOS EL NUEVO WIDGET
+import WidgetEstadisticas from "@/components/WidgetEstadisticas"; 
 
 export default function DashboardPage() {
   const [perfil, setPerfil] = useState(null);
@@ -23,7 +25,7 @@ export default function DashboardPage() {
       }
     };
     fetchPerfil();
-  }, [updateTrigger]); // Si se actualiza algo crítico, recargamos
+  }, [updateTrigger]); 
 
   const handleUpdate = () => {
     setUpdateTrigger((prev) => prev + 1);
@@ -31,7 +33,7 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute requireModel>
-      <div className="space-y-6 sm:space-y-8 text-white min-h-screen">
+      <div className="space-y-6 sm:space-y-8 text-white min-h-screen pb-20">
         <header className="mb-2 sm:mb-4 border-b border-white/10 pb-6">
           <p className="text-sm text-pink-400 font-bold uppercase tracking-widest font-montserrat">Panel de Escort</p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight font-montserrat mt-2">
@@ -40,16 +42,18 @@ export default function DashboardPage() {
         </header>
 
         <section className="grid gap-6 lg:grid-cols-2">
+
           {/* Widget 1: Suscripción */}
           <WidgetSuscripcion key={`sub-${updateTrigger}`} onUpdate={handleUpdate} />
 
-          {/* Widget 2: Ubicación (Ahora funciona seguro con objetos) */}
+          {/* Widget 2: Ubicación */}
           <WidgetCiudad 
             ciudadActual={perfil?.ciudad} 
           />
+          
+          {/* Widget 3: Estadísticas */}
+          <WidgetEstadisticas />
         </section>
-        
-        {/* Aquí podrías agregar más widgets en el futuro, como 'Resumen de Visitas' */}
       </div>
     </ProtectedRoute>
   );

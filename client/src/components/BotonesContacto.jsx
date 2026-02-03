@@ -1,8 +1,12 @@
 "use client";
 
+// Definimos la URL de la API (igual que en tus otras páginas)
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
+
 export default function BotonesContacto({ perfil }) {
   if (!perfil) return null;
 
+  // --- LÓGICA DE URLs ---
   const whatsappUrl = perfil.whatsapp
     ? `https://wa.me/${perfil.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola ${perfil.nombre_artistico || 'Modelo'} te hablo de xscort.cl`)}`
     : null;
@@ -13,15 +17,34 @@ export default function BotonesContacto({ perfil }) {
 
   if (!whatsappUrl && !telegramUrl) return null;
 
+  // --- LÓGICA DE ESTADÍSTICAS ---
+  const registrarClick = (tipo) => {
+    // "Fire and Forget": Enviamos la petición sin esperar respuesta para no retrasar al usuario
+    try {
+        fetch(`${API_URL}/api/profiles/stats/registrar/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                slug: perfil.slug, 
+                tipo: tipo // 'whatsapp' o 'telegram'
+            })
+        });
+        console.log(`📊 Click registrado: ${tipo}`);
+    } catch (error) {
+        console.error("Error registrando estadística:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-3 w-full max-w-5xl mx-auto px-4 md:px-0 mt-6 font-montserrat">
       
-      {/* WHATSAPP - Slim */}
+      {/* WHATSAPP */}
       {whatsappUrl && (
         <a
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => registrarClick('whatsapp')}
           className="
             flex-1 flex items-center justify-center gap-2
             h-11 border border-[#25D366]/30 bg-[#25D366]/5
@@ -35,12 +58,13 @@ export default function BotonesContacto({ perfil }) {
         </a>
       )}
       
-      {/* TELEGRAM - Slim */}
+      {/* TELEGRAM */}
       {telegramUrl && (
         <a
           href={telegramUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => registrarClick('telegram')}
           className="
             flex-1 flex items-center justify-center gap-2
             h-11 border border-[#0088cc]/30 bg-[#0088cc]/5

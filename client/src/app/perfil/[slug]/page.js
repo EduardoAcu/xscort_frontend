@@ -189,7 +189,7 @@ export default async function PerfilPage({ params }) {
       <div className="max-w-4xl mx-auto px-4 sm:px-8 mt-6 space-y-10">
         
         {/* BOTONES DE CONTACTO */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="w-full mb-6">
          <BotonesContacto perfil={perfil} />
         </div>
 

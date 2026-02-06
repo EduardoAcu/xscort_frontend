@@ -4,7 +4,7 @@ import {
   MapPin, Calendar, 
   Heart, 
   Ruler, Weight, User, Camera, BadgeCheck, PlayCircle, Globe,
-  Star, MessageSquare, Quote // <--- 1. NUEVOS ICONOS IMPORTADOS
+  Star, MessageSquare, Quote, Sparkles // <--- AGREGADO SPARKLES
 } from "lucide-react";
 
 // COMPONENTES
@@ -51,7 +51,6 @@ export async function generateMetadata({ params }) {
   };
 }
 
-// --- HELPER PARA ESTRELLAS ---
 const StarRating = ({ rating }) => {
   return (
     <div className="flex gap-0.5">
@@ -75,6 +74,9 @@ export default async function PerfilPage({ params }) {
   const fotoPrincipal = getImageUrl(perfil.foto_perfil);
   const galeriaRaw = perfil.galeria || perfil.galeria_fotos || perfil.images || [];
   
+  // Procesamiento de Servicios (Manejo defensivo por si viene como string u objeto)
+  const servicios = perfil.servicios || [];
+  
   // Procesamiento de Galería
   const galeriaProcesada = galeriaRaw.map(img => {
       const src = typeof img === 'string' ? img : (img.imagen || img.url);
@@ -84,10 +86,7 @@ export default async function PerfilPage({ params }) {
   const isVerified = perfil.verificacion_estado === "aprobado";
   const ciudadNombre = perfil.ciudad?.nombre || "Chile";
   
-  // 2. OBTENER RESEÑAS (Asegúrate que tu backend devuelva 'reviews' o 'resenas')
-  // Si no hay, usamos un array vacío.
   const reviews = perfil.reviews || perfil.resenas || []; 
-
   const tieneHistorias = perfil.historias && perfil.historias.length > 0;
 
   // --- STATS VISUALES ---
@@ -189,10 +188,33 @@ export default async function PerfilPage({ params }) {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-8 mt-6 space-y-10">
         
+        {/* BOTONES DE CONTACTO */}
         <div className="grid grid-cols-2 gap-4">
          <BotonesContacto perfil={perfil} />
         </div>
 
+        {/* --- NUEVA SECCIÓN: SERVICIOS (CÁPSULAS) --- */}
+        {servicios.length > 0 && (
+            <section>
+                <div className="flex flex-wrap gap-2">
+                    {servicios.map((servicio, idx) => {
+                        // Soporte tanto para array de strings como array de objetos
+                        const nombreServicio = typeof servicio === 'string' ? servicio : servicio.nombre;
+                        return (
+                            <span 
+                                key={idx} 
+                                className="px-3 py-1.5 rounded-full bg-[#1a0f1a] border border-pink-500/20 text-xs sm:text-sm text-gray-200 font-medium shadow-sm flex items-center gap-2 hover:bg-pink-900/10 transition-colors cursor-default select-none"
+                            >
+                                <span className="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
+                                {nombreServicio}
+                            </span>
+                        );
+                    })}
+                </div>
+            </section>
+        )}
+
+        {/* SOBRE MÍ */}
         <section>
             <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
                 <Heart className="w-4 h-4" /> Sobre Mí
@@ -202,6 +224,7 @@ export default async function PerfilPage({ params }) {
             </div>
         </section>
 
+        {/* GALERÍA */}
         <section>
             <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-2">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 flex items-center gap-2">
@@ -221,8 +244,8 @@ export default async function PerfilPage({ params }) {
             )}
         </section>
 
-        {/* 3. SECCIÓN: RESEÑAS */}
-        <section className="space-y-6"> {/* Agregué space-y-6 para separar formulario de lista */}
+        {/* RESEÑAS */}
+        <section className="space-y-6">
             <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-2">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-pink-500 flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" /> Reseñas
@@ -232,12 +255,10 @@ export default async function PerfilPage({ params }) {
                 </span>
             </div>
 
-            {/* A. FORMULARIO DE RESEÑA (CLIENT COMPONENT) */}
             <div className="mb-8">
                 <FormularioResenaWrapper perfilId={perfil.id} />
             </div>
 
-            {/* B. LISTA DE RESEÑAS (SERVER SIDE) */}
             {reviews.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     {reviews.map((review, idx) => (
@@ -245,12 +266,9 @@ export default async function PerfilPage({ params }) {
                             key={idx} 
                             className="bg-[#120912] border border-white/5 rounded-2xl p-5 flex flex-col gap-3 hover:border-pink-500/20 transition-all duration-300 group shadow-lg"
                         >
-                            {/* CABECERA: Avatar, Nombre, Fecha y Estrellas */}
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-3">
-                                    {/* Avatar con Inicial */}
                                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-700 to-purple-900 flex items-center justify-center text-xs font-bold text-white shadow-inner border border-white/10">
-                                        {/* Intenta obtener el nombre del usuario o usa "A" por defecto */}
                                         {(review.usuario?.username || review.autor || "A").charAt(0).toUpperCase()}
                                     </div>
                                     
@@ -264,7 +282,6 @@ export default async function PerfilPage({ params }) {
                                     </div>
                                 </div>
 
-                                {/* Estrellas Estáticas */}
                                 <div className="flex gap-0.5 bg-black/20 px-2 py-1 rounded-lg border border-white/5">
                                     {[...Array(5)].map((_, i) => (
                                         <Star 
@@ -275,7 +292,6 @@ export default async function PerfilPage({ params }) {
                                 </div>
                             </div>
                             
-                            {/* CUERPO: Comentario */}
                             <div className="relative mt-1 pl-2">
                                 <Quote className="w-5 h-5 text-pink-500/10 absolute -top-1 -left-2 transform -scale-x-100" />
                                 <p className="text-sm text-gray-300 pl-4 leading-relaxed font-light italic relative z-10">
@@ -286,7 +302,6 @@ export default async function PerfilPage({ params }) {
                     ))}
                 </div>
             ) : (
-                /* ESTADO VACÍO */
                 <div className="text-center py-10 bg-white/[0.02] rounded-2xl border border-dashed border-white/10 flex flex-col items-center gap-3 mt-4">
                     <div className="bg-white/5 p-3 rounded-full">
                         <Star className="w-6 h-6 text-gray-600 opacity-50" />

@@ -9,7 +9,7 @@ const publicRoutes = [
   { path: '/', changeFrequency: 'daily', priority: 1.0 },
   { path: '/busqueda', changeFrequency: 'daily', priority: 0.8 },
   { path: '/login', changeFrequency: 'monthly', priority: 0.3 },
-  { path: '/registro', changeFrequency: 'monthly', priority: 0.3 }, // Ojo: ¿Es /registro o /register? Verifica tu carpeta
+  { path: '/register', changeFrequency: 'monthly', priority: 0.3 }, 
   { path: '/terminos', changeFrequency: 'yearly', priority: 0.1 },
   { path: '/privacidad', changeFrequency: 'yearly', priority: 0.1 },
 ]

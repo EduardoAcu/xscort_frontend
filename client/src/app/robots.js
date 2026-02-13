@@ -1,20 +1,21 @@
+// src/app/robots.js (o .ts)
+
 export default function robots() {
   return {
-    // rules es un array para soportar múltiples userAgents si hace falta
     rules: [
       {
         userAgent: '*',
-        // Permitir el contenido público
         allow: '/',
-        // Bloquear recursos internos, APIs y paneles/protected
         disallow: [
-          '/api/',      // endpoints REST
-          '/panel/',    // paneles de usuario (protegidos)
-          '/admin/',    // admin del backend
-          '/private/',  // carpeta de ejemplo privada
+          '/api/',      // Ahorra recursos, Google no necesita JSON
+          '/panel/',    // Evita errores 403/401 en Search Console
+          '/admin/',    // Seguridad básica
+          '/private/',
+          '/_next/',    // Opcional: A veces se bloquea la caché interna de Next
         ],
       },
     ],
     sitemap: 'https://xscort.cl/sitemap.xml',
+    host: 'https://xscort.cl', // Ayuda a consolidar la autoridad del dominio
   }
 }

@@ -4,7 +4,7 @@ import {
   MapPin, Calendar, 
   Heart, 
   Ruler, Weight, User, Camera, BadgeCheck, PlayCircle, Globe,
-  Star, MessageSquare, Quote, Sparkles // <--- AGREGADO SPARKLES
+  Star, MessageSquare, Quote, Sparkles
 } from "lucide-react";
 
 // COMPONENTES
@@ -38,15 +38,30 @@ async function getPerfilData(slug) {
   }
 }
 
+// --- CAMBIO 1: MEJORA DE METADATA PARA GOOGLE ---
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const perfil = await getPerfilData(resolvedParams.slug);
-  if (!perfil) return { title: "Perfil no encontrado" };
+  
+  if (!perfil) return { title: "Perfil no encontrado", robots: { index: false } };
+
+  const titulo = `${perfil.nombre_artistico} - Escort en ${perfil.ciudad?.nombre || "Chile"} | xscort`;
+  const descripcion = perfil.biografia 
+    ? perfil.biografia.substring(0, 155) 
+    : `Perfil verificado de ${perfil.nombre_artistico} en ${perfil.ciudad?.nombre}. Fotos reales, servicios y contacto directo.`;
+
   return {
-    title: `${perfil.nombre_artistico} - Escort en ${perfil.ciudad?.nombre || "Chile"}`,
-    description: perfil.biografia?.substring(0, 160),
+    title: titulo,
+    description: descripcion,
+    // La canonical URL evita que Google se confunda si entran con http/https o www
+    alternates: {
+        canonical: `https://xscort.cl/perfil/${perfil.slug}`,
+    },
     openGraph: {
+      title: titulo,
+      description: descripcion,
       images: [getImageUrl(perfil.foto_perfil) || "/banner-social.jpg"],
+      type: 'profile',
     },
   };
 }
@@ -73,11 +88,8 @@ export default async function PerfilPage({ params }) {
   // --- DATOS ---
   const fotoPrincipal = getImageUrl(perfil.foto_perfil);
   const galeriaRaw = perfil.galeria || perfil.galeria_fotos || perfil.images || [];
-  
-  // Procesamiento de Servicios (Manejo defensivo por si viene como string u objeto)
   const servicios = perfil.servicios || [];
   
-  // Procesamiento de Galería
   const galeriaProcesada = galeriaRaw.map(img => {
       const src = typeof img === 'string' ? img : (img.imagen || img.url);
       return getImageUrl(src);
@@ -85,11 +97,9 @@ export default async function PerfilPage({ params }) {
 
   const isVerified = perfil.verificacion_estado === "aprobado";
   const ciudadNombre = perfil.ciudad?.nombre || "Chile";
-  
   const reviews = perfil.reviews || perfil.resenas || []; 
   const tieneHistorias = perfil.historias && perfil.historias.length > 0;
 
-  // --- STATS VISUALES ---
   const rawStats = [
     { icon: Globe, label: perfil.nacionalidad, show: !!perfil.nacionalidad },
     { icon: Ruler, label: perfil.altura ? `${perfil.altura} cm` : null, show: !!perfil.altura },
@@ -97,12 +107,44 @@ export default async function PerfilPage({ params }) {
     { icon: User, label: perfil.medidas, show: !!perfil.medidas },
     { icon: User, label: perfil.genero === "M" ? "Hombre" : perfil.genero === "F" ? "Mujer" : "Trans", show: true }
   ];
-  
   const stats = rawStats.filter(s => s.show && s.label && s.label !== "0 cm" && s.label !== "0 kg");
+
+  // --- CAMBIO 2: DATOS ESTRUCTURADOS (JSON-LD) ---
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    'dateCreated': perfil.created_at || new Date().toISOString(),
+    'mainEntity': {
+      '@type': 'Person',
+      'name': perfil.nombre_artistico,
+      'image': fotoPrincipal,
+      'description': perfil.biografia,
+      'homeLocation': {
+        '@type': 'Place',
+        'name': ciudadNombre,
+        'address': {
+            '@type': 'PostalAddress',
+            'addressCountry': 'CL',
+            'addressLocality': ciudadNombre
+        }
+      },
+      'interactionStatistic': {
+        '@type': 'InteractionCounter',
+        'interactionType': 'https://schema.org/ViewAction',
+        'userInteractionCount': perfil.visitas || 0
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#050205] text-gray-200 font-montserrat pb-20 selection:bg-pink-500 selection:text-white">
       
+      {/* --- CAMBIO 3: INYECCIÓN DE JSON-LD --- */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <ViewCounter slug={perfil.slug} />
 
       {/* NAVBAR */}
@@ -193,12 +235,11 @@ export default async function PerfilPage({ params }) {
          <BotonesContacto perfil={perfil} />
         </div>
 
-        {/* --- NUEVA SECCIÓN: SERVICIOS (CÁPSULAS) --- */}
+        {/* SERVICIOS */}
         {servicios.length > 0 && (
             <section>
                 <div className="flex flex-wrap gap-2">
                     {servicios.map((servicio, idx) => {
-                        // Soporte tanto para array de strings como array de objetos
                         const nombreServicio = typeof servicio === 'string' ? servicio : servicio.nombre;
                         return (
                             <span 
@@ -281,7 +322,6 @@ export default async function PerfilPage({ params }) {
                                         </p>
                                     </div>
                                 </div>
-
                                 <div className="flex gap-0.5 bg-black/20 px-2 py-1 rounded-lg border border-white/5">
                                     {[...Array(5)].map((_, i) => (
                                         <Star 
@@ -291,7 +331,6 @@ export default async function PerfilPage({ params }) {
                                     ))}
                                 </div>
                             </div>
-                            
                             <div className="relative mt-1 pl-2">
                                 <Quote className="w-5 h-5 text-pink-500/10 absolute -top-1 -left-2 transform -scale-x-100" />
                                 <p className="text-sm text-gray-300 pl-4 leading-relaxed font-light italic relative z-10">

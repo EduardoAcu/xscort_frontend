@@ -1,14 +1,15 @@
 // src/app/sitemap.js
 
 const baseUrl = 'https://xscort.cl'
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// CAMBIO AQUÍ: Pon tu dominio real de la API como fallback
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.xscort.cl";
 
 // 1. RUTAS FIJAS
 const publicRoutes = [
   { path: '/', changeFrequency: 'daily', priority: 1.0 },
   { path: '/busqueda', changeFrequency: 'daily', priority: 0.8 },
   { path: '/login', changeFrequency: 'monthly', priority: 0.3 },
-  { path: '/registro', changeFrequency: 'monthly', priority: 0.3 }, // Ojo: ¿Es /registro o /register? Verifica tu carpeta
+  { path: '/register', changeFrequency: 'monthly', priority: 0.3 }, 
   { path: '/terminos', changeFrequency: 'yearly', priority: 0.1 },
   { path: '/privacidad', changeFrequency: 'yearly', priority: 0.1 },
 ]

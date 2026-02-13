@@ -1,7 +1,8 @@
 // src/app/sitemap.js
 
 const baseUrl = 'https://xscort.cl'
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// CAMBIO AQUÍ: Pon tu dominio real de la API como fallback
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.xscort.cl";
 
 // 1. RUTAS FIJAS
 const publicRoutes = [

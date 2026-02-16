@@ -3,17 +3,38 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import useAuthStore from "@/store/auth";
 
-export default function useAuthGuard({ redirectTo = "/login", withNext = true, requireModel = false, requireClient = false } = {}) {
+export default function useAuthGuard({ 
+  redirectTo = "/login", 
+  withNext = true, 
+  requireModel = false, 
+  requireClient = false 
+} = {}) {
+  
   const { isAuthenticated, isCheckingAuth, hasHydrated, isModelo, checkAuth } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
-  // Si está en proceso de verificación, asegúrate de disparar checkAuth
+
+  // 🛡️ 1. ESCUDO ANTI-401 Y VERIFICACIÓN
   useEffect(() => {
     if (hasHydrated && isCheckingAuth) {
+      
+      // Buscamos el token físico en el navegador
+      // (Ajusta los nombres si usas otros en tu app)
+      const isLoggedIn = localStorage.getItem("is_logged_in") === "true";
+
+        if (!isLoggedIn) {
+            // FALLO RÁPIDO: Lo pateamos al login
+            const target = withNext ? `${redirectTo}?next=${encodeURIComponent(pathname || "/")}` : redirectTo;
+            router.replace(target);
+            useAuthStore.setState({ isCheckingAuth: false }); 
+            return; 
+        }
       checkAuth();
     }
-  }, [hasHydrated, isCheckingAuth, checkAuth]);
+  }, [hasHydrated, isCheckingAuth, checkAuth, pathname, redirectTo, router, withNext]);
 
+
+  // 🚦 2. LÓGICA DE DIRECCIONAMIENTO Y ROLES
   useEffect(() => {
     if (!hasHydrated) return;
     
@@ -26,12 +47,16 @@ export default function useAuthGuard({ redirectTo = "/login", withNext = true, r
         ? `${redirectTo}?next=${encodeURIComponent(pathname || "/")}`
         : redirectTo;
       router.replace(target);
+      return; // Importante poner return para detener la ejecución
     }
+
     // Si requiere modelo y no lo es, enviarlo a panel de cliente
     if (requireModel && !isModelo) {
       router.replace("/panel/cliente");
       return;
     }
+
+    // Lógica para Clientes
     if (requireClient) {
       if (isModelo) {
         router.replace("/panel/dashboard");
@@ -47,9 +72,11 @@ export default function useAuthGuard({ redirectTo = "/login", withNext = true, r
 
   return { 
     isAuthenticated, 
+    // Solo está "isReady" cuando terminó de hidratar, terminó de chequear 
+    // y cumple exactamente con el rol que pide la página.
     isReady: hasHydrated &&
-      (isAuthenticated || !isCheckingAuth) &&
+      (!isCheckingAuth) &&
       (!requireModel || isModelo) &&
-      (!requireClient || !isModelo) // Solo listo cuando cumple el rol requerido
+      (!requireClient || !isModelo) 
   };
-}
+} 

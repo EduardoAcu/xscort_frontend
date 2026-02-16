@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import api from "@/lib/api";
 import LogoutButton from "@/components/LogoutButton";
+// 1. IMPORTACIÓN CORREGIDA (Agregamos House)
+import { Menu, X, CircleUser, House } from "lucide-react";
 
 export default function ClientSidebar() {
   const pathname = usePathname();
@@ -17,7 +19,7 @@ export default function ClientSidebar() {
     setIsOpen(false);
   }, [pathname]);
 
-  // 2. Bloquear scroll del body cuando el menú está abierto (UX móvil)
+  // 2. Bloquear scroll del body cuando el menú está abierto
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -51,9 +53,10 @@ export default function ClientSidebar() {
       : "U";
   }, [username]);
 
+  // Aquí pasamos los componentes reales, sin comillas
   const navItems = [
-    { href: "/panel/cliente", icon: "account_circle", label: "Mi Cuenta" },
-    { href: "/", icon: "home", label: "Volver al Inicio" },
+    { href: "/panel/cliente", icon: CircleUser, label: "Mi Cuenta" },
+    { href: "/", icon: House, label: "Volver al Inicio" },
   ];
 
   return (
@@ -68,7 +71,7 @@ export default function ClientSidebar() {
             className="text-white p-2 rounded-md active:bg-pink-900/50"
             aria-label="Abrir menú"
         >
-            <span className="material-symbols-outlined text-3xl">menu</span>
+            <Menu />
         </button>
       </div>
 
@@ -86,25 +89,20 @@ export default function ClientSidebar() {
         flex flex-col text-white text-montserrat bg-[#180417] border-r border-[#3b1027]
         transition-transform duration-300 ease-out
         
-        /* DIMENSIONES PARA ESCRITORIO */
         lg:translate-x-0 lg:h-screen lg:w-64
-        
-        /* DIMENSIONES PARA MÓVIL (iPhone Fixes: 100dvh) */
         h-[100dvh] w-[85vw] sm:w-80
         ${isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:shadow-none"}
       `}>
         
-        {/* Botón cerrar (X) en móvil */}
         <div className="lg:hidden absolute top-4 right-4 z-50">
             <button 
                 onClick={() => setIsOpen(false)} 
                 className="p-2 text-gray-400 hover:text-white bg-[#180417]/50 rounded-full"
             >
-                <span className="material-symbols-outlined text-2xl">close</span>
+                <X />
             </button>
         </div>
 
-        {/* --- CABECERA USUARIO --- */}
         <div className="px-6 py-8 lg:py-6 flex items-center gap-3 border-b border-[#3b1027] mt-2 lg:mt-0">
           <div className="h-14 w-14 lg:h-12 lg:w-12 rounded-full bg-pink-500 flex items-center justify-center text-xl lg:text-lg font-bold shadow-lg shadow-pink-900/30">
             {initials}
@@ -115,10 +113,13 @@ export default function ClientSidebar() {
           </div>
         </div>
 
-        {/* --- NAVEGACIÓN --- */}
         <nav className="flex-1 px-4 py-6 space-y-2 text-sm overflow-y-auto">
           {navItems.map((item) => {
             const active = pathname === item.href;
+            
+            // 2. RENDERIZADO CORREGIDO: Extraemos el componente a una variable con Mayúscula
+            const Icon = item.icon; 
+            
             return (
               <Link
                 key={item.href}
@@ -130,15 +131,14 @@ export default function ClientSidebar() {
                 }`}
                 prefetch={false}
               >
-                <span className="material-symbols-outlined text-[22px] lg:text-base">{item.icon}</span>
+                {/* 3. Renderizamos el JSX puro sin el <span> de material-symbols */}
+                <Icon className="w-6 h-6 lg:w-5 lg:h-5" />
                 <span className="text-base lg:text-sm">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* --- FOOTER / LOGOUT --- */}
-        {/* Padding extra bottom para iPhone Home Indicator */}
         <div className="px-4 py-4 lg:py-4 border-t border-[#3b1027] bg-[#180417] pb-10 lg:pb-4">
           <LogoutButton className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#ff007f] px-4 py-3 lg:py-2 text-sm text-gray-100 hover:bg-[#ff007f] hover:text-white transition-all font-semibold" />
         </div>

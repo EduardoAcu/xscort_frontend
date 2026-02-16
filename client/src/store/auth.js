@@ -2,26 +2,23 @@
 import { create } from "zustand";
 import api from "@/lib/api";
 
-/**
- * Store de autenticación con cookies HttpOnly.
- * 
- * IMPORTANTE: Ya NO almacenamos tokens en localStorage.
- * Los tokens se manejan automáticamente como cookies HttpOnly por el backend.
- * 
- * Solo mantenemos estado de usuario y métodos de login/logout.
- */
 const useAuthStore = create((set, get) => ({
   user: null,
   isAuthenticated: false,
-  isCheckingAuth: true, // Arrancamos verificando hasta que checkAuth termine
-  hasHydrated: true, // Sin persistencia, siempre está listo
+  isCheckingAuth: true, 
+  hasHydrated: true, 
   isModelo: false,
 
   login: async ({ username, password }) => {
     const res = await api.post("/api/token/", { username, password });
     if (res.data.user) {
-      // El backend ya incluye es_modelo en los datos del usuario
       const isModelo = res.data.user.es_modelo || false;
+      
+      // 🚩 1. EL FARO: Avisamos al navegador que el usuario entró
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("is_logged_in", "true");
+      }
+
       set({
         user: res.data.user,
         isAuthenticated: true,
@@ -33,40 +30,35 @@ const useAuthStore = create((set, get) => ({
   },
 
   register: async (payload) => {
+    // ... tu código se mantiene igual ...
     const { username, email, password, password2, fecha_nacimiento } = payload;
     const res = await api.post("/api/register/", {
-      username,
-      email,
-      password,
-      password2: password2 ?? password,
-      fecha_nacimiento,
+      username, email, password, password2: password2 ?? password, fecha_nacimiento,
     });
     return res.data;
   },
 
   logout: async () => {
     try {
-      // Llamar al endpoint de logout para limpiar cookies
       await api.post("/api/logout/");
     } catch (err) {
       console.error("Error en logout:", err);
     } finally {
-      // Limpiar estado local
+      // 🚩 2. APAGAMOS EL FARO: Borramos la bandera al salir
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("is_logged_in");
+      }
       set({ user: null, isAuthenticated: false, isCheckingAuth: false });
     }
   },
 
-  // Método para verificar si hay sesión activa
   checkAuth: async () => {
     set({ isCheckingAuth: true });
 
     try {
-      // Verificar sesión - este endpoint ya devuelve los datos del usuario
       const res = await api.get("/api/verification/status/");
-      // El backend incluye es_modelo en los datos del usuario
       const isModelo = res.data.es_modelo || false;
 
-      // Evitar sobrescribir el estado si ya hay una sesión autenticada activa
       const currentlyAuthenticated = get().isAuthenticated;
       if (!currentlyAuthenticated) {
         set({
@@ -81,11 +73,14 @@ const useAuthStore = create((set, get) => ({
           isModelo,
         });
       } else {
-        // Solo actualizar flags de verificación sin tocar el objeto user completo
         set({ isCheckingAuth: false, isModelo });
       }
       return true;
     } catch (err) {
+      // 🚩 3. LIMPIEZA: Si Django nos da 401 (la cookie expiró o se borró), apagamos el faro.
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("is_logged_in");
+      }
       set({ user: null, isAuthenticated: false, isCheckingAuth: false });
       return false;
     }

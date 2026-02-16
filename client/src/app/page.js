@@ -1,7 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import NavAuthCta from "@/components/NavAuthCta";
-import MobileMenu from "@/components/MobileMenu";
 import { Heart, Flame, Feather, MapPin, Search } from "lucide-react";
 import NavBar from "@/components/NavBar";
 
@@ -9,7 +7,7 @@ import NavBar from "@/components/NavBar";
 // 1. CONFIGURACIÓN NEXT.JS (ESTO SOLUCIONA EL ERROR DE BUILD)
 // ============================================================
 // Le decimos a Next.js: "Esta página cambia siempre, no la congeles".
-export const dynamic = 'force-dynamic'; 
+export const revalidate = 86400;
 
 // ============================================================
 // 2. CONSTANTES DE RESPALDO (ESTO SOLUCIONA EL REFERENCE ERROR)
@@ -57,7 +55,7 @@ async function getCiudades() {
   
   try {
     const res = await fetch(`${apiUrl}/api/profiles/ciudades/`, {
-      cache: 'no-store', // Datos frescos siempre
+      next: { revalidate: 86400 },
       headers: {
         "User-Agent": "Mozilla/5.0 (Next.js Build)",
         "Accept": "application/json",

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import {User,Star,HeartCrack} from "lucide-react"
 
 export default function PanelClientePage() {
   const [form, setForm] = useState({ username: "", email: "" });
@@ -15,11 +16,18 @@ export default function PanelClientePage() {
       try {
         const meRes = await api.get("/api/me/");
         setForm({ username: meRes.data.username || "", email: meRes.data.email || "" });
+        
         const likesRes = await api.get("/api/profiles/likes/");
-        setLikes(likesRes.data || []);
+
+        const dataExtraida = likesRes.data?.results || likesRes.data || [];
+        
+        setLikes(Array.isArray(dataExtraida) ? dataExtraida : []);
+        
       } catch (err) {
-        console.error(err);
+        console.error("Error cargando panel:", err);
         setError("No se pudo cargar la información");
+        
+        setLikes([]); 
       } finally {
         setLoading(false);
       }
@@ -72,9 +80,6 @@ export default function PanelClientePage() {
   }
 
   return (
-    // 1. AJUSTE PRINCIPAL: w-full y flex-1 para ocupar el espacio junto al sidebar
-    // pt-24 en móvil para bajar el contenido y que no choque con el header del menú
-    // lg:pt-8 en escritorio porque ahí no hay header superior
     <main className="flex-1 w-full bg-[#120912] min-h-screen p-4 pt-24 lg:p-10 text-white font-montserrat">
       
       <div className="max-w-6xl mx-auto space-y-8">
@@ -87,11 +92,10 @@ export default function PanelClientePage() {
         </header>
 
         <section className="grid gap-8 lg:grid-cols-12 items-start">
-          
-          {/* COLUMNA 1: DATOS (Ocupa 5 columnas en desktop) */}
+        
           <div className="lg:col-span-5 rounded-3xl bg-[#1b0d18] p-6 lg:p-8 border border-[#3b1027] shadow-xl">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-pink-500">person</span>
+              <User />
               Datos Personales
             </h2>
             
@@ -138,7 +142,7 @@ export default function PanelClientePage() {
           <div className="lg:col-span-7 rounded-3xl bg-[#1b0d18] p-6 lg:p-8 border border-[#3b1027] shadow-xl flex flex-col h-full min-h-[400px]">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-pink-500">favorite</span>
+                <Star />
                 Mis Favoritos
               </h2>
               <span className="text-xs font-semibold bg-[#3b1027] text-pink-200 px-3 py-1 rounded-full">
@@ -148,7 +152,7 @@ export default function PanelClientePage() {
 
             {likes.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-[#3b1027] rounded-2xl">
-                <span className="material-symbols-outlined text-6xl text-[#3b1027] mb-4">heart_broken</span>
+                <HeartCrack />
                 <p className="text-gray-400 font-medium">Aún no tienes favoritos.</p>
                 <a href="/busqueda" className="mt-4 text-pink-500 hover:text-pink-400 text-sm font-semibold hover:underline">
                   Explorar modelos

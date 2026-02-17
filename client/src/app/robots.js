@@ -9,10 +9,10 @@ export default function robots() {
           '/panel/',
           '/admin/',
           '/private/',
-          '/_next/',
         ],
       },
       {
+        // Tu excelente bloqueo contra bots de IA y scraping
         userAgent: ['GPTBot', 'Google-Extended', 'CCBot', 'ClaudeBot'],
         disallow: '/',
       },

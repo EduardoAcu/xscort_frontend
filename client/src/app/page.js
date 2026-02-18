@@ -152,7 +152,7 @@ function CiudadesSection({ ciudades }) {
             {displayCities.map((c, index) => (
               <Link
                 key={c.slug || c.id || index}
-                href={`/${c.slug || c.id}`}
+                href={`/escort-en-${c.slug || c.id}`}
                 className="
                   group relative 
                   flex items-center gap-3

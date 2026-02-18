@@ -278,41 +278,64 @@ function CTASection() {
 }
 
 function Footer() {
+  const CURRENT_YEAR = new Date().getFullYear();
+
   return (
     <footer className="bg-black text-gray-500 py-16 border-t border-white/10 font-montserrat">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
-          <div className="col-span-1 md:col-span-2">
+        
+        {/* GRILLA PRINCIPAL: 1 col móvil, 2 cols tablet, 5 cols PC */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
+          
+          {/* COLUMNA 1: Marca (Ocupa 2 espacios en pantallas grandes) */}
+          <div className="lg:col-span-2">
              <Link href="/" className="inline-block mb-6 opacity-80 hover:opacity-100 transition-opacity">
                <Image src="/logo.png" alt="xscort.cl" width={140} height={40} />
              </Link>
-            <p className="text-sm max-w-sm font-light leading-relaxed">
-              La guía premium de avisos clasificados para adultos en Chile. Seguridad, discreción y calidad verificada.
+            <p className="text-sm max-w-sm font-light leading-relaxed mb-6">
+              La guía premium de avisos clasificados para adultos en Chile. Seguridad, discreción y calidad verificada. Trato directo sin intermediarios.
             </p>
           </div>
 
+          {/* COLUMNA 2: Ciudades Destacadas (Boost SEO) */}
+          <div>
+            <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Ciudades Destacadas</h3>
+            <ul className="space-y-3 text-sm font-light">
+              <li><Link href="/escort-en-santiago" className="hover:text-pink-500 transition-colors">Santiago</Link></li>
+              <li><Link href="/escort-en-chillan" className="hover:text-pink-500 transition-colors">Chillán</Link></li>
+              <li><Link href="/escort-en-concepcion" className="hover:text-pink-500 transition-colors">Concepción</Link></li>
+              <li><Link href="/escort-en-temuco" className="hover:text-pink-500 transition-colors">Temuco</Link></li>
+              <li><Link href="/escort-en-osorno" className="hover:text-pink-500 transition-colors">Osorno</Link></li>
+            </ul>
+          </div>
+
+          {/* COLUMNA 3: Plataforma y Ayuda (Incluye FAQ) */}
+          <div>
+            <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Plataforma</h3>
+            <ul className="space-y-3 text-sm font-light">
+              <li><Link href="/busqueda" className="hover:text-pink-500 transition-colors">Buscar Modelos</Link></li>
+              <li><Link href="/register" className="hover:text-pink-500 transition-colors">Publicar Aviso</Link></li>
+              <li><Link href="/login" className="hover:text-pink-500 transition-colors">Ingreso Socias</Link></li>
+              <li><Link href="/faq" className="hover:text-pink-500 transition-colors text-pink-400/80 font-medium">Preguntas Frecuentes</Link></li>
+            </ul>
+          </div>
+
+          {/* COLUMNA 4: Legal */}
           <div>
             <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Legal</h3>
             <ul className="space-y-3 text-sm font-light">
               <li><Link href="/terminos" className="hover:text-pink-500 transition-colors">Términos y Condiciones</Link></li>
               <li><Link href="/privacidad" className="hover:text-pink-500 transition-colors">Políticas de Privacidad</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Comunidad</h3>
-            <ul className="space-y-3 text-sm font-light">
-              <li><Link href="/register" className="hover:text-pink-500 transition-colors">Publicar Aviso</Link></li>
-              <li><Link href="/login" className="hover:text-pink-500 transition-colors">Ingreso Socias</Link></li>
-              <li><Link href="/busqueda" className="hover:text-pink-500 transition-colors">Buscar Modelos</Link></li>
+              <li><a href="https://wa.me/56950195662" className="hover:text-pink-500 transition-colors">Contacto Soporte</a></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-xs opacity-60">
+        {/* BARRA INFERIOR (Copyright y Alerta +18) */}
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs opacity-60 gap-4">
           <p>© {CURRENT_YEAR} xscort.cl - Todos los derechos reservados.</p>
-          <div className="flex items-center gap-2 mt-4 md:mt-0">
-             <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+          <div className="flex items-center gap-2">
+             <span className="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></span>
              <p className="font-bold text-white uppercase tracking-wider">Sitio Exclusivo +18</p>
           </div>
         </div>

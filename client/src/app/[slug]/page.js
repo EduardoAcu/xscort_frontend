@@ -1,7 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
+import { notFound, permanentRedirect } from "next/navigation";
 import NavBar from "@/components/NavBar";
-import { notFound } from "next/navigation"; // <-- IMPORTANTE: Agregamos esto
 import { MapPin, ChevronRight, Sparkles, Navigation, UserRoundSearch } from "lucide-react";
 
 // ============================================================
@@ -81,10 +80,8 @@ export default async function CiudadPage({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
   
-  // --- ESCUDO ANTI 404 ---
-  // Si alguien intenta entrar a /santiago (sin el escort-en-), lo bloqueamos o redirigimos.
   if (!slug?.startsWith("escort-en-")) {
-    notFound(); 
+    permanentRedirect(`/escort-en-${slug}`); 
   }
 
   // --- EXTRAEMOS LA CIUDAD LIMPIA PARA MANDAR A DJANGO ---

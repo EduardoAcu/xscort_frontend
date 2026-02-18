@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { notFound, permanentRedirect } from "next/navigation";
 import NavBar from "@/components/NavBar";
 import { notFound } from "next/navigation"; // <-- IMPORTANTE: Agregamos esto
 import { MapPin, ChevronRight, Sparkles, Navigation, UserRoundSearch } from "lucide-react";
@@ -84,7 +84,9 @@ export default async function CiudadPage({ params }) {
   // --- ESCUDO ANTI 404 ---
   // Si alguien intenta entrar a /santiago (sin el escort-en-), lo bloqueamos o redirigimos.
   if (!slug?.startsWith("escort-en-")) {
-    notFound(); 
+    // En lugar de dar un error 404, le decimos a Google:
+    // "Oye, esta página se mudó permanentemente (301) a la nueva URL"
+    permanentRedirect(`/escort-en-${slug}`); 
   }
 
   // --- EXTRAEMOS LA CIUDAD LIMPIA PARA MANDAR A DJANGO ---

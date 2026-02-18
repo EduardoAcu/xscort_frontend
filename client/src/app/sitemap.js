@@ -1,7 +1,6 @@
 // src/app/sitemap.js
 
 const baseUrl = 'https://xscort.cl'
-// CAMBIO AQUÍ: Pon tu dominio real de la API como fallback
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.xscort.cl";
 
 // 1. RUTAS FIJAS
@@ -14,7 +13,7 @@ const publicRoutes = [
   { path: '/privacidad', changeFrequency: 'yearly', priority: 0.1 },
 ]
 
-// 2. FETCH CIUDADES (Tu código)
+// 2. FETCH CIUDADES
 async function getCiudadesSitemap() {
   try {
     const res = await fetch(`${API_URL}/api/profiles/ciudades/`, {
@@ -31,12 +30,11 @@ async function getCiudadesSitemap() {
   }
 }
 
-// 3. FETCH PERFILES (¡Nuevo y Crítico!)
+// 3. FETCH PERFILES
 async function getPerfilesSitemap() {
   try {
-    // Este es el endpoint ligero que creamos en el paso anterior
     const res = await fetch(`${API_URL}/api/profiles/sitemap/`, {
-      next: { revalidate: 600 }, // Cache 10 min (para indexar rápido a las nuevas)
+      next: { revalidate: 600 }, // Cache 10 min
     });
     
     if (!res.ok) return [];
@@ -59,28 +57,30 @@ export default async function sitemap() {
     priority: r.priority,
   }))
 
-  // B. Ciudades
+  // B. Ciudades (¡ACTUALIZADO CON "escort-en-"!)
   let cityRoutes = [];
   try {
     const ciudades = await getCiudadesSitemap();
-    cityRoutes = ciudades.map((c) => ({
-      // Asegúrate de que esta URL exista en tu front (ej: src/app/[ciudad]/page.js)
-      url: `${baseUrl}/${c.slug || c.nombre.toLowerCase().replace(/ /g, '-')}`, 
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    }));
+    cityRoutes = ciudades.map((c) => {
+      const citySlug = c.slug || c.nombre.toLowerCase().replace(/ /g, '-');
+      return {
+        url: `${baseUrl}/escort-en-${citySlug}`, 
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.9,
+      };
+    });
   } catch (e) { console.error(e) }
 
-  // C. Perfiles (Lo que te faltaba)
+  // C. Perfiles
   let profileRoutes = [];
   try {
     const perfiles = await getPerfilesSitemap();
     profileRoutes = perfiles.map((p) => ({
-      url: `${baseUrl}/perfil/${p.slug}`, // La URL donde vive el perfil
+      url: `${baseUrl}/perfil/${p.slug}`, 
       lastModified: new Date(p.updated_at || new Date()),
       changeFrequency: 'daily',
-      priority: 1.0, // Máxima prioridad, esto es lo que vende
+      priority: 1.0, 
     }));
   } catch (e) { console.error(e) }
 

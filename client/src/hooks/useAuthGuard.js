@@ -14,7 +14,6 @@ export default function useAuthGuard({
   const router = useRouter();
   const pathname = usePathname();
 
-  // 🛡️ 1. ESCUDO ANTI-401 Y VERIFICACIÓN
   useEffect(() => {
     if (hasHydrated && isCheckingAuth) {
       
@@ -33,8 +32,6 @@ export default function useAuthGuard({
     }
   }, [hasHydrated, isCheckingAuth, checkAuth, pathname, redirectTo, router, withNext]);
 
-
-  // 🚦 2. LÓGICA DE DIRECCIONAMIENTO Y ROLES
   useEffect(() => {
     if (!hasHydrated) return;
     

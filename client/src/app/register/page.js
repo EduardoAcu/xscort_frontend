@@ -2,24 +2,16 @@
 import { Suspense, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/store/auth";
-import dynamic from "next/dynamic";
 import { becomeModel } from "@/lib/api-model";
 import Link from "next/link"; 
 import Image from "next/image";
 import MobileMenu from "@/components/MobileMenu";
-// Íconos
 import { 
   User, Mail, Lock, Calendar, MapPin, Check, 
-  AlertCircle, ArrowLeft, CheckCircle2, Loader2 
+  AlertCircle, ArrowLeft, CheckCircle2, Loader2, Sparkles
 } from "lucide-react";
 
-const HERO_IMG = "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80";
-
-// Carga dinámica del componente pesado
-const FormularioVerificacion = dynamic(() => import("@/components/FormularioVerificacion"), { 
-  ssr: false,
-  loading: () => <div className="text-pink-500 text-sm animate-pulse">Cargando formulario...</div>
-});
+const HERO_IMG = "https://images.unsplash.com/photo-1652715257860-596178e1a923?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 function RegisterForm() {
   // --- ESTADOS ---
@@ -30,8 +22,11 @@ function RegisterForm() {
   const [ciudadId, setCiudadId] = useState(""); 
   const [ciudades, setCiudades] = useState([]); 
   const [accepted, setAccepted] = useState(false);
-  const [role, setRole] = useState("cliente"); 
+  
+  // Paso 1: Elegir Rol | Paso 2: Formulario
+  const [role, setRole] = useState(""); 
   const [step, setStep] = useState(1); 
+  
   const [modelVerificationError, setModelVerificationError] = useState(""); 
   const [usernameError, setUsernameError] = useState(""); 
   const [emailError, setEmailError] = useState(""); 
@@ -88,13 +83,6 @@ function RegisterForm() {
     return () => clearTimeout(timer);
   }, [username]);
 
-  useEffect(() => {
-    if (role === "cliente" && step !== 1) {
-      setStep(1);
-      setModelVerificationError("");
-    }
-  }, [role, step]);
-
   // --- LOGICA PASSWORD ---
   const passwordChecks = useMemo(() => {
     const lengthOK = password.length >= 8;
@@ -136,8 +124,18 @@ function RegisterForm() {
           try {
             await new Promise((resolve) => setTimeout(resolve, 500));
             await becomeModel(ciudadId);
-            toast.success("Cuenta creada. Completa la verificación.");
-            setStep(2);
+            
+            await useAuthStore.getState().checkAuth(); 
+
+            toast.success("Cuenta creada exitosamente. Redirigiendo a tu panel...");
+            
+            // REDIRECCIÓN DIRECTA AL DASHBOARD
+            const rawNext = searchParams.get("next");
+            const nextPath = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") 
+              ? rawNext 
+              : "/panel/dashboard";
+            router.replace(nextPath);
+
           } catch (e) {
             const modelError = e?.response?.data?.detail || "Error al solicitar verificación";
             setModelVerificationError(modelError);
@@ -169,14 +167,15 @@ function RegisterForm() {
     });
   };
 
-  const progress = role === "modelo" ? (step === 1 ? "50%" : "100%") : "100%";
+  // Cálculo de la barra de progreso (Solo 2 pasos)
+  const progress = step === 1 ? "50%" : "100%";
 
   return (
     <div className="w-full max-w-md space-y-6">
         
-        {/* Header Mobile Volver */}
-        <div className="lg:hidden mb-2">
-            <Link href="/" className="flex items-center gap-2 font-montserrat font-medium text-gray-400 text-sm">
+        {/* Header Volver */}
+        <div className="mb-2 w-full flex justify-start">
+            <Link href="/" className="flex items-center gap-2 font-montserrat font-medium text-gray-400 hover:text-pink-500 transition-colors text-sm">
                 <ArrowLeft className="w-4 h-4" /> Volver al inicio
             </Link>
         </div>
@@ -190,37 +189,11 @@ function RegisterForm() {
           </p>
         </div>
 
-        {/* SELECTOR DE ROL */}
-        <div className="bg-[#1a1018] font-montserrat p-1 rounded-xl border border-white/5 flex">
-            <button
-              type="button"
-              onClick={() => setRole("cliente")}
-              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
-                role === "cliente" 
-                ? "bg-zinc-800 text-white shadow-lg" 
-                : "text-gray-500 hover:text-gray-300"
-              }`}
-            >
-              Soy Cliente
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole("modelo")}
-              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
-                role === "modelo" 
-                ? "bg-pink-600 text-white shadow-lg shadow-pink-900/20" 
-                : "text-gray-500 hover:text-gray-300"
-              }`}
-            >
-              Soy Escort
-            </button>
-        </div>
-
         {/* BARRA DE PROGRESO */}
         <div className="space-y-2">
             <div className="flex justify-between text-xs text-gray-400 font-montserrat uppercase tracking-wider">
-                <span>{step === 1 ? "Datos Personales" : "Verificación"}</span>
-                <span>{step === 1 ? (role === "modelo" ? "Paso 1/2" : "Paso Final") : "Paso 2/2"}</span>
+                <span>{step === 1 ? "Tipo de Cuenta" : "Datos Personales"}</span>
+                <span>{step === 1 ? "Paso 1/2" : "Paso 2/2"}</span>
             </div>
             <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
                 <div 
@@ -230,18 +203,66 @@ function RegisterForm() {
             </div>
         </div>
 
-        {/* --- PASO 1: FORMULARIO DE DATOS --- */}
+        {/* --- PASO 1: SELECCIÓN DE ROL --- */}
         {step === 1 && (
-            <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-4 mt-8 animate-in fade-in slide-in-from-bottom-4">
+            <button
+              type="button"
+              onClick={() => { setRole("cliente"); setStep(2); }}
+              className="w-full flex items-center p-6 border border-white/10 rounded-2xl bg-[#1a1018] hover:bg-[#251722] hover:border-white/30 transition-all group"
+            >
+              <div className="p-4 bg-gray-800/50 rounded-full group-hover:bg-gray-700 transition-colors">
+                <User className="w-8 h-8 text-gray-300" />
+              </div>
+              <div className="ml-5 text-left">
+                <h3 className="text-xl font-bold text-white">Busco Compañía</h3>
+                <p className="text-sm text-gray-400 mt-1">Quiero ver perfiles y contactar escorts de forma segura.</p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setRole("modelo"); setStep(2); }}
+              className="w-full flex items-center p-6 border border-pink-500/30 rounded-2xl bg-[#1a1018] hover:bg-pink-900/20 hover:border-pink-500 transition-all group shadow-[0_0_15px_rgba(236,72,153,0.1)]"
+            >
+              <div className="p-4 bg-pink-500/10 rounded-full group-hover:bg-pink-500/20 transition-colors">
+                <Sparkles className="w-8 h-8 text-pink-500" />
+              </div>
+              <div className="ml-5 text-left">
+                <h3 className="text-xl font-bold text-white">Soy Escort</h3>
+                <p className="text-sm text-gray-400 mt-1">Quiero crear mi perfil, publicar avisos y conseguir clientes.</p>
+              </div>
+            </button>
+          </div>
+        )}
+
+        {/* --- PASO 2: FORMULARIO DE DATOS --- */}
+        {step === 2 && (
+            <form onSubmit={onSubmit} className="space-y-4 animate-in fade-in slide-in-from-right-4">
+              
+              <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+                <h2 className="text-lg font-bold text-white font-montserrat">
+                  Registro de {role === "modelo" ? "Escort" : "Cliente"}
+                </h2>
+                <button 
+                  type="button" 
+                  onClick={() => setStep(1)} 
+                  className="text-xs text-pink-500 hover:text-pink-400 flex items-center gap-1 font-montserrat"
+                >
+                  <ArrowLeft className="w-3 h-3" /> Cambiar rol
+                </button>
+              </div>
               
               {/* Usuario */}
               <div className="space-y-1">
-                <label className="text-xs font-montserrat font-bold text-gray-400 uppercase tracking-wide ml-1">Usuario</label>
+                <label className="text-xs font-montserrat font-bold text-gray-400 uppercase tracking-wide ml-1">
+                  {role === "modelo" ? "Nombre Artístico (Usuario)" : "Usuario"}
+                </label>
                 <div className="relative group">
                   <User className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                   <input
                     className={`w-full bg-[#1a1018] border rounded-xl py-3 pl-12 pr-10 text-white placeholder:text-gray-600 focus:ring-1 outline-none transition-all font-montserrat font-medium ${usernameError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-pink-500'}`}
-                    placeholder="Usuario único"
+                    placeholder={role === "modelo" ? "Ej: Mia_Santiago" : "Usuario único"}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
@@ -345,9 +366,9 @@ function RegisterForm() {
                     type="checkbox" 
                     checked={accepted} 
                     onChange={(e) => setAccepted(e.target.checked)} 
-                    className="mt-1 h-4 w-4 rounded border-gray-600 bg-gray-800 text-pink-600 focus:ring-pink-500" 
+                    className="mt-1 h-4 w-4 rounded border-gray-600 bg-gray-800 text-pink-600 focus:ring-pink-500 cursor-pointer" 
                 />
-                <label htmlFor="terms" className="font-montserrat text-xs text-gray-400">
+                <label htmlFor="terms" className="font-montserrat text-xs text-gray-400 cursor-pointer">
                   Acepto los <Link className="text-pink-500 hover:underline" href="/terminos">Términos</Link> y <Link className="text-pink-500 hover:underline" href="/privacidad">Políticas</Link>.
                 </label>
               </div>
@@ -368,49 +389,16 @@ function RegisterForm() {
                 {isPending ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
                 ) : (
-                    "Crear Cuenta"
+                    role === "modelo" ? "Crear Cuenta de Escort" : "Crear Cuenta de Cliente"
                 )}
               </button>
             </form>
         )}
-
-        {/* --- PASO 2: VERIFICACIÓN (Solo Modelos) --- */}
-        {step === 2 && (
-            <div className="animate-in fade-in slide-in-from-right-4">
-              <div className="bg-[#1a1018] border border-white/10 rounded-2xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-pink-500/20 rounded-full text-pink-500">
-                          <CheckCircle2 className="w-6 h-6" />
-                      </div>
-                      <div>
-                          <h3 className="font-bold text-white">¡Cuenta Creada!</h3>
-                          <p className="text-xs text-gray-400">Ahora verifica tu identidad para publicar.</p>
-                      </div>
-                  </div>
-                  
-                  <FormularioVerificacion
-                    onSuccess={() => {
-                      const rawNext = searchParams.get("next");
-                      const nextPath = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
-                        ? rawNext
-                        : "/panel/dashboard";
-                      router.replace(nextPath);
-                    }}
-                    ciudadId={ciudadId}
-                  />
-
-                  <p className="text-[10px] text-gray-500 mt-4 text-center">
-                    Tus documentos están encriptados y solo administración puede verlos.
-                  </p>
-              </div>
-            </div>
-        )}
-
     </div>
   );
 }
 
-// Subcomponente
+// Subcomponente de requisitos de password
 function Requirement({ met, text }) {
     return (
         <span className={`text-[10px] flex items-center gap-1 ${met ? "text-green-400" : "text-gray-600"}`}>
@@ -423,10 +411,12 @@ function Requirement({ met, text }) {
 // Componente Principal de Página
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-[#050205] text-white flex flex-col lg:flex-row">
-      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 h-16 sm:h-20 bg-[#050205] lg:bg-transparent border-b border-white/5 lg:border-none">
-        <Link href="/" className="w-24 opacity-80 hover:opacity-100 transition-opacity">
-            <Image src="/logo.png" alt="xscort.cl" width={100} height={35} className="w-full h-auto" />
+    <div className="min-h-screen bg-[#050205] text-white flex flex-col lg:flex-row w-full">
+      
+      {/* Navbar (Fija arriba) */}
+      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 lg:px-12 h-16 sm:h-20 bg-[#050205]/90 backdrop-blur-md lg:bg-transparent border-b border-white/5 lg:border-none">
+        <Link href="/" className="w-24 lg:w-28 opacity-80 hover:opacity-100 transition-opacity">
+            <Image src="/logo.png" alt="xscort.cl" width={112} height={40} className="w-full h-auto" />
         </Link>
         
         {/* Menú Mobile */}
@@ -440,44 +430,47 @@ export default function RegisterPage() {
         </div>
       </nav>
 
-      {/* Columna Izquierda: Formulario */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center min-h-screen pt-24 pb-10 lg:py-0 bg-[#050205] relative z-10">
-        <Suspense fallback={<div className="text-pink-500 animate-pulse">Cargando registro...</div>}>
+      {/* Columna Izquierda: Formulario (Ahora con flex-col y centrado arreglado) */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center min-h-screen pt-24 pb-12 px-6 lg:px-12 bg-[#050205] relative z-10">
+        <Suspense fallback={<div className="text-pink-500 animate-pulse font-montserrat">Cargando registro...</div>}>
           <RegisterForm />
         </Suspense>
       </div>
 
-      {/* Columna Derecha: Hero Image */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-zinc-900 overflow-hidden fixed right-0 top-0 h-full border-l border-white/10">
+      {/* Columna Derecha: Hero Image (ARREGLADA sin fixed) */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#110a10] border-l border-white/10 min-h-screen flex-col justify-end">
         <Image 
             src={HERO_IMG}
             alt="xscort registro background"
             fill
-            className="object-cover opacity-60"
+            className="object-cover opacity-50"
             priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-transparent to-transparent"></div>
+        {/* Degradados */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050205] via-[#050205]/30 to-transparent"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#050205] via-transparent to-transparent"></div>
         
-        <div className="absolute bottom-0 left-0 p-16 z-10 max-w-xl">
-            <div className="inline-block px-3 py-1 bg-pink-600 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
+        {/* Textos sobre la imagen */}
+        <div className="relative z-10 p-12 lg:p-16 max-w-xl">
+            <div className="inline-block px-4 py-1.5 bg-pink-600 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6 font-montserrat shadow-lg shadow-pink-900/40">
                 Comunidad Exclusiva
             </div>
-            <h2 className="text-5xl font-bold font-fancy leading-tight mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold font-fancy leading-tight mb-8">
                 Tu perfil, tus reglas, <br/> <span className="text-pink-500">tu éxito.</span>
             </h2>
-            <ul className="space-y-4 text-gray-300 font-light">
+            <ul className="space-y-5 text-gray-300 font-montserrat font-medium text-sm">
                 <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    <span>Panel de control avanzado.</span>
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span>Panel de control avanzado y 100% privado.</span>
                 </li>
                 <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    <span>Visibilidad en las mejores ciudades.</span>
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span>Contacto directo y sin intermediarios.</span>
                 </li>
             </ul>
         </div>
       </div>
+
     </div>
   );
 }

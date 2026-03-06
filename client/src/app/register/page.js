@@ -116,8 +116,18 @@ function RegisterForm() {
     
     startTransition(async () => {
       try {
-        await register({ username, email, password, password2: password, fecha_nacimiento: fechaNacimiento });
-        await login({ username, password });
+        const cleanUsername = username.trim();
+        const cleanEmail = email.trim().toLowerCase();
+
+        await register({ 
+            username: cleanUsername, 
+            email: cleanEmail, 
+            password, 
+            password2: password, 
+            fecha_nacimiento: fechaNacimiento 
+        });
+        
+        await login({ username: cleanUsername, password });
         const { toast } = await import("sonner");
 
         if (role === "modelo") {
@@ -156,12 +166,12 @@ function RegisterForm() {
         
         if (errorData?.username) {
           setUsernameError("Usuario no disponible.");
-          toast.error("El nombre de usuario ya existe.");
+          toast.error("El nombre de usuario ya existe o tiene caracteres inválidos.");
         } else if (errorData?.email) {
-          setEmailError("Correo ya registrado.");
-          toast.error("Este correo ya está en uso.");
+          setEmailError("Correo ya registrado o inválido.");
+          toast.error("Este correo ya está en uso o no es válido.");
         } else {
-          toast.error(errorData?.detail || "Error al registrarse");
+          toast.error(errorData?.detail || errorData?.error || "Error al registrarse. Revisa tus datos.");
         }
       }
     });
@@ -242,7 +252,7 @@ function RegisterForm() {
               
               <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
                 <h2 className="text-lg font-bold text-white font-montserrat">
-                  Registro de {role === "modelo" ? "Escort" : "Cliente"}
+                  Registro de {role === "modelo" ? "Escort" : "Cuenta"}
                 </h2>
                 <button 
                   type="button" 
@@ -262,10 +272,16 @@ function RegisterForm() {
                   <User className="absolute left-4 top-3.5 w-5 h-5 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                   <input
                     className={`w-full bg-[#1a1018] border rounded-xl py-3 pl-12 pr-10 text-white placeholder:text-gray-600 focus:ring-1 outline-none transition-all font-montserrat font-medium ${usernameError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-pink-500'}`}
-                    placeholder={role === "modelo" ? "Ej: Mia_Santiago" : "Usuario único"}
+                    placeholder={role === "modelo" ? "Ej: mia_santiago" : "usuario123"}
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    
+                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+                    
                     required
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    autoComplete="username"
                   />
                   {checkingUsername && (
                     <Loader2 className="absolute right-4 top-3.5 w-5 h-5 text-pink-500 animate-spin" />
@@ -284,8 +300,15 @@ function RegisterForm() {
                     className={`w-full bg-[#1a1018] border rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-gray-600 focus:ring-1 outline-none transition-all font-montserrat font-medium ${emailError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-pink-500'}`}
                     placeholder="correo@ejemplo.com"
                     value={email}
-                    onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
+                    onChange={(e) => { 
+                        setEmail(e.target.value.toLowerCase().replace(/\s/g, '')); 
+                        setEmailError(""); 
+                    }}
                     required
+                    autoCapitalize="none"
+                    autoCorrect="off"     
+                    spellCheck="false"
+                    autoComplete="email"
                   />
                 </div>
                 {emailError && <p className="text-xs text-red-400 ml-1">{emailError}</p>}
@@ -389,7 +412,7 @@ function RegisterForm() {
                 {isPending ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
                 ) : (
-                    role === "modelo" ? "Crear Cuenta de Escort" : "Crear Cuenta de Cliente"
+                    role === "modelo" ? "Crear Cuenta de Escort" : "Finalizar Registro"
                 )}
               </button>
             </form>
